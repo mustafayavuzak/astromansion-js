@@ -129,7 +129,7 @@ const ALL = Object.freeze([
     kind: "get",
     fields: [],
     binary: false,
-    enveloped: undefined,
+    enveloped: false,
     summary: "List saved custom bodies",
   },
   {
@@ -148,7 +148,7 @@ const ALL = Object.freeze([
       "aspects",
     ],
     binary: false,
-    enveloped: undefined,
+    enveloped: false,
     summary: "Save and calculate a named custom Keplerian body",
   },
   {
@@ -159,7 +159,7 @@ const ALL = Object.freeze([
     kind: "birth_extra",
     fields: ["birth", "wheel", "aspects"],
     binary: false,
-    enveloped: undefined,
+    enveloped: false,
     summary: "Calculate a saved custom body by name",
   },
   {
@@ -170,7 +170,7 @@ const ALL = Object.freeze([
     kind: "delete",
     fields: ["name"],
     binary: false,
-    enveloped: undefined,
+    enveloped: false,
     summary: "Delete a saved custom body",
   },
   {

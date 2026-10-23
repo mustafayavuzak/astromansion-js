@@ -2559,9 +2559,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "type": "object",
-                  "title": "Response Save Custom Body"
+                  "$ref": "#/components/schemas/CustomBodySaveResponse"
                 }
               }
             }
@@ -2593,9 +2591,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "type": "object",
-                  "title": "Response Custom Bodies"
+                  "$ref": "#/components/schemas/CustomBodyListResponse"
                 }
               }
             }
@@ -2638,9 +2634,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Chart With Custom Body"
+                  "$ref": "#/components/schemas/CustomBodyPlacedResponse"
                 }
               }
             }
@@ -2681,9 +2675,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Delete Custom Body"
+                  "$ref": "#/components/schemas/CustomBodyDeleteResponse"
                 }
               }
             }
@@ -3269,6 +3261,36 @@
       "ClockTime": {
         "type": "string"
       },
+      "CustomBodyAspect": {
+        "properties": {
+          "a": {
+            "type": "string",
+            "title": "A"
+          },
+          "b": {
+            "type": "string",
+            "title": "B"
+          },
+          "aspect": {
+            "type": "string",
+            "title": "Aspect"
+          },
+          "orb": {
+            "type": "number",
+            "title": "Orb"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "a",
+          "b",
+          "aspect",
+          "orb"
+        ],
+        "title": "CustomBodyAspect",
+        "description": "An aspect between a custom body and one of the chart's points."
+      },
       "CustomBodyByNameRequest": {
         "properties": {
           "birth": {
@@ -3292,6 +3314,145 @@
         ],
         "title": "CustomBodyByNameRequest",
         "description": "A request that recomputes a saved custom body, named in the path, in a chart."
+      },
+      "CustomBodyDeleteResponse": {
+        "properties": {
+          "deleted": {
+            "type": "boolean",
+            "title": "Deleted"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "deleted"
+        ],
+        "title": "CustomBodyDeleteResponse",
+        "description": "Whether a custom body of the name was deleted."
+      },
+      "CustomBodyListResponse": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "bodies": {
+            "items": {
+              "$ref": "#/components/schemas/SavedCustomBody"
+            },
+            "type": "array",
+            "title": "Bodies"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "count",
+          "bodies"
+        ],
+        "title": "CustomBodyListResponse",
+        "description": "The custom bodies a caller saved, as the API lists them."
+      },
+      "CustomBodyPlacedResponse": {
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/CustomBodyPlacement"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "result"
+        ],
+        "title": "CustomBodyPlacedResponse",
+        "description": "The API's answer to a saved custom body placed again by its name."
+      },
+      "CustomBodyPlacement": {
+        "properties": {
+          "body": {
+            "$ref": "#/components/schemas/CustomBodyReading"
+          },
+          "wheel": {
+            "type": "string",
+            "title": "Wheel"
+          },
+          "aspects": {
+            "items": {
+              "$ref": "#/components/schemas/CustomBodyAspect"
+            },
+            "type": "array",
+            "title": "Aspects"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "body"
+        ],
+        "title": "CustomBodyPlacement",
+        "description": "A custom body placed in a birth chart, with the chart's wheel and the body's aspects when asked."
+      },
+      "CustomBodyReading": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "lon": {
+            "type": "number",
+            "title": "Lon"
+          },
+          "lat": {
+            "type": "number",
+            "title": "Lat"
+          },
+          "sign": {
+            "type": "string",
+            "title": "Sign"
+          },
+          "dms": {
+            "type": "string",
+            "title": "Dms"
+          },
+          "house": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "House"
+          },
+          "speed": {
+            "type": "number",
+            "title": "Speed"
+          },
+          "retrograde": {
+            "type": "boolean",
+            "title": "Retrograde"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "lon",
+          "lat",
+          "sign",
+          "dms",
+          "house",
+          "speed",
+          "retrograde",
+          "type"
+        ],
+        "title": "CustomBodyReading",
+        "description": "A body of the caller's orbital elements, placed in a birth chart."
       },
       "CustomBodySaveRequest": {
         "properties": {
@@ -3360,6 +3521,25 @@
           "save": true,
           "wheel": false
         }
+      },
+      "CustomBodySaveResponse": {
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/CustomBodyPlacement"
+          },
+          "saved": {
+            "type": "boolean",
+            "title": "Saved"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "result",
+          "saved"
+        ],
+        "title": "CustomBodySaveResponse",
+        "description": "The API's answer to a custom body placed from the elements a request sends, and saved when it asks."
       },
       "EclipseEvent": {
         "properties": {
@@ -4650,6 +4830,33 @@
         ],
         "title": "SaturnReturnResponse",
         "description": "The Saturn returns of one birth."
+      },
+      "SavedCustomBody": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "heliocentric": {
+            "type": "boolean",
+            "title": "Heliocentric"
+          },
+          "elements": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Elements"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "heliocentric",
+          "elements"
+        ],
+        "title": "SavedCustomBody",
+        "description": "A saved custom body as its owner reads it back and the engine recomputes it."
       },
       "ShareCardKind": {
         "type": "string",

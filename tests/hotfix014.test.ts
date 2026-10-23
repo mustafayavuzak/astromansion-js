@@ -32,6 +32,22 @@ const NATAL = Object.freeze({
   planets: [],
   aspects: [],
 }) satisfies JsonValue;
+/** A custom body placed for a birth, in the shape the API publishes for it. */
+const PLACED = Object.freeze({
+  result: {
+    body: {
+      name: "ceres",
+      lon: 120.5,
+      lat: 1.25,
+      sign: "Leo",
+      dms: "0°30'",
+      house: 5,
+      speed: 0.25,
+      retrograde: false,
+      type: "custom",
+    },
+  },
+}) satisfies JsonValue;
 
 /**
  * Build a client over a script.
@@ -57,7 +73,7 @@ beforeEach(() => {
 
 describe("a path parameter reaches the URL", () => {
   it("sends a named body to its own path", async () => {
-    const { client, fake } = scripted([jsonAnswer(200, {})]);
+    const { client, fake } = scripted([jsonAnswer(200, PLACED)]);
 
     await client.chartWithCustomBody("ceres", { birth: BIRTH });
 
@@ -65,7 +81,7 @@ describe("a path parameter reaches the URL", () => {
   });
 
   it("keeps a slash in a name inside its segment", async () => {
-    const { client, fake } = scripted([jsonAnswer(200, {})]);
+    const { client, fake } = scripted([jsonAnswer(200, PLACED)]);
 
     await client.chartWithCustomBody("a/b c", { birth: BIRTH });
 

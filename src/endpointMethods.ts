@@ -41,7 +41,11 @@ import type {
   BatchResponse,
   ChartRequest,
   CustomBodyByNameRequest,
+  CustomBodyDeleteResponse,
+  CustomBodyListResponse,
+  CustomBodyPlacedResponse,
   CustomBodySaveRequest,
+  CustomBodySaveResponse,
   EclipsesQuery,
   EclipsesResponse,
   GeoSearchResponse,
@@ -74,6 +78,10 @@ import { RequestBodies } from "./requestBodies.ts";
 import type { Result } from "./response.ts";
 import {
   isBatchResponse,
+  isCustomBodyDeleteResponse,
+  isCustomBodyListResponse,
+  isCustomBodyPlacedResponse,
+  isCustomBodySaveResponse,
   isEclipsesResponse,
   isGeoSearchResponse,
   isJobAcceptedResponse,
@@ -336,14 +344,14 @@ export abstract class EndpointMethods {
    * @param name - The name segment of the path, escaped into it.
    * @param fields - The request body, as {@link CustomBodyByNameRequest} describes it, sent as given. signal may stand beside its fields.
    * @param keywords - signal, and output for a document, when they come apart from the body.
-   * @returns The answer as a Result, checked against JsonObject.
+   * @returns The answer as a Result, checked against {@link CustomBodyPlacedResponse}.
    * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
    */
   async chartWithCustomBody(
     name: string,
     fields: BodyFields<CustomBodyByNameRequest>,
     keywords?: CallKeywords,
-  ): Promise<Result> {
+  ): Promise<Result<CustomBodyPlacedResponse>> {
     const call = RequestBodies.body(
       "chartWithCustomBody",
       fields,
@@ -356,10 +364,15 @@ export abstract class EndpointMethods {
       {
         json: call.json,
         technique: "chart_with_custom_body",
+        enveloped: false,
         signal: call.signal,
       },
     );
-    return readFreeForm(answer, isJsonObject, "chartWithCustomBody");
+    return readResult(
+      answer,
+      isCustomBodyPlacedResponse,
+      "chartWithCustomBody",
+    );
   }
 
   /**
@@ -443,17 +456,20 @@ export abstract class EndpointMethods {
    * Return every custom body saved by the current identity.
    *
    * @param params - signal, which cancels the call.
-   * @returns The answer as a Result, checked against JsonObject.
+   * @returns The answer as a Result, checked against {@link CustomBodyListResponse}.
    * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
    */
-  async customBodies(params?: CallKeywords): Promise<Result> {
+  async customBodies(
+    params?: CallKeywords,
+  ): Promise<Result<CustomBodyListResponse>> {
     const call = RequestBodies.params("customBodies", params);
     const answer = await this.request("GET", "/v1/custom-body/list", {
       params: call.params,
       technique: "custom_bodies",
+      enveloped: false,
       signal: call.signal,
     });
-    return readFreeForm(answer, isJsonObject, "customBodies");
+    return readResult(answer, isCustomBodyListResponse, "customBodies");
   }
 
   /**
@@ -578,10 +594,13 @@ export abstract class EndpointMethods {
    *
    * @param name - The name segment of the path, escaped into it.
    * @param params - signal, which cancels the call.
-   * @returns The answer as a Result, checked against JsonObject.
+   * @returns The answer as a Result, checked against {@link CustomBodyDeleteResponse}.
    * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
    */
-  async deleteCustomBody(name: string, params?: CallKeywords): Promise<Result> {
+  async deleteCustomBody(
+    name: string,
+    params?: CallKeywords,
+  ): Promise<Result<CustomBodyDeleteResponse>> {
     const call = RequestBodies.params("deleteCustomBody", params);
     const answer = await this.request(
       "DELETE",
@@ -589,10 +608,11 @@ export abstract class EndpointMethods {
       {
         params: call.params,
         technique: "delete_custom_body",
+        enveloped: false,
         signal: call.signal,
       },
     );
-    return readFreeForm(answer, isJsonObject, "deleteCustomBody");
+    return readResult(answer, isCustomBodyDeleteResponse, "deleteCustomBody");
   }
 
   /**
@@ -1672,20 +1692,21 @@ export abstract class EndpointMethods {
    *
    * @param fields - The request body, as {@link CustomBodySaveRequest} describes it, sent as given. signal may stand beside its fields.
    * @param keywords - signal, and output for a document, when they come apart from the body.
-   * @returns The answer as a Result, checked against JsonObject.
+   * @returns The answer as a Result, checked against {@link CustomBodySaveResponse}.
    * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
    */
   async saveCustomBody(
     fields: BodyFields<CustomBodySaveRequest>,
     keywords?: CallKeywords,
-  ): Promise<Result> {
+  ): Promise<Result<CustomBodySaveResponse>> {
     const call = RequestBodies.body("saveCustomBody", fields, keywords, false);
     const answer = await this.request("POST", "/v1/custom-body/save", {
       json: call.json,
       technique: "save_custom_body",
+      enveloped: false,
       signal: call.signal,
     });
-    return readFreeForm(answer, isJsonObject, "saveCustomBody");
+    return readResult(answer, isCustomBodySaveResponse, "saveCustomBody");
   }
 
   /**

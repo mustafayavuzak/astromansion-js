@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.0-alpha.2
+
+- The four custom body methods answer with typed results, as the API's
+  schema now describes them. `saveCustomBody` answers with the placement and
+  whether it was saved, and `chartWithCustomBody` with the placement.
+  `customBodies` answers with the count and the saved bodies, and
+  `deleteCustomBody` with whether the body was deleted. Each answer is
+  checked against its shape before it is returned, like every other typed
+  answer. The answers themselves did not change.
+
 ## 0.1.0-alpha.1
 
 - The package is the JavaScript twin of the Python SDK 0.3.2. It has the

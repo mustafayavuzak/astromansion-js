@@ -197,6 +197,16 @@ export type ChartRequest = Readonly<{
 export type ClockTime = string;
 
 /**
+ * An aspect between a custom body and one of the chart's points.
+ */
+export type CustomBodyAspect = Readonly<{
+  a: string;
+  b: string;
+  aspect: string;
+  orb: number;
+}>;
+
+/**
  * A request that recomputes a saved custom body, named in the path, in a chart.
  */
 export type CustomBodyByNameRequest = Readonly<{
@@ -209,6 +219,52 @@ export type CustomBodyByNameRequest = Readonly<{
    * @defaultValue `false`
    */
   aspects?: boolean;
+}>;
+
+/**
+ * Whether a custom body of the name was deleted.
+ */
+export type CustomBodyDeleteResponse = Readonly<{
+  deleted: boolean;
+}>;
+
+/**
+ * The custom bodies a caller saved, as the API lists them.
+ */
+export type CustomBodyListResponse = Readonly<{
+  count: number;
+  bodies: readonly SavedCustomBody[];
+}>;
+
+/**
+ * The API's answer to a saved custom body placed again by its name.
+ */
+export type CustomBodyPlacedResponse = Readonly<{
+  result: CustomBodyPlacement;
+}>;
+
+/**
+ * A custom body placed in a birth chart, with the chart's wheel and the body's aspects when asked.
+ */
+export type CustomBodyPlacement = Readonly<{
+  body: CustomBodyReading;
+  wheel?: string;
+  aspects?: readonly CustomBodyAspect[];
+}>;
+
+/**
+ * A body of the caller's orbital elements, placed in a birth chart.
+ */
+export type CustomBodyReading = Readonly<{
+  name: string;
+  lon: number;
+  lat: number;
+  sign: string;
+  dms: string;
+  house?: number | null;
+  speed: number;
+  retrograde: boolean;
+  type: string;
 }>;
 
 /**
@@ -237,6 +293,14 @@ export type CustomBodySaveRequest = Readonly<{
    * @defaultValue `false`
    */
   aspects?: boolean;
+}>;
+
+/**
+ * The API's answer to a custom body placed from the elements a request sends, and saved when it asks.
+ */
+export type CustomBodySaveResponse = Readonly<{
+  result: CustomBodyPlacement;
+  saved: boolean;
 }>;
 
 /**
@@ -814,6 +878,15 @@ export type SaturnReturnRequest = Readonly<{
  */
 export type SaturnReturnResponse = Readonly<{
   returns: readonly SaturnReturnEvent[];
+}>;
+
+/**
+ * A saved custom body as its owner reads it back and the engine recomputes it.
+ */
+export type SavedCustomBody = Readonly<{
+  name: string;
+  heliocentric: boolean;
+  elements: Readonly<Record<string, number>>;
 }>;
 
 /**

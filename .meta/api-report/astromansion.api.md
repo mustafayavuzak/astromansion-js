@@ -227,10 +227,54 @@ export function customBodies(...args: Parameters<AstroMansion["customBodies"]>):
 export function customBody(...args: Parameters<AstroMansion["customBody"]>): ReturnType<AstroMansion["customBody"]>;
 
 // @public
+export type CustomBodyAspect = Readonly<{
+    a: string;
+    b: string;
+    aspect: string;
+    orb: number;
+}>;
+
+// @public
 export type CustomBodyByNameRequest = Readonly<{
     birth: BirthPayload;
     wheel?: boolean;
     aspects?: boolean;
+}>;
+
+// @public
+export type CustomBodyDeleteResponse = Readonly<{
+    deleted: boolean;
+}>;
+
+// @public
+export type CustomBodyListResponse = Readonly<{
+    count: number;
+    bodies: readonly SavedCustomBody[];
+}>;
+
+// @public
+export type CustomBodyPlacedResponse = Readonly<{
+    result: CustomBodyPlacement;
+}>;
+
+// @public
+export type CustomBodyPlacement = Readonly<{
+    body: CustomBodyReading;
+    wheel?: string;
+    aspects?: readonly CustomBodyAspect[];
+}>;
+
+// @public
+export type CustomBodyReading = Readonly<{
+    name: string;
+    lon: number;
+    lat: number;
+    sign: string;
+    dms: string;
+    house?: number | null;
+    speed: number;
+    retrograde: boolean;
+    type: string;
 }>;
 
 // @public
@@ -242,6 +286,12 @@ export type CustomBodySaveRequest = Readonly<{
     save?: boolean;
     wheel?: boolean;
     aspects?: boolean;
+}>;
+
+// @public
+export type CustomBodySaveResponse = Readonly<{
+    result: CustomBodyPlacement;
+    saved: boolean;
 }>;
 
 // @public
@@ -314,15 +364,15 @@ export abstract class EndpointMethods {
     astrocartography(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     batch(fields: BodyFields<BatchRequest>, keywords?: CallKeywords): Promise<Result<BatchResponse>>;
     chart(fields: ChartFields<ChartRequest["options"]>, keywords?: ChartKeywords<ChartRequest["options"]>): Promise<Result>;
-    chartWithCustomBody(name: string, fields: BodyFields<CustomBodyByNameRequest>, keywords?: CallKeywords): Promise<Result>;
+    chartWithCustomBody(name: string, fields: BodyFields<CustomBodyByNameRequest>, keywords?: CallKeywords): Promise<Result<CustomBodyPlacedResponse>>;
     compatibility(birth: BirthFields, partner: BirthFields, keywords?: PairKeywords<PairTechniqueRequest["options"]>): Promise<Result>;
     composite(birth: BirthFields, partner: BirthFields, keywords?: PairKeywords<PairTechniqueRequest["options"]>): Promise<Result>;
-    customBodies(params?: CallKeywords): Promise<Result>;
+    customBodies(params?: CallKeywords): Promise<Result<CustomBodyListResponse>>;
     customBody(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     customLot(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     daily(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     declinations(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
-    deleteCustomBody(name: string, params?: CallKeywords): Promise<Result>;
+    deleteCustomBody(name: string, params?: CallKeywords): Promise<Result<CustomBodyDeleteResponse>>;
     dignities(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     draconic(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     eclipses(params: ParamsFields<EclipsesQuery>): Promise<Result<EclipsesResponse>>;
@@ -360,7 +410,7 @@ export abstract class EndpointMethods {
     abstract request(method: string, path: string, options?: RequestOptions): Promise<Result | string | Uint8Array>;
     retrogrades(params: ParamsFields<RetrogradesQuery>): Promise<Result<RetrogradesResponse>>;
     saturnReturn(fields: ChartFields<SaturnReturnRequest["options"]>, keywords?: ChartKeywords<SaturnReturnRequest["options"]>): Promise<Result<SaturnReturnResponse>>;
-    saveCustomBody(fields: BodyFields<CustomBodySaveRequest>, keywords?: CallKeywords): Promise<Result>;
+    saveCustomBody(fields: BodyFields<CustomBodySaveRequest>, keywords?: CallKeywords): Promise<Result<CustomBodySaveResponse>>;
     searchPlaces(params: ParamsFields<SearchPlacesQuery>): Promise<Result<GeoSearchResponse>>;
     solarArc(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     solarReturn(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
@@ -879,6 +929,13 @@ export type SaturnReturnResponse = Readonly<{
 
 // @public
 export function saveCustomBody(...args: Parameters<AstroMansion["saveCustomBody"]>): ReturnType<AstroMansion["saveCustomBody"]>;
+
+// @public
+export type SavedCustomBody = Readonly<{
+    name: string;
+    heliocentric: boolean;
+    elements: Readonly<Record<string, number>>;
+}>;
 
 // @public
 export function searchPlaces(...args: Parameters<AstroMansion["searchPlaces"]>): ReturnType<AstroMansion["searchPlaces"]>;

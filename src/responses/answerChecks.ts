@@ -25,6 +25,13 @@ import type {
   BatchItemRefusal,
   BatchResponse,
   BodyRow,
+  CustomBodyAspect,
+  CustomBodyDeleteResponse,
+  CustomBodyListResponse,
+  CustomBodyPlacedResponse,
+  CustomBodyPlacement,
+  CustomBodyReading,
+  CustomBodySaveResponse,
   EclipseEvent,
   EclipsesResponse,
   GeoSearchResponse,
@@ -45,6 +52,7 @@ import type {
   RetrogradesResponse,
   SaturnReturnEvent,
   SaturnReturnResponse,
+  SavedCustomBody,
   SummaryRow,
   TechniqueEnvelope,
   VoidMoonInterval,
@@ -146,6 +154,130 @@ export function isBodyRow(value: JsonValue | undefined): value is BodyRow {
       Number.isInteger(value["house"]) ||
       value["house"] === null) &&
     typeof value["retrograde"] === "boolean"
+  );
+}
+
+/**
+ * Check that a value has the {@link CustomBodyAspect} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member CustomBodyAspect requires, each of its published type.
+ */
+export function isCustomBodyAspect(
+  value: JsonValue | undefined,
+): value is CustomBodyAspect {
+  return (
+    isJsonObject(value) &&
+    typeof value["a"] === "string" &&
+    typeof value["b"] === "string" &&
+    typeof value["aspect"] === "string" &&
+    typeof value["orb"] === "number"
+  );
+}
+
+/**
+ * Check that a value has the {@link CustomBodyDeleteResponse} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member CustomBodyDeleteResponse requires, each of its published type.
+ */
+export function isCustomBodyDeleteResponse(
+  value: JsonValue | undefined,
+): value is CustomBodyDeleteResponse {
+  return isJsonObject(value) && typeof value["deleted"] === "boolean";
+}
+
+/**
+ * Check that a value has the {@link CustomBodyListResponse} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member CustomBodyListResponse requires, each of its published type.
+ */
+export function isCustomBodyListResponse(
+  value: JsonValue | undefined,
+): value is CustomBodyListResponse {
+  return (
+    isJsonObject(value) &&
+    Number.isInteger(value["count"]) &&
+    isJsonArrayOf(value["bodies"], (item0) => isSavedCustomBody(item0))
+  );
+}
+
+/**
+ * Check that a value has the {@link CustomBodyPlacedResponse} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member CustomBodyPlacedResponse requires, each of its published type.
+ */
+export function isCustomBodyPlacedResponse(
+  value: JsonValue | undefined,
+): value is CustomBodyPlacedResponse {
+  return isJsonObject(value) && isCustomBodyPlacement(value["result"]);
+}
+
+/**
+ * Check that a value has the {@link CustomBodyPlacement} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member CustomBodyPlacement requires, each of its published type.
+ */
+export function isCustomBodyPlacement(
+  value: JsonValue | undefined,
+): value is CustomBodyPlacement {
+  return (
+    isJsonObject(value) &&
+    isCustomBodyReading(value["body"]) &&
+    (value["wheel"] === undefined || typeof value["wheel"] === "string") &&
+    (value["aspects"] === undefined ||
+      isJsonArrayOf(value["aspects"], (item0) => isCustomBodyAspect(item0)))
+  );
+}
+
+/**
+ * Check that a value has the {@link CustomBodyReading} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member CustomBodyReading requires, each of its published type.
+ */
+export function isCustomBodyReading(
+  value: JsonValue | undefined,
+): value is CustomBodyReading {
+  return (
+    isJsonObject(value) &&
+    typeof value["name"] === "string" &&
+    typeof value["lon"] === "number" &&
+    typeof value["lat"] === "number" &&
+    typeof value["sign"] === "string" &&
+    typeof value["dms"] === "string" &&
+    (value["house"] === undefined ||
+      Number.isInteger(value["house"]) ||
+      value["house"] === null) &&
+    typeof value["speed"] === "number" &&
+    typeof value["retrograde"] === "boolean" &&
+    typeof value["type"] === "string"
+  );
+}
+
+/**
+ * Check that a value has the {@link CustomBodySaveResponse} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member CustomBodySaveResponse requires, each of its published type.
+ */
+export function isCustomBodySaveResponse(
+  value: JsonValue | undefined,
+): value is CustomBodySaveResponse {
+  return (
+    isJsonObject(value) &&
+    isCustomBodyPlacement(value["result"]) &&
+    typeof value["saved"] === "boolean"
   );
 }
 
@@ -557,6 +689,24 @@ export function isSaturnReturnResponse(
   return (
     isJsonObject(value) &&
     isJsonArrayOf(value["returns"], (item0) => isSaturnReturnEvent(item0))
+  );
+}
+
+/**
+ * Check that a value has the {@link SavedCustomBody} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member SavedCustomBody requires, each of its published type.
+ */
+export function isSavedCustomBody(
+  value: JsonValue | undefined,
+): value is SavedCustomBody {
+  return (
+    isJsonObject(value) &&
+    typeof value["name"] === "string" &&
+    typeof value["heliocentric"] === "boolean" &&
+    isJsonRecordOf(value["elements"], (member0) => typeof member0 === "number")
   );
 }
 
