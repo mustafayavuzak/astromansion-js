@@ -32,7 +32,7 @@ export interface ClientOptions {
   /**
    * The API key. Blank text counts as no key.
    *
-   * @defaultValue the ASTROMANSION_API_KEY environment variable
+   * @defaultValue the key setApiKey stored, then the ASTROMANSION_API_KEY environment variable
    */
   readonly apiKey?: string | undefined;
   /**
@@ -42,12 +42,12 @@ export interface ClientOptions {
    */
   readonly baseUrl?: string | undefined;
   /**
-   * The longest one attempt may take, in milliseconds, from sending the
-   * request to the last byte of the answer.
+   * The longest one attempt may take, in seconds, from sending the request
+   * to the last byte of the answer.
    *
-   * @defaultValue 30000
+   * @defaultValue 30
    */
-  readonly timeoutMs?: number | undefined;
+  readonly timeout?: number | undefined;
   /**
    * Repeats allowed after a failed first attempt, for a connection failure,
    * a rate limit, or a server error. A refusal the caller must fix is never
@@ -64,7 +64,7 @@ export interface ClientOptions {
    */
   readonly requireKey?: boolean | undefined;
   /**
-   * The fetch to send through.
+   * The fetch to send through, as tests and proxies do.
    *
    * @defaultValue the runtime's global fetch
    */
@@ -94,16 +94,22 @@ export interface RequestOptions {
   /**
    * Whether a success is a document, such as a PNG, a PDF, an SVG, or a CSV,
    * rather than JSON. A document comes back as bytes, or as text when the
-   * server sends text/plain.
+   * server sends text/plain. A failed document request still answers with
+   * the JSON error envelope.
    *
    * @defaultValue false
    */
   readonly binary?: boolean | undefined;
   /**
+   * The endpoint's name, which the Result reports when the body names none.
+   *
+   * @defaultValue undefined
+   */
+  readonly technique?: string | undefined;
+  /**
    * Whether a success is wrapped in `{technique, result}`. True opens any
    * body that has a result member, false never opens one, and undefined
-   * opens a body only when it is exactly the wrapper. Pass false to read the
-   * body exactly as the server sent it.
+   * opens a body only when it is exactly the wrapper.
    *
    * @defaultValue undefined
    */
@@ -111,18 +117,3 @@ export interface RequestOptions {
   /** Cancels the call wherever it is, in an attempt or in a wait between attempts. */
   readonly signal?: AbortSignal | undefined;
 }
-
-/**
- * How one call to a named method is sent.
- *
- * @remarks
- * A named method knows its path, its body, and how its answer is read, so
- * only the cancellation is left to the caller.
- *
- * @example
- * ```ts
- * const timeout = AbortSignal.timeout(10_000);
- * await client.natal({ birth }, { signal: timeout });   // gives up after 10 seconds
- * ```
- */
-export type CallOptions = Pick<RequestOptions, "signal">;

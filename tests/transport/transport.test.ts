@@ -55,7 +55,9 @@ function harness(
   const transport = new Transport({
     baseUrl: STAGING_ROOT,
     headers: { [API_HEADERS.KEY]: ISSUED_KEY },
-    timeoutMs: changes.timeoutMs ?? TRANSPORT_TIMING.ATTEMPT_TIMEOUT_MS,
+    timeoutMs:
+      changes.timeoutMs ??
+      TRANSPORT_TIMING.ATTEMPT_TIMEOUT_SECONDS * TRANSPORT_TIMING.MS_PER_SECOND,
     maxRetries: changes.maxRetries ?? 2,
     fetch: fake.fetch,
     wait: waits.wait,
@@ -254,7 +256,7 @@ describe("Transport.send", () => {
 
     const sending = transport.send(NATAL);
     const failure = expect(sending).rejects.toThrow(
-      `no answer within ${String(timeoutMs)} ms`,
+      `no answer within ${String(timeoutMs / TRANSPORT_TIMING.MS_PER_SECOND)} s`,
     );
     await vi.advanceTimersByTimeAsync(timeoutMs);
 

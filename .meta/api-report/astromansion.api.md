@@ -12,6 +12,12 @@ export type AcgMapRequest = Readonly<{
 }>;
 
 // @public
+export function almanac(...args: Parameters<AstroMansion["almanac"]>): ReturnType<AstroMansion["almanac"]>;
+
+// @public
+export function antiscia(...args: Parameters<AstroMansion["antiscia"]>): ReturnType<AstroMansion["antiscia"]>;
+
+// @public
 export type AspectRow = Readonly<{
     a: string;
     b: string;
@@ -20,11 +26,20 @@ export type AspectRow = Readonly<{
 }>;
 
 // @public
+export function aspects(...args: Parameters<AstroMansion["aspects"]>): ReturnType<AstroMansion["aspects"]>;
+
+// @public
+export function astrocartography(...args: Parameters<AstroMansion["astrocartography"]>): ReturnType<AstroMansion["astrocartography"]>;
+
+// @public
 export class AstroMansion extends EndpointMethods {
     constructor(options?: ClientOptions);
     readonly baseUrl: string;
+    bodies(...args: [...categories: string[], fields: BodiesFields]): Promise<Readonly<Record<string, JsonValue[]>>>;
+    close(): void;
     readonly maxRetries: number;
-    request(method: HttpMethod, path: string, options?: RequestOptions): Promise<JsonValue | string | Uint8Array>;
+    renderSharecard(birth?: BirthFields | null, partner?: BirthFields | null, keywords?: SharecardKeywords): Promise<Uint8Array | string>;
+    request(method: string, path: string, options?: RequestOptions): Promise<Result | string | Uint8Array>;
     toString(): string;
 }
 
@@ -40,7 +55,7 @@ export class AstroMansionError extends Error {
     readonly errorCode: string | undefined;
     readonly name: string;
     readonly requestId: string | undefined;
-    readonly retryAfterSeconds: number | undefined;
+    readonly retryAfter: number | undefined;
     readonly statusCode: number | undefined;
 }
 
@@ -50,7 +65,7 @@ export interface AstroMansionErrorInit {
     readonly details?: JsonValue | undefined;
     readonly errorCode?: string | undefined;
     readonly requestId?: string | undefined;
-    readonly retryAfterSeconds?: number | undefined;
+    readonly retryAfter?: number | undefined;
     readonly statusCode?: number | undefined;
 }
 
@@ -58,6 +73,9 @@ export interface AstroMansionErrorInit {
 export class AuthenticationError extends AstroMansionError {
     readonly name: string;
 }
+
+// @public
+export function batch(...args: Parameters<AstroMansion["batch"]>): ReturnType<AstroMansion["batch"]>;
 
 // @public
 export type BatchItem = Readonly<{
@@ -94,6 +112,9 @@ export type BatchResponse = Readonly<{
 export type BirthDate = string;
 
 // @public
+export type BirthFields = BirthPayload;
+
+// @public
 export type BirthPayload = Readonly<{
     date: BirthDate;
     time?: ClockTime | null;
@@ -110,6 +131,20 @@ export type BiWheelRequest = Readonly<{
 }>;
 
 // @public
+export function bodies(...args: [...categories: string[], fields: BodiesFields]): Promise<Readonly<Record<string, JsonValue[]>>>;
+
+// @public
+export type BodiesFields = BirthFields & CallKeywords & Readonly<{
+    pageSize?: number | undefined;
+    options?: ChartRequest["options"];
+    confirmLarge?: boolean | undefined;
+    onPage?: CatalogProgress | undefined;
+}>;
+
+// @public
+export type BodyFields<Body> = Body & CallKeywords;
+
+// @public
 export type BodyRow = Readonly<{
     name: string;
     sign?: string | null;
@@ -122,7 +157,23 @@ export type BodyRow = Readonly<{
 export type CalendarZone = "UTC";
 
 // @public
-export type CallOptions = Pick<RequestOptions, "signal">;
+export type CallKeywords = Readonly<{
+    signal?: AbortSignal | undefined;
+}>;
+
+// @public
+export type CatalogProgress = (done: number, left: number, rows: Readonly<Record<string, readonly JsonValue[]>>) => void;
+
+// @public
+export function chart(...args: Parameters<AstroMansion["chart"]>): ReturnType<AstroMansion["chart"]>;
+
+// @public
+export type ChartFields<Options> = BirthFields & ChartKeywords<Options>;
+
+// @public
+export type ChartKeywords<Options> = CallKeywords & Readonly<{
+    options?: Options | undefined;
+}>;
 
 // @public
 export type ChartOptions = Readonly<{
@@ -142,6 +193,9 @@ export type ChartRequest = Readonly<{
 }>;
 
 // @public
+export function chartWithCustomBody(...args: Parameters<AstroMansion["chartWithCustomBody"]>): ReturnType<AstroMansion["chartWithCustomBody"]>;
+
+// @public
 export interface ClientOptions {
     readonly apiKey?: string | undefined;
     readonly baseUrl?: string | undefined;
@@ -149,16 +203,28 @@ export interface ClientOptions {
     readonly fetch?: FetchFunction | undefined;
     readonly maxRetries?: number | undefined;
     readonly requireKey?: boolean | undefined;
-    readonly timeoutMs?: number | undefined;
+    readonly timeout?: number | undefined;
 }
 
 // @public
 export type ClockTime = string;
 
 // @public
+export function compatibility(...args: Parameters<AstroMansion["compatibility"]>): ReturnType<AstroMansion["compatibility"]>;
+
+// @public
+export function composite(...args: Parameters<AstroMansion["composite"]>): ReturnType<AstroMansion["composite"]>;
+
+// @public
 export class ConflictError extends AstroMansionError {
     readonly name: string;
 }
+
+// @public
+export function customBodies(...args: Parameters<AstroMansion["customBodies"]>): ReturnType<AstroMansion["customBodies"]>;
+
+// @public
+export function customBody(...args: Parameters<AstroMansion["customBody"]>): ReturnType<AstroMansion["customBody"]>;
 
 // @public
 export type CustomBodyByNameRequest = Readonly<{
@@ -179,6 +245,32 @@ export type CustomBodySaveRequest = Readonly<{
 }>;
 
 // @public
+export function customLot(...args: Parameters<AstroMansion["customLot"]>): ReturnType<AstroMansion["customLot"]>;
+
+// @public
+export function daily(...args: Parameters<AstroMansion["daily"]>): ReturnType<AstroMansion["daily"]>;
+
+// @public
+export function declinations(...args: Parameters<AstroMansion["declinations"]>): ReturnType<AstroMansion["declinations"]>;
+
+// @public
+export function defaultClient(): AstroMansion;
+
+// @public
+export function deleteCustomBody(...args: Parameters<AstroMansion["deleteCustomBody"]>): ReturnType<AstroMansion["deleteCustomBody"]>;
+
+// @public
+export function dignities(...args: Parameters<AstroMansion["dignities"]>): ReturnType<AstroMansion["dignities"]>;
+
+// @public
+export type DocumentKeywords = Readonly<{
+    output?: string | undefined;
+}>;
+
+// @public
+export function draconic(...args: Parameters<AstroMansion["draconic"]>): ReturnType<AstroMansion["draconic"]>;
+
+// @public
 export type EclipseEvent = Readonly<{
     kind: OpenSet<EclipseKind>;
     type: OpenSet<EclipseType>;
@@ -191,6 +283,9 @@ export type EclipseEvent = Readonly<{
 
 // @public
 export type EclipseKind = "solar" | "lunar";
+
+// @public
+export function eclipses(...args: Parameters<AstroMansion["eclipses"]>): ReturnType<AstroMansion["eclipses"]>;
 
 // @public
 export type EclipsesQuery = Readonly<{
@@ -209,79 +304,100 @@ export type EclipsesResponse = Readonly<{
 export type EclipseType = "total" | "annular" | "partial" | "penumbral" | "none";
 
 // @public
+export function electional(...args: Parameters<AstroMansion["electional"]>): ReturnType<AstroMansion["electional"]>;
+
+// @public
 export abstract class EndpointMethods {
-    almanac(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    antiscia(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    aspects(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    astrocartography(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    batch(body: BatchRequest, options?: CallOptions): Promise<BatchResponse>;
-    chart(body: ChartRequest, options?: CallOptions): Promise<JsonObject>;
-    chartWithCustomBody(name: string, body: CustomBodyByNameRequest, options?: CallOptions): Promise<JsonObject>;
-    compatibility(body: PairTechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    composite(body: PairTechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    customBodies(options?: CallOptions): Promise<JsonObject>;
-    customBody(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    customLot(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    daily(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    declinations(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    deleteCustomBody(name: string, options?: CallOptions): Promise<JsonObject>;
-    dignities(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    draconic(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    eclipses(query: EclipsesQuery, options?: CallOptions): Promise<EclipsesResponse>;
-    electional(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    exportCsv(body: RenderRequest, options?: CallOptions): Promise<Uint8Array>;
-    exportPdf(body: RenderRequest, options?: CallOptions): Promise<Uint8Array>;
-    exportReport(body: ReportExportRequest, options?: CallOptions): Promise<Uint8Array>;
-    firdaria(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    harmonics(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    health(options?: CallOptions): Promise<JsonValue>;
-    heliacal(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    heliocentric(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    horary(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    job(jobId: string, options?: CallOptions): Promise<JobStatusResponse>;
-    listJobs(options?: CallOptions): Promise<JobListResponse>;
-    lunarReturn(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    mansions(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    midpoints(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    moonPhases(query: MoonPhasesQuery, options?: CallOptions): Promise<MoonPhasesResponse>;
-    moonPhasesFor(body: MoonPhaseQueryRequest, options?: CallOptions): Promise<MoonPhaseQueryResponse>;
-    nakshatra(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    natal(body: NatalApiRequest, options?: CallOptions): Promise<NatalResponse>;
-    navamsa(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    pairAspects(body: PairTechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    parans(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    patterns(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    profection(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    progression(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    query(body: QueryRequest, options?: CallOptions): Promise<JsonValue>;
-    rectification(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    renderAstrocartography(body: AcgMapRequest, options?: CallOptions): Promise<Uint8Array>;
-    renderBiwheel(body: BiWheelRequest, options?: CallOptions): Promise<Uint8Array>;
-    renderPng(body: RenderRequest, options?: CallOptions): Promise<Uint8Array>;
-    renderSharecard(body: ShareCardRequest, options?: CallOptions): Promise<Uint8Array>;
-    renderSvg(body: RenderRequest, options?: CallOptions): Promise<Uint8Array>;
-    abstract request(method: HttpMethod, path: string, options?: RequestOptions): Promise<JsonValue | string | Uint8Array>;
-    retrogrades(query: RetrogradesQuery, options?: CallOptions): Promise<RetrogradesResponse>;
-    saturnReturn(body: SaturnReturnRequest, options?: CallOptions): Promise<SaturnReturnResponse>;
-    saveCustomBody(body: CustomBodySaveRequest, options?: CallOptions): Promise<JsonObject>;
-    searchPlaces(query: SearchPlacesQuery, options?: CallOptions): Promise<GeoSearchResponse>;
-    solarArc(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    solarReturn(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    stations(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    submitBatchJob(body: JobBatchRequest, options?: CallOptions): Promise<JobBatchResponse>;
-    submitJob(body: JobCreateRequest, options?: CallOptions): Promise<JobAcceptedResponse>;
-    synastry(body: PairTechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    timeline(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    transitHits(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    transits(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    vedicChart(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    vimshottari(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
-    voidMoon(query: VoidMoonQuery, options?: CallOptions): Promise<VoidMoonResponse>;
-    zodiacalReleasing(body: TechniqueRequest, options?: CallOptions): Promise<TechniqueEnvelope["result"]>;
+    almanac(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    antiscia(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    aspects(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    astrocartography(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    batch(fields: BodyFields<BatchRequest>, keywords?: CallKeywords): Promise<Result<BatchResponse>>;
+    chart(fields: ChartFields<ChartRequest["options"]>, keywords?: ChartKeywords<ChartRequest["options"]>): Promise<Result>;
+    chartWithCustomBody(name: string, fields: BodyFields<CustomBodyByNameRequest>, keywords?: CallKeywords): Promise<Result>;
+    compatibility(birth: BirthFields, partner: BirthFields, keywords?: PairKeywords<PairTechniqueRequest["options"]>): Promise<Result>;
+    composite(birth: BirthFields, partner: BirthFields, keywords?: PairKeywords<PairTechniqueRequest["options"]>): Promise<Result>;
+    customBodies(params?: CallKeywords): Promise<Result>;
+    customBody(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    customLot(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    daily(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    declinations(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    deleteCustomBody(name: string, params?: CallKeywords): Promise<Result>;
+    dignities(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    draconic(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    eclipses(params: ParamsFields<EclipsesQuery>): Promise<Result<EclipsesResponse>>;
+    electional(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    exportCsv(fields: ChartFields<RenderRequest["options"]> & DocumentKeywords, keywords?: ChartKeywords<RenderRequest["options"]> & DocumentKeywords): Promise<Uint8Array | string>;
+    exportPdf(fields: ChartFields<RenderRequest["options"]> & DocumentKeywords, keywords?: ChartKeywords<RenderRequest["options"]> & DocumentKeywords): Promise<Uint8Array | string>;
+    exportReport(fields: BodyFields<ReportExportRequest> & DocumentKeywords, keywords?: CallKeywords & DocumentKeywords): Promise<Uint8Array | string>;
+    firdaria(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    harmonics(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    health(params?: CallKeywords): Promise<Result | string>;
+    heliacal(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    heliocentric(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    horary(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    job(jobId: string, params?: CallKeywords): Promise<Result<JobStatusResponse>>;
+    listJobs(params?: CallKeywords): Promise<Result<JobListResponse>>;
+    lunarReturn(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    mansions(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    midpoints(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    moonPhases(params: ParamsFields<MoonPhasesQuery>): Promise<Result<MoonPhasesResponse>>;
+    moonPhasesFor(fields: BodyFields<MoonPhaseQueryRequest>, keywords?: CallKeywords): Promise<Result<MoonPhaseQueryResponse>>;
+    nakshatra(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    natal(fields: ChartFields<NatalApiRequest["options"]>, keywords?: ChartKeywords<NatalApiRequest["options"]>): Promise<Result<NatalResponse>>;
+    navamsa(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    pairAspects(birth: BirthFields, partner: BirthFields, keywords?: PairKeywords<PairTechniqueRequest["options"]>): Promise<Result>;
+    parans(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    patterns(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    profection(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    progression(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    query(fields: BodyFields<QueryRequest>, keywords?: CallKeywords): Promise<Result | string>;
+    rectification(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    renderAstrocartography(fields: BodyFields<AcgMapRequest> & DocumentKeywords, keywords?: CallKeywords & DocumentKeywords): Promise<Uint8Array | string>;
+    renderBiwheel(birth: BirthFields, partner: BirthFields, keywords?: PairKeywords<never> & DocumentKeywords): Promise<Uint8Array | string>;
+    renderPng(fields: ChartFields<RenderRequest["options"]> & DocumentKeywords, keywords?: ChartKeywords<RenderRequest["options"]> & DocumentKeywords): Promise<Uint8Array | string>;
+    renderSvg(fields: ChartFields<RenderRequest["options"]> & DocumentKeywords, keywords?: ChartKeywords<RenderRequest["options"]> & DocumentKeywords): Promise<Uint8Array | string>;
+    abstract request(method: string, path: string, options?: RequestOptions): Promise<Result | string | Uint8Array>;
+    retrogrades(params: ParamsFields<RetrogradesQuery>): Promise<Result<RetrogradesResponse>>;
+    saturnReturn(fields: ChartFields<SaturnReturnRequest["options"]>, keywords?: ChartKeywords<SaturnReturnRequest["options"]>): Promise<Result<SaturnReturnResponse>>;
+    saveCustomBody(fields: BodyFields<CustomBodySaveRequest>, keywords?: CallKeywords): Promise<Result>;
+    searchPlaces(params: ParamsFields<SearchPlacesQuery>): Promise<Result<GeoSearchResponse>>;
+    solarArc(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    solarReturn(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    stations(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    submitBatchJob(fields: BodyFields<JobBatchRequest>, keywords?: CallKeywords): Promise<Result<JobBatchResponse>>;
+    submitJob(fields: BodyFields<JobCreateRequest>, keywords?: CallKeywords): Promise<Result<JobAcceptedResponse>>;
+    synastry(birth: BirthFields, partner: BirthFields, keywords?: PairKeywords<PairTechniqueRequest["options"]>): Promise<Result>;
+    timeline(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    transitHits(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    transits(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    vedicChart(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    vimshottari(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    voidMoon(params: ParamsFields<VoidMoonQuery>): Promise<Result<VoidMoonResponse>>;
+    zodiacalReleasing(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
 }
 
 // @public
+export const ErrorPolicy: Readonly<{
+    isQuota(status: number, code: string | undefined): boolean;
+    isRetryable(status: number, code: string | undefined): boolean;
+    forResponse(status: number, code: string | undefined): typeof AstroMansionError;
+}>;
+
+// @public
+export function exportCsv(...args: Parameters<AstroMansion["exportCsv"]>): ReturnType<AstroMansion["exportCsv"]>;
+
+// @public
+export function exportPdf(...args: Parameters<AstroMansion["exportPdf"]>): ReturnType<AstroMansion["exportPdf"]>;
+
+// @public
+export function exportReport(...args: Parameters<AstroMansion["exportReport"]>): ReturnType<AstroMansion["exportReport"]>;
+
+// @public
 export type FetchFunction = (input: string, init: RequestInit) => Promise<Response>;
+
+// @public
+export function firdaria(...args: Parameters<AstroMansion["firdaria"]>): ReturnType<AstroMansion["firdaria"]>;
 
 // @public
 export type GeoSearchResponse = Readonly<{
@@ -289,13 +405,25 @@ export type GeoSearchResponse = Readonly<{
 }>;
 
 // @public
+export function harmonics(...args: Parameters<AstroMansion["harmonics"]>): ReturnType<AstroMansion["harmonics"]>;
+
+// @public
+export function health(...args: Parameters<AstroMansion["health"]>): ReturnType<AstroMansion["health"]>;
+
+// @public
+export function heliacal(...args: Parameters<AstroMansion["heliacal"]>): ReturnType<AstroMansion["heliacal"]>;
+
+// @public
+export function heliocentric(...args: Parameters<AstroMansion["heliocentric"]>): ReturnType<AstroMansion["heliocentric"]>;
+
+// @public
+export function horary(...args: Parameters<AstroMansion["horary"]>): ReturnType<AstroMansion["horary"]>;
+
+// @public
 export type HouseSystemName = string;
 
 // @public
-export const HTTP_METHODS: readonly ["GET", "POST", "DELETE"];
-
-// @public
-export type HttpMethod = (typeof HTTP_METHODS)[number];
+export function job(...args: Parameters<AstroMansion["job"]>): ReturnType<AstroMansion["job"]>;
 
 // @public
 export type JobAcceptedResponse = Readonly<{
@@ -410,7 +538,19 @@ export type LanguageCode = string;
 export type Latitude = number;
 
 // @public
+export function listJobs(...args: Parameters<AstroMansion["listJobs"]>): ReturnType<AstroMansion["listJobs"]>;
+
+// @public
 export type Longitude = number;
+
+// @public
+export function lunarReturn(...args: Parameters<AstroMansion["lunarReturn"]>): ReturnType<AstroMansion["lunarReturn"]>;
+
+// @public
+export function mansions(...args: Parameters<AstroMansion["mansions"]>): ReturnType<AstroMansion["mansions"]>;
+
+// @public
+export function midpoints(...args: Parameters<AstroMansion["midpoints"]>): ReturnType<AstroMansion["midpoints"]>;
 
 // @public
 export type MoonPhase = "New Moon" | "First Quarter" | "Full Moon" | "Last Quarter";
@@ -454,6 +594,12 @@ export type MoonPhaseQueryResponse = Readonly<{
 }>;
 
 // @public
+export function moonPhases(...args: Parameters<AstroMansion["moonPhases"]>): ReturnType<AstroMansion["moonPhases"]>;
+
+// @public
+export function moonPhasesFor(...args: Parameters<AstroMansion["moonPhasesFor"]>): ReturnType<AstroMansion["moonPhasesFor"]>;
+
+// @public
 export type MoonPhasesQuery = Readonly<{
     year: number;
     lang?: string;
@@ -465,6 +611,12 @@ export type MoonPhasesResponse = Readonly<{
     timezone?: OpenSet<CalendarZone>;
     events: readonly MoonPhaseEvent[];
 }>;
+
+// @public
+export function nakshatra(...args: Parameters<AstroMansion["nakshatra"]>): ReturnType<AstroMansion["nakshatra"]>;
+
+// @public
+export function natal(...args: Parameters<AstroMansion["natal"]>): ReturnType<AstroMansion["natal"]>;
 
 // @public
 export type NatalApiOptions = Readonly<{
@@ -492,6 +644,9 @@ export type NatalResponse = Readonly<{
 }>;
 
 // @public
+export function navamsa(...args: Parameters<AstroMansion["navamsa"]>): ReturnType<AstroMansion["navamsa"]>;
+
+// @public
 export class NotFoundError extends AstroMansionError {
     readonly name: string;
 }
@@ -503,11 +658,26 @@ export type OpenSet<Known extends string> = Known | (string & Record<never, neve
 export type PageSize = "a4" | "letter";
 
 // @public
+export function pairAspects(...args: Parameters<AstroMansion["pairAspects"]>): ReturnType<AstroMansion["pairAspects"]>;
+
+// @public
+export type PairKeywords<Options, Extra = unknown> = ChartKeywords<Options> & Extra;
+
+// @public
 export type PairTechniqueRequest = Readonly<{
     birth: BirthPayload;
     partner: BirthPayload;
     options?: Readonly<Record<string, JsonValue>>;
 }>;
+
+// @public
+export type ParamsFields<Query> = Query & CallKeywords;
+
+// @public
+export function parans(...args: Parameters<AstroMansion["parans"]>): ReturnType<AstroMansion["parans"]>;
+
+// @public
+export function patterns(...args: Parameters<AstroMansion["patterns"]>): ReturnType<AstroMansion["patterns"]>;
 
 // @public
 export class PermissionDeniedError extends AstroMansionError {
@@ -522,6 +692,15 @@ export type PlaceRow = Readonly<{
     lon: number;
     timezone: string;
 }>;
+
+// @public
+export function profection(...args: Parameters<AstroMansion["profection"]>): ReturnType<AstroMansion["profection"]>;
+
+// @public
+export function progression(...args: Parameters<AstroMansion["progression"]>): ReturnType<AstroMansion["progression"]>;
+
+// @public
+export function query(...args: Parameters<AstroMansion["query"]>): ReturnType<AstroMansion["query"]>;
 
 // @public
 export type QueryBorder = "sharp" | "round" | "ascii" | "rules" | "markdown";
@@ -554,10 +733,28 @@ export class RateLimitError extends AstroMansionError {
 }
 
 // @public
+export function rectification(...args: Parameters<AstroMansion["rectification"]>): ReturnType<AstroMansion["rectification"]>;
+
+// @public
+export function renderAstrocartography(...args: Parameters<AstroMansion["renderAstrocartography"]>): ReturnType<AstroMansion["renderAstrocartography"]>;
+
+// @public
+export function renderBiwheel(...args: Parameters<AstroMansion["renderBiwheel"]>): ReturnType<AstroMansion["renderBiwheel"]>;
+
+// @public
+export function renderPng(...args: Parameters<AstroMansion["renderPng"]>): ReturnType<AstroMansion["renderPng"]>;
+
+// @public
 export type RenderRequest = Readonly<{
     birth: BirthPayload;
     options?: Readonly<Record<string, JsonValue>>;
 }>;
+
+// @public
+export function renderSharecard(...args: Parameters<AstroMansion["renderSharecard"]>): ReturnType<AstroMansion["renderSharecard"]>;
+
+// @public
+export function renderSvg(...args: Parameters<AstroMansion["renderSvg"]>): ReturnType<AstroMansion["renderSvg"]>;
 
 // @public
 export type ReportExportRequest = Readonly<{
@@ -573,6 +770,9 @@ export type ReportExportRequest = Readonly<{
 }>;
 
 // @public
+export function request(method: string, path: string, options?: RequestOptions): Promise<Result | string | Uint8Array>;
+
+// @public
 export interface RequestOptions {
     readonly binary?: boolean | undefined;
     readonly enveloped?: boolean | undefined;
@@ -580,7 +780,43 @@ export interface RequestOptions {
     readonly params?: Readonly<Record<string, QueryValue>> | undefined;
     readonly requireKey?: boolean | undefined;
     readonly signal?: AbortSignal | undefined;
+    readonly technique?: string | undefined;
 }
+
+// @public
+export function reset(): void;
+
+// @public
+export type Result<Data extends JsonValue = JsonValue> = ResultMembers<Data> & ResultFields<Data>;
+
+// @public
+export const Result: ResultConstructor;
+
+// @public
+export interface ResultConstructor {
+    new <Data extends JsonValue = JsonValue>(data: Data, technique?: string, raw?: JsonValue): ResultMembers<Data>;
+    build(payload: JsonValue, technique?: string, enveloped?: boolean): Result;
+    isEnvelope(payload: JsonValue): boolean;
+    readonly prototype: ResultMembers;
+}
+
+// @public
+export type ResultFields<Data extends JsonValue> = JsonValue extends Data ? unknown : Data extends readonly (infer Item)[] ? Readonly<Record<number, Item>> : Data extends object ? Readonly<Omit<Data, ResultOwnName>> : unknown;
+
+// @public
+export interface ResultMembers<Data extends JsonValue = JsonValue> {
+    readonly data: Data;
+    readonly raw: JsonValue;
+    readonly result: Data extends {
+        readonly result: infer Inner;
+    } ? Inner : Data;
+    readonly technique: string | undefined;
+    toDict(): Data;
+    toString(): string;
+}
+
+// @public
+export type ResultOwnName = Exclude<keyof ResultMembers, "result">;
 
 // @public
 export type RetrogradeBody = Readonly<{
@@ -603,6 +839,9 @@ export type RetrogradeCycle = Readonly<{
 }>;
 
 // @public
+export function retrogrades(...args: Parameters<AstroMansion["retrogrades"]>): ReturnType<AstroMansion["retrogrades"]>;
+
+// @public
 export type RetrogradesQuery = Readonly<{
     year: number;
     lang?: string;
@@ -614,6 +853,9 @@ export type RetrogradesResponse = Readonly<{
     timezone?: OpenSet<CalendarZone>;
     bodies: readonly RetrogradeBody[];
 }>;
+
+// @public
+export function saturnReturn(...args: Parameters<AstroMansion["saturnReturn"]>): ReturnType<AstroMansion["saturnReturn"]>;
 
 // @public
 export type SaturnReturnEvent = Readonly<{
@@ -636,6 +878,12 @@ export type SaturnReturnResponse = Readonly<{
 }>;
 
 // @public
+export function saveCustomBody(...args: Parameters<AstroMansion["saveCustomBody"]>): ReturnType<AstroMansion["saveCustomBody"]>;
+
+// @public
+export function searchPlaces(...args: Parameters<AstroMansion["searchPlaces"]>): ReturnType<AstroMansion["searchPlaces"]>;
+
+// @public
 export type SearchPlacesQuery = Readonly<{
     q: string;
     limit?: number;
@@ -646,6 +894,17 @@ export type SearchPlacesQuery = Readonly<{
 export class ServerError extends AstroMansionError {
     readonly name: string;
 }
+
+// @public
+export function setApiKey(apiKey: string): void;
+
+// @public
+export type SharecardKeywords = CallKeywords & DocumentKeywords & Partial<BirthFields> & Readonly<{
+    type?: ShareCardKind | undefined;
+    name?: string | undefined;
+    names?: readonly string[] | undefined;
+    lang?: LanguageCode | undefined;
+}>;
 
 // @public
 export type ShareCardKind = "synastry" | "natal";
@@ -660,10 +919,28 @@ export type ShareCardRequest = Readonly<{
 }>;
 
 // @public
+export function solarArc(...args: Parameters<AstroMansion["solarArc"]>): ReturnType<AstroMansion["solarArc"]>;
+
+// @public
+export function solarReturn(...args: Parameters<AstroMansion["solarReturn"]>): ReturnType<AstroMansion["solarReturn"]>;
+
+// @public
+export function stations(...args: Parameters<AstroMansion["stations"]>): ReturnType<AstroMansion["stations"]>;
+
+// @public
+export function submitBatchJob(...args: Parameters<AstroMansion["submitBatchJob"]>): ReturnType<AstroMansion["submitBatchJob"]>;
+
+// @public
+export function submitJob(...args: Parameters<AstroMansion["submitJob"]>): ReturnType<AstroMansion["submitJob"]>;
+
+// @public
 export type SummaryRow = Readonly<{
     sign: string;
     dms: string;
 }>;
+
+// @public
+export function synastry(...args: Parameters<AstroMansion["synastry"]>): ReturnType<AstroMansion["synastry"]>;
 
 // @public
 export type TechniqueEnvelope = Readonly<{
@@ -684,12 +961,33 @@ export type TechniqueRequest = Readonly<{
 export type Theme = "light" | "dark";
 
 // @public
+export function timeline(...args: Parameters<AstroMansion["timeline"]>): ReturnType<AstroMansion["timeline"]>;
+
+// @public
 export type TimeZoneInput = number | string;
+
+// @public
+export function transitHits(...args: Parameters<AstroMansion["transitHits"]>): ReturnType<AstroMansion["transitHits"]>;
+
+// @public
+export function transits(...args: Parameters<AstroMansion["transits"]>): ReturnType<AstroMansion["transits"]>;
 
 // @public
 export class ValidationError extends AstroMansionError {
     readonly name: string;
 }
+
+// @public
+export function vedicChart(...args: Parameters<AstroMansion["vedicChart"]>): ReturnType<AstroMansion["vedicChart"]>;
+
+// @public
+export const VERSION: string;
+
+// @public
+export function vimshottari(...args: Parameters<AstroMansion["vimshottari"]>): ReturnType<AstroMansion["vimshottari"]>;
+
+// @public
+export function voidMoon(...args: Parameters<AstroMansion["voidMoon"]>): ReturnType<AstroMansion["voidMoon"]>;
 
 // @public
 export type VoidMoonInterval = Readonly<{
@@ -717,6 +1015,9 @@ export type VoidMoonResponse = Readonly<{
     timezone?: OpenSet<CalendarZone>;
     intervals: readonly VoidMoonInterval[];
 }>;
+
+// @public
+export function zodiacalReleasing(...args: Parameters<AstroMansion["zodiacalReleasing"]>): ReturnType<AstroMansion["zodiacalReleasing"]>;
 
 // (No @packageDocumentation comment for this package)
 

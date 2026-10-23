@@ -1,0 +1,74 @@
+name: publish
+
+on:
+  push:
+    tags:
+      - "v*"
+
+# The workflow only ever reads the repository. Publishing rights come from the
+# short-lived OIDC token minted in the publish job, not from a stored secret.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ["22", "24"]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm run check
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+      - run: npm ci
+      - run: npm run build
+      # The tag names the release, so a tag that disagrees with the version in
+      # package.json would publish something nobody asked for. Refuse instead.
+      - name: Tag must match the package version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "refs/tags/v$version" != "$GITHUB_REF" ]; then
+            echo "tag $GITHUB_REF does not match version $version" >&2
+            exit 1
+          fi
+      - run: npm pack
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: package
+          path: astromansion-*.tgz
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      id-token: write
+    steps:
+      # Node.js 24 ships an npm that publishes through the OIDC token, with
+      # provenance, once the package names this workflow as its trusted publisher.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: package
+      # A prerelease, such as v0.1.0-alpha.1, goes out under the next tag.
+      - name: Publish
+        run: |
+          case "$GITHUB_REF_NAME" in
+            *-*) npm publish astromansion-*.tgz --tag next ;;
+            *) npm publish astromansion-*.tgz ;;
+          esac

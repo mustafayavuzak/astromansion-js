@@ -31,3 +31,15 @@ export const PACKAGE_IDENTITY = Object.freeze({
    */
   USER_AGENT: `${name}/${version}`,
 } as const);
+
+/**
+ * The release this package is, as npm names it, the Python SDK's __version__.
+ *
+ * @example
+ * ```ts
+ * import { VERSION } from "astromansion";
+ *
+ * VERSION;   // "0.1.0-alpha.1"
+ * ```
+ */
+export const VERSION: string = version;

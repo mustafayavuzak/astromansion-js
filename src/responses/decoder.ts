@@ -8,7 +8,7 @@
  *   endpoint and every generated method:
  *
  *     status 400 and above          ──► the error class the policy names
- *     JSON body                     ──► the JSON, its wrapper opened
+ *     JSON body                     ──► a Result, its wrapper opened
  *     text/plain body               ──► text, as the server rendered it
  *     any other body (PNG, PDF, …)  ──► the document's bytes
  *
@@ -21,14 +21,15 @@
  *   a caller writes to a file, and it stays bytes.
  */
 
-import { API_HEADERS } from "../models/constants/api.ts";
+import { API_HEADERS, API_MEDIA_TYPES } from "../models/constants/api.ts";
 import { ERROR_ENVELOPE_KEYS } from "../models/constants/envelope.ts";
+import { HTTP_STATUS } from "../models/constants/http.ts";
 import type { AstroMansionError } from "../models/errors/api.ts";
 import type { JsonValue } from "../models/records/json.ts";
 import type { ReceivedResponse } from "../models/records/response.ts";
+import { Result } from "../response.ts";
 import { retryAfterSeconds } from "../transport/backoff.ts";
-import { openEnvelope } from "./envelope.ts";
-import { errorClassFor } from "./errorPolicy.ts";
+import { ErrorPolicy } from "./errorPolicy.ts";
 import { isJsonObject, parseJsonBody } from "./json.ts";
 
 /**
@@ -39,6 +40,8 @@ import { isJsonObject, parseJsonBody } from "./json.ts";
 export interface DecodeOptions {
   /** Whether a success is a document rather than JSON. A refusal is read as JSON either way. */
   readonly expectDocument: boolean;
+  /** The endpoint's name, which the Result reports when the body names none. */
+  readonly technique: string | undefined;
   /** What the endpoint publishes about its wrapper, or undefined to let the body decide. */
   readonly enveloped: boolean | undefined;
 }
@@ -56,17 +59,17 @@ interface ErrorParts {
  * @internal
  * @param received - The answer, its body read once.
  * @param options - How the answer is read.
- * @returns The JSON value, its wrapper opened, or text for text/plain, or bytes for any other document.
+ * @returns A Result for JSON, text for text/plain, or bytes for any other document.
  * @throws {@link AstroMansionError} or the subclass the error policy names, for a status of 400 or above.
  *
  * @example
  * ```ts
- * const asJson = { expectDocument: false, enveloped: undefined };
+ * const asJson = { expectDocument: false, technique: "natal", enveloped: undefined };
  * const headers = new Headers({ "X-Request-ID": "66c0af19" });
  *
- * const wrapped = '{"technique":"natal","result":{"sun":"Leo"}}';
+ * const wrapped = '{"technique":"chart","result":{"sun":"Leo"}}';
  * decodeResponse({ status: 200, headers, body: { kind: "text", text: wrapped } }, asJson);
- * // { sun: "Leo" }
+ * // a Result whose data is { sun: "Leo" } and whose technique is "chart"
  *
  * const table = new Headers({ "Content-Type": "text/plain" });
  * decodeResponse({ status: 200, headers: table, body: { kind: "text", text: "Saturn Taurus" } }, asJson);
@@ -80,17 +83,18 @@ interface ErrorParts {
 export function decodeResponse(
   received: ReceivedResponse,
   options: DecodeOptions,
-): JsonValue | string | Uint8Array {
+): Result | string | Uint8Array {
   const { status, headers, body } = received;
   const payload =
-    body.kind === "text" && (!options.expectDocument || status >= 400)
+    body.kind === "text" &&
+    (!options.expectDocument || status >= HTTP_STATUS.BAD_REQUEST)
       ? parseJsonBody(body.text)
       : undefined;
-  if (status >= 400) {
+  if (status >= HTTP_STATUS.BAD_REQUEST) {
     throw refusal(received, payload);
   }
   if (payload !== undefined) {
-    return openEnvelope(payload, options.enveloped);
+    return Result.build(payload, options.technique, options.enveloped);
   }
   if (body.kind === "bytes") {
     return body.bytes;
@@ -132,11 +136,12 @@ export function errorCodeOf(received: ReceivedResponse): string | undefined {
  *
  * @internal
  * @param contentType - The header's text, or null when the response carried none.
- * @returns True for text/plain with any parameters, such as a charset.
+ * @returns True for text/plain with any parameters, such as a charset, in any case and with any surrounding space.
  *
  * @example
  * ```ts
  * isPlainText("text/plain; charset=utf-8");   // true
+ * isPlainText("  TEXT/PLAIN  ");              // true
  * isPlainText("text/csv");                    // false
  * isPlainText(null);                          // false
  * ```
@@ -146,7 +151,7 @@ export function isPlainText(contentType: string | null): boolean {
     return false;
   }
   const mediaType = contentType.split(";")[0]?.trim().toLowerCase();
-  return mediaType === "text/plain";
+  return mediaType === API_MEDIA_TYPES.TEXT;
 }
 
 /**
@@ -162,7 +167,7 @@ function refusal(
 ): AstroMansionError {
   const { status, headers } = received;
   const parts = errorParts(payload);
-  const ErrorClass = errorClassFor(status, parts.code);
+  const ErrorClass = ErrorPolicy.forResponse(status, parts.code);
   const summary =
     parts.message === undefined || parts.message === ""
       ? `AstroMansion API returned HTTP ${String(status)}`
@@ -172,7 +177,7 @@ function refusal(
     errorCode: parts.code,
     details: parts.detail,
     requestId: headers.get(API_HEADERS.REQUEST_ID) ?? undefined,
-    retryAfterSeconds: retryAfterSeconds(headers),
+    retryAfter: retryAfterSeconds(headers),
   });
 }
 

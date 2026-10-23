@@ -4,7 +4,7 @@
  * CREDENTIALS TESTS: key precedence, masking, the path guard, and the client-side key guard
  */
 
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildHeaders,
   checkPath,
@@ -13,6 +13,7 @@ import {
   requireApiKey,
   resolveApiKey,
   resolveBaseUrl,
+  shareApiKey,
 } from "../src/credentials.ts";
 import {
   API_ADDRESS,
@@ -42,11 +43,32 @@ function settingsOver(
   return new Settings((name) => variables[name]);
 }
 
+afterEach(() => {
+  shareApiKey(undefined);
+});
+
 describe("resolveApiKey", () => {
-  it("prefers the option over the environment", () => {
+  it("prefers the option over the shared key and the environment", () => {
     const settings = settingsOver({ [API_ENVIRONMENT.KEY]: "am_from_env" });
+    shareApiKey("am_from_set_api_key");
 
     expect(resolveApiKey("am_from_option", settings)).toBe("am_from_option");
+  });
+
+  it("prefers the shared key over the environment", () => {
+    const settings = settingsOver({ [API_ENVIRONMENT.KEY]: "am_from_env" });
+    shareApiKey(" am_from_set_api_key ");
+
+    expect(resolveApiKey(undefined, settings)).toBe("am_from_set_api_key");
+  });
+
+  it("reads the environment again once the shared key is cleared", () => {
+    const settings = settingsOver({ [API_ENVIRONMENT.KEY]: "am_from_env" });
+    shareApiKey("am_from_set_api_key");
+
+    shareApiKey("   ");
+
+    expect(resolveApiKey(undefined, settings)).toBe("am_from_env");
   });
 
   it("falls back to the environment when the option is blank", () => {
@@ -55,19 +77,20 @@ describe("resolveApiKey", () => {
     expect(resolveApiKey("   ", settings)).toBe("am_from_env");
   });
 
-  it("finds no key when neither source holds one", () => {
+  it("finds no key when no source holds one", () => {
     expect(resolveApiKey(undefined, settingsOver())).toBeUndefined();
   });
 });
 
 describe("requireApiKey", () => {
-  it("refuses a missing key, naming the visitor option and the variable", () => {
+  it("refuses a missing key, naming every source and the visitor option", () => {
     const refusal = (): void => {
       requireApiKey(undefined);
     };
 
     expect(refusal).toThrow(AuthenticationError);
     expect(refusal).toThrow(/requireKey: false/);
+    expect(refusal).toThrow(/setApiKey/);
     expect(refusal).toThrow(API_ENVIRONMENT.KEY);
   });
 
@@ -110,11 +133,10 @@ describe("resolveBaseUrl", () => {
     );
   });
 
-  it.each([
-    ["a host without a scheme", "api.example.test"],
-    ["another scheme", "ftp://api.example.test"],
-  ])("refuses %s", (_case, root) => {
-    expect(() => resolveBaseUrl(root, settingsOver())).toThrow(ValidationError);
+  it("keeps a root as given, as Python's client does, so an unusable one fails at the first call", () => {
+    expect(resolveBaseUrl("api.example.test", settingsOver())).toBe(
+      "api.example.test",
+    );
   });
 });
 
@@ -168,8 +190,8 @@ describe("maskApiKey", () => {
 });
 
 describe("checkPath", () => {
-  it.each(["/v1/natal", "/v1/custom-body/list"])(
-    "passes the published path %s",
+  it.each(["/v1/natal", "/v1/custom-body/list", " /v1/natal "])(
+    "passes the published path %j, read without its surrounding whitespace as Python reads it",
     (path) => {
       expect(() => {
         checkPath(path);
@@ -182,13 +204,33 @@ describe("checkPath", () => {
     ["a scheme-relative URL", "//elsewhere.example/v1/natal"],
     ["a path outside /v1/", "/admin"],
     ["a path without its leading slash", "v1/natal"],
-    ["a path behind whitespace", " /v1/natal"],
     ["something that is not text", 42],
   ])("refuses %s", (_case, path) => {
     expect(() => {
       checkPath(path);
     }).toThrow(ValidationError);
   });
+
+  it.each<[string, unknown, string]>([
+    [
+      "an absolute URL",
+      "https://elsewhere.example/v1/natal",
+      `refusing to send the API key to 'https://elsewhere.example/v1/natal'`,
+    ],
+    [
+      "a path outside /v1/",
+      "/admin",
+      "path must begin with '/v1/', got '/admin'",
+    ],
+    ["a number", 42, "path must be a string, got number"],
+  ])(
+    "words the refusal of %s as Python's client does",
+    (_case, path, words) => {
+      expect(() => {
+        checkPath(path);
+      }).toThrow(words);
+    },
+  );
 });
 
 describe("guardClientSideKey", () => {

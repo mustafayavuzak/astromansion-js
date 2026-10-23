@@ -9,7 +9,6 @@
  *   of the configuration, so a test replaces both and never waits.
  */
 
-import type { HttpMethod } from "../enums/http.ts";
 import type { FetchFunction, QueryValue } from "./client.ts";
 import type { JsonValue } from "./json.ts";
 
@@ -52,7 +51,7 @@ export interface TransportConfig {
  */
 export interface OutgoingRequest {
   /** The HTTP method. */
-  readonly method: HttpMethod;
+  readonly method: string;
   /** A published path, already checked, beginning with /v1/. */
   readonly path: string;
   /** The JSON body, absent for a GET. */

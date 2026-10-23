@@ -37,6 +37,9 @@ prerelease_tag = "next"
 # npm pointed latest at the first version, a prerelease. Until 0.1.0, each
 # alpha moves latest too, so a default install gets the newest alpha.
 latest_follows_alphas = true
+# As in the Python SDK, a v* tag publishes through .github/workflows/publish.yml,
+# with npm's trusted publishing and no stored token. A prerelease goes out under next.
+publisher = "github_actions_oidc"
 
 [toolchain]
 node_supported = ">=22"
@@ -51,65 +54,82 @@ package_checks = ["publint", "@arethetypeswrong/cli"]
 
 [sdk]
 python_twin = "https://github.com/mustafayavuzak/astromansion-python"
-# 1A. The API's CORS admits only its own site, so 0.1.0 does not target browsers.
-browser_target = false
-# 2A. The API schema owns the method names (operationId) and the document media types.
+# The owner's instruction of 2026-10-23: the package is the npm twin of the
+# Python SDK, with its features, its behavior, its structure, and its README.
+# Nothing the Python SDK lacks is added. Every earlier decision that differed
+# from it was reopened, and the owner answered the five open questions the
+# same day: 1A, 2A, 3A, 4A, 5A.
+mirrors = "python_sdk"
+# 1A of 2026-10-23. The Python SDK's names, written in camelCase: render_png is renderPng, api_key is apiKey.
+naming = "python_names_in_camel_case"
+# The API schema owns the method names (operationId) and the document media types.
 method_names = "openapi_operation_id"
-# 3A. Fields the schema leaves untyped reach the caller as JSON values.
-untyped_responses = "json_value"
-# 4A. No module-level shortcuts and no process-wide key. One client per key.
-module_shortcuts = false
-# 5A. Documents come back as bytes or text. Writing a file is the caller's one line.
-node_file_entry = false
-# 8A. No runtime dependency. The client reads its own few shapes through complete type guards.
-runtime_dependencies = []
-# Typed responses are checked at run time by guards the generator writes (49.8).
+# 2A of 2026-10-23. Each answer is checked against its published shape before it is returned (49.8),
+# and one outside it rejects with the code unexpected_answer. The Python SDK returns it as it arrived.
 response_checks = "generated_guards"
-# A key is refused where it would ship to every user of the app, unless the caller allows it.
+# Fields the schema leaves untyped reach the caller as JSON values.
+untyped_responses = "json_value"
+# A JSON answer is a Result, as in Python. A field the answer does not carry reads as undefined,
+# where Python raises AttributeError (the owner's answer A of 2026-10-23).
+result_absent_field = "undefined"
+# The old 4A is reopened: the module-level shortcuts, setApiKey(), reset(), and defaultClient() exist, as in Python.
+module_shortcuts = true
+# The old 5A is reopened: every document method takes output, as in Python. Where the runtime has no
+# file system, output is refused before the request is sent (the owner's answer A of 2026-10-23).
+document_output = "output_argument"
+# 4A of 2026-10-23. No runtime dependency. A proxy or Tor goes through the caller's own fetch,
+# which the README shows, where Python installs httpx with SOCKS support.
+runtime_dependencies = []
+# 3A of 2026-10-23. A key is refused where it would ship to every user of the app, unless the caller allows it.
 client_side_key_guard = ["browser", "react-native"]
+# The API's CORS admits only its own site, so the package does not target browsers.
+browser_target = false
+# JavaScript's one client is asynchronous, the counterpart of Python's AsyncAstroMansion.
+client_classes = ["AstroMansion"]
 
 [architecture]
-# Approved 2026-10-23. [Mn] is the milestone that writes the file.
-# M2 split the generated checks out of models/schemas/api.ts into
-# responses/answerChecks.ts, so the models hold declarations only and the
-# behavior that reads an answer sits with the other answer readers.
+# 5A of 2026-10-23: the repository's root follows the Python SDK's, with the
+# generator in tools/, the example program in examples/, and EXAMPLES.md,
+# CHANGELOG.md, and the README's banner.webp at the root. This is the owner's
+# exception to the root rule of 34.15 for this repository. The decision record
+# and the API report stay in .meta/.
+# Each Python module has its counterpart, named in the column on the right.
 tree = """
 src/                                the package (only its build, dist/, ships)
-  index.ts                          [M1] the one public entry the exports map names
-  client.ts                         [M1] AstroMansion, options, request()  [M3] bodies(), renderSharecard()
-  endpointMethods.ts                [M2] generated, one method per endpoint
-  settings.ts                       [M1] the one reader of ASTROMANSION_API_KEY and ASTROMANSION_BASE_URL
-  credentials.ts                    [M1] key precedence, masking, the /v1/ path guard, the client-side key guard
-  requestBodies.ts                  [M3] birth validation and the request bodies
-  catalogPages.ts                   [M3] the /v1/chart catalog walk
-  transport/transport.ts            [M1] fetch, per-attempt timeout, retry loop
-  transport/backoff.ts              [M1] Retry-After and jittered exponential waits
-  responses/decoder.ts              [M1] error envelope, JSON, text/plain, document bytes
-  responses/envelope.ts             [M1] the {technique, result} wrapper
-  responses/errorPolicy.ts          [M1] status and code to error class, retry and quota decisions
-  responses/json.ts                 [M1] parsing and recognizing JSON values  [M2] the tests the checks call
-  responses/answers.ts              [M2] what a generated method returns: its checked JSON or its document
-  responses/answerChecks.ts         [M2] generated, one check per shape an answer reaches
-  models/constants/                 [M1] api, transport, envelope, errors, package  [M3] birth, catalog
-  models/enums/                     [M1] http  [M3] birth
-  models/errors/api.ts              [M1] AstroMansionError and its subclasses
-  models/records/                   [M1] json, client, response
-  models/schemas/api.ts             [M2] generated request, query, and answer types
-tests/                              mirrors src/, with vitest.config.ts and tsconfig.json
-  fakes/fetch.ts                    [M1] scripted fake fetch
-  meta/tools/generate/              [M2] the generator's tests, and the test that the generated modules match the snapshot
-  package/smoke.test.ts             [M4] the built package on Node 22, 24, 26, Bun and Deno
+  index.ts                          __init__.py, the one public entry the exports map names
+  client.ts                         client.py, AstroMansion, request(), bodies(), renderSharecard(), close()
+  endpointMethods.ts                _methods.py, generated, one method per endpoint
+  endpointShortcuts.ts              _shortcuts.py, generated, one module-level function per endpoint
+  shortcuts.ts                      shortcuts.py, setApiKey(), reset(), defaultClient(), request(), bodies()
+  requestBodies.ts                  _bodies.py, the request bodies and the birth's checks
+  catalogPages.ts                   _paging.py, the /v1/chart catalog walk
+  response.ts                       response.py, the Result every JSON answer becomes
+  settings.ts                       settings.py, the one reader of ASTROMANSION_API_KEY and ASTROMANSION_BASE_URL
+  credentials.ts                    _credentials.py, key precedence, masking, the /v1/ path guard, the client-side key guard
+  transport/transport.ts            client.py's request loop, fetch, per-attempt timeout, retries
+  transport/backoff.ts              _backoff.py, Retry-After and jittered exponential waits
+  responses/decoder.ts              _responses.py, error envelope, JSON, text/plain, document bytes
+  responses/documents.ts            _responses.py's save_document, writing a document to output
+  responses/errorPolicy.ts          errors.py's ErrorPolicy, status and code to error class, retry and quota
+  responses/answers.ts              what a generated method returns: its checked Result or its document
+  responses/answerChecks.ts         generated, one check per shape an answer reaches
+  responses/json.ts                 parsing and recognizing JSON values
+  models/constants/                 models/constants/, api, birth, bodies, catalog, endpoints (generated),
+                                    envelope, errors, http (Python's http.HTTPStatus), package, transport
+  models/enums/endpoints.ts         the request shapes of the endpoint table
+  models/errors/api.ts              errors.py, AstroMansionError and its subclasses
+  models/records/                   models/dataclasses/, arguments, client, endpoints, json, response, transport
+  models/schemas/api.ts             generated request, query, and answer types
+tests/                              tests/, each Python test file's counterpart, and the tests of src/'s modules
+tools/generate/                     tools/generate_endpoints.py, the generator, and openapi.v1.json, its snapshot
+examples/natal_chart.ts             examples/natal_chart.py
 .meta/
-  decisions.toml                    [M0] this record
-  api-report/                       [M1] API Extractor configuration and the committed API report
-  openapi/openapi.v1.json           [M2] snapshot of the API schema, the generator's only input
-  tools/generate/                   [M2] the generator: openApi (reads the snapshot), shapes (what a component is),
-                                    operations (the methods), docs (TSDoc), typeWriter, checkWriter, methodWriter,
-                                    generatedFiles (the three modules, formatted), main (npm run generate)
-  docs/                             [M4] CHANGELOG.md, examples.md
-.github/                            [M4] ci, publish, schema drift, dependabot
+  decisions.toml                    this record
+  api-report/                       API Extractor configuration and the committed API report
+.github/workflows/publish.yml       .github/workflows/publish.yml, test, build, and publish on a v* tag
 package.json, package-lock.json, tsconfig.json, tsup.config.ts, eslint.config.js, .gitignore
-README.md, LICENSE
+README.md, EXAMPLES.md, CHANGELOG.md, LICENSE
+banner.webp                         banner.webp, the README's banner, which the README loads from GitHub
 """
 
 [provenance]

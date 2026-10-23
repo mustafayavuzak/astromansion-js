@@ -20,14 +20,16 @@
  *   repeated, and neither is a spent quota.
  */
 
+import { HTTP_STATUS } from "./http.ts";
+
 /**
  * How long a client waits, in milliseconds unless a member says otherwise.
  *
  * @internal
  */
 export const TRANSPORT_TIMING = Object.freeze({
-  /** The longest one attempt may take, from sending the request to the last byte of the answer. */
-  ATTEMPT_TIMEOUT_MS: 30_000,
+  /** The longest one attempt may take, in seconds, from sending the request to the last byte of the answer. */
+  ATTEMPT_TIMEOUT_SECONDS: 30,
   /** The first backoff window. It doubles with every failed attempt. */
   BACKOFF_BASE_MS: 500,
   /** The longest wait before a retry, whatever Retry-After asks for. */
@@ -47,7 +49,13 @@ export const RETRY_POLICY = Object.freeze({
   /** Repeats allowed after the first attempt, unless the client's options say otherwise. */
   MAX_RETRIES: 2,
   /** The statuses that mean the server produced nothing and may answer the same request later. */
-  RETRYABLE_STATUSES: Object.freeze([429, 500, 502, 503, 504] as const),
+  RETRYABLE_STATUSES: Object.freeze([
+    HTTP_STATUS.TOO_MANY_REQUESTS,
+    HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    HTTP_STATUS.BAD_GATEWAY,
+    HTTP_STATUS.SERVICE_UNAVAILABLE,
+    HTTP_STATUS.GATEWAY_TIMEOUT,
+  ] as const),
 } as const);
 
 /**

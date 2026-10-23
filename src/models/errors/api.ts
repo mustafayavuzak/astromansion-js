@@ -50,7 +50,7 @@ export interface AstroMansionErrorInit {
   /** The server's id for the request, worth quoting in a support request. */
   readonly requestId?: string | undefined;
   /** How long the server asked the caller to wait before trying again, in seconds. */
-  readonly retryAfterSeconds?: number | undefined;
+  readonly retryAfter?: number | undefined;
   /** The failure underneath, such as the network error of a request that never arrived. */
   readonly cause?: unknown;
 }
@@ -70,7 +70,7 @@ export interface AstroMansionErrorInit {
  *   await client.request("POST", "/v1/natal", { json: { birth } });
  * } catch (error) {
  *   if (error instanceof RateLimitError) {
- *     // wait error.retryAfterSeconds, then try again
+ *     // wait error.retryAfter, then try again
  *   } else if (error instanceof AstroMansionError) {
  *     console.error(error.statusCode, error.errorCode, error.message);
  *     // 422 "validation" "lat must be within -90..90 | request_id=66c0af19"
@@ -90,7 +90,7 @@ export class AstroMansionError extends Error {
   /** The server's id for the request, worth quoting in a support request. */
   readonly requestId: string | undefined;
   /** How long the server asked the caller to wait before trying again, in seconds. */
-  readonly retryAfterSeconds: number | undefined;
+  readonly retryAfter: number | undefined;
 
   /**
    * Record what failed and what the server said about it.
@@ -107,7 +107,7 @@ export class AstroMansionError extends Error {
     this.errorCode = init.errorCode;
     this.details = init.details;
     this.requestId = init.requestId;
-    this.retryAfterSeconds = init.retryAfterSeconds;
+    this.retryAfter = init.retryAfter;
   }
 }
 
@@ -174,7 +174,7 @@ export class ValidationError extends AstroMansionError {
  * Too many requests inside the rate window (429).
  *
  * @remarks
- * It clears on its own after `retryAfterSeconds`, unlike a spent quota. The
+ * It clears on its own after `retryAfter`, unlike a spent quota. The
  * client has already retried it before raising it.
  */
 export class RateLimitError extends AstroMansionError {

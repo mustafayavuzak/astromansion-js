@@ -62,7 +62,7 @@ describe("AstroMansionError", () => {
       errorCode: "rate_limited",
       details: "per minute",
       requestId: "66c0af19",
-      retryAfterSeconds: 30,
+      retryAfter: 30,
     });
 
     expect(error).toMatchObject({
@@ -70,7 +70,7 @@ describe("AstroMansionError", () => {
       errorCode: "rate_limited",
       details: "per minute",
       requestId: "66c0af19",
-      retryAfterSeconds: 30,
+      retryAfter: 30,
     });
   });
 

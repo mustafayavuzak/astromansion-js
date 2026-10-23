@@ -19,6 +19,7 @@
  *   date form is ignored, and the exponential wait covers it.
  */
 
+import { API_HEADERS } from "../models/constants/api.ts";
 import {
   RETRY_AFTER,
   TRANSPORT_TIMING,
@@ -59,7 +60,7 @@ export function parseRetryAfterSeconds(
  * @returns Seconds to wait, or undefined when the response asked for none.
  */
 export function retryAfterSeconds(headers: Headers): number | undefined {
-  return parseRetryAfterSeconds(headers.get("Retry-After"));
+  return parseRetryAfterSeconds(headers.get(API_HEADERS.RETRY_AFTER));
 }
 
 /**

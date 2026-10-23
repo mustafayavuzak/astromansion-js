@@ -4,10 +4,10 @@
  * API CONSTANTS: where the API lives and the names it reads a key under
  *
  * Purpose:
- *   The address a client calls, the headers the API defines, the environment
- *   variables a client falls back to, and how a key is shown wherever it
- *   could be printed. The settings, the credentials, and the decoder quote
- *   these, so a change here changes all of them.
+ *   The address a client calls, the headers and the media type it reads by
+ *   name, the environment variables a client falls back to, and how a key is
+ *   shown wherever it could be printed. The settings, the credentials, the
+ *   backoff, and the decoder quote these, so a change here changes all of them.
  *
  * Key mask:
  *   A key is shown as its first VISIBLE_PREFIX_CHARS characters, the
@@ -33,7 +33,7 @@ export const API_ADDRESS = Object.freeze({
 } as const);
 
 /**
- * The headers the API defines beside the standard ones.
+ * The headers the client reads or sends by name.
  *
  * @internal
  */
@@ -42,6 +42,18 @@ export const API_HEADERS = Object.freeze({
   KEY: "X-API-Key",
   /** The header a response names its request with, worth quoting in a support request. */
   REQUEST_ID: "X-Request-ID",
+  /** The header a refusal asks for a pause with. */
+  RETRY_AFTER: "Retry-After",
+} as const);
+
+/**
+ * The media types the client tells apart.
+ *
+ * @internal
+ */
+export const API_MEDIA_TYPES = Object.freeze({
+  /** The one text type a client returns as text. Every other document stays bytes. */
+  TEXT: "text/plain",
 } as const);
 
 /**

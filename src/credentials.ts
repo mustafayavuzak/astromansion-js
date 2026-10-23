@@ -7,7 +7,12 @@
  *   A client resolves its key once, when it is built, and the first source
  *   that holds one wins:
  *
- *     apiKey option ──► ASTROMANSION_API_KEY ──► no key
+ *     apiKey option ──► setApiKey(...) ──► ASTROMANSION_API_KEY ──► no key
+ *
+ *   The key setApiKey stores is the package's one piece of mutable state, so
+ *   it has one owner here and one place that changes it. A client's own
+ *   apiKey option always wins over it, so one client can differ from the
+ *   module-level default.
  *
  *   The key travels only in the X-API-Key header, never in a query string
  *   where it would reach server logs and browser history. It travels only to
@@ -36,18 +41,61 @@ import {
 } from "./models/errors/api.ts";
 import type { Settings } from "./settings.ts";
 
+/** The key setApiKey stores for the module-level shortcuts. */
+class SharedKey {
+  #apiKey: string | undefined = undefined;
+
+  /**
+   * The stored key, or undefined when none is stored.
+   *
+   * @returns The key.
+   */
+  get apiKey(): string | undefined {
+    return this.#apiKey;
+  }
+
+  /**
+   * Store or clear the key.
+   *
+   * @param apiKey - The key. Undefined or blank text clears it, so the environment is read again.
+   */
+  share(apiKey: string | undefined): void {
+    const given = apiKey?.trim();
+    this.#apiKey = given === undefined || given === "" ? undefined : given;
+  }
+}
+
+/** The one store of the module-level key. */
+const sharedKey = new SharedKey();
+
 /**
- * Pick the key a client sends.
+ * Store or clear the key the module-level shortcuts use.
+ *
+ * @internal
+ * @param apiKey - The key. Undefined or blank text clears it.
+ *
+ * @example
+ * ```ts
+ * shareApiKey("am_live_key");   // clients built without apiKey now send it
+ * shareApiKey(undefined);       // they read ASTROMANSION_API_KEY again
+ * ```
+ */
+export function shareApiKey(apiKey: string | undefined): void {
+  sharedKey.share(apiKey);
+}
+
+/**
+ * Pick the key a client sends, in the documented order.
  *
  * @internal
  * @param option - The apiKey option. Blank text counts as no key.
- * @param settings - The environment, read when the option names no key.
- * @returns The option's key, else ASTROMANSION_API_KEY, each without surrounding whitespace, or undefined.
+ * @param settings - The environment, read when no other source names a key.
+ * @returns The option's key, else the shared key, else ASTROMANSION_API_KEY, each without surrounding whitespace, or undefined.
  *
  * @example
  * ```ts
  * resolveApiKey(" am_live ", settings);   // "am_live"
- * resolveApiKey("   ", settings);         // the environment's key, or undefined
+ * resolveApiKey("   ", settings);         // the shared key, the environment's key, or undefined
  * ```
  */
 export function resolveApiKey(
@@ -55,7 +103,10 @@ export function resolveApiKey(
   settings: Settings,
 ): string | undefined {
   const given = option?.trim();
-  return given === undefined || given === "" ? settings.apiKey() : given;
+  if (given !== undefined && given !== "") {
+    return given;
+  }
+  return sharedKey.apiKey ?? settings.apiKey();
 }
 
 /**
@@ -75,8 +126,9 @@ export function requireApiKey(
 ): asserts apiKey is string {
   if (apiKey === undefined) {
     throw new AuthenticationError(
-      `No API key. Pass new AstroMansion({ apiKey }), or set ${API_ENVIRONMENT.KEY}. ` +
-        "To try the visitor endpoints without an account, pass new AstroMansion({ requireKey: false }).",
+      "No API key. Pass new AstroMansion({ apiKey }), call setApiKey(...), " +
+        `or set ${API_ENVIRONMENT.KEY}. To try the visitor endpoints without an account, ` +
+        "pass new AstroMansion({ requireKey: false }).",
       { errorCode: CLIENT_ERROR_CODES.MISSING_API_KEY },
     );
   }
@@ -86,16 +138,18 @@ export function requireApiKey(
  * Pick the API root a client sends to.
  *
  * @internal
+ * @remarks
+ * Trimming here keeps a configured root ending in a slash from building
+ * //v1/natal.
+ *
  * @param option - The baseUrl option. Empty text counts as no root.
  * @param settings - The environment, read when the option names no root.
  * @returns The option, else ASTROMANSION_BASE_URL, else production, without trailing slashes.
- * @throws {@link ValidationError} when the root is not an http or https URL.
  *
  * @example
  * ```ts
  * resolveBaseUrl("https://api.example.test/", settings);   // "https://api.example.test"
  * resolveBaseUrl(undefined, settings);                      // "https://api.astromansion.com", or the environment's
- * resolveBaseUrl("api.example.test", settings);             // throws ValidationError
  * ```
  */
 export function resolveBaseUrl(
@@ -108,14 +162,6 @@ export function resolveBaseUrl(
       : option;
   while (chosen.endsWith("/")) {
     chosen = chosen.slice(0, -1);
-  }
-  if (!isHttpUrl(chosen)) {
-    throw new ValidationError(
-      `baseUrl must be an http or https URL, got ${JSON.stringify(chosen)}`,
-      {
-        errorCode: CLIENT_ERROR_CODES.VALIDATION,
-      },
-    );
   }
   return chosen;
 }
@@ -131,7 +177,7 @@ export function resolveBaseUrl(
  * ```ts
  * buildHeaders("am_Zx81qP0vT3kL9mN2bC7dE4fG6hJ1sR5w");
  * // { Accept: "application/json", "Content-Type": "application/json",
- * //   "User-Agent": "astromansion/0.1.0-rc.1", "X-API-Key": "am_Zx81qP0vT3kL9mN2bC7dE4fG6hJ1sR5w" }
+ * //   "User-Agent": "astromansion/0.1.0-alpha.1", "X-API-Key": "am_Zx81qP0vT3kL9mN2bC7dE4fG6hJ1sR5w" }
  * buildHeaders(undefined);   // the same without "X-API-Key", for a visitor
  * ```
  */
@@ -154,12 +200,12 @@ export function buildHeaders(
  *
  * @internal
  * @param apiKey - The key, or undefined.
- * @returns The key's two ends around an ellipsis, as the key mask in the API constants draws it.
+ * @returns Its first eight characters, an ellipsis, and its last four. A key of at most twelve characters becomes the ellipsis alone, since its two ends would be all of it. No key becomes none.
  *
  * @example
  * ```ts
  * maskApiKey("am_Zx81qP0vT3kL9mN2bC7dE4fG6hJ1sR5w");   // "am_Zx81q…sR5w"
- * maskApiKey("abcdefghijkl");                          // "…", since 12 characters are all ends
+ * maskApiKey("abcdefghijkl");                          // "…"
  * maskApiKey(undefined);                               // "none"
  * ```
  */
@@ -198,25 +244,23 @@ export function maskApiKey(apiKey: string | undefined): string {
  * ```
  */
 export function checkPath(path: unknown): asserts path is string {
-  const example = `${API_ADDRESS.PATH_PREFIX}natal`;
   if (typeof path !== "string") {
     throw new ValidationError(
-      `path must be text such as "${example}", got ${typeof path}`,
-      {
-        errorCode: CLIENT_ERROR_CODES.VALIDATION,
-      },
-    );
-  }
-  if (path.startsWith("//") || path.includes("://")) {
-    throw new ValidationError(
-      `path must be a relative API path such as "${example}". ` +
-        `The client refuses to send the API key to ${JSON.stringify(path)}.`,
+      `path must be a string, got ${path === null ? "null" : typeof path}`,
       { errorCode: CLIENT_ERROR_CODES.VALIDATION },
     );
   }
-  if (!path.startsWith(API_ADDRESS.PATH_PREFIX)) {
+  const text = path.trim();
+  if (text.startsWith("//") || text.includes("://")) {
     throw new ValidationError(
-      `path must begin with "${API_ADDRESS.PATH_PREFIX}", got ${JSON.stringify(path)}`,
+      `path must be a relative API path such as "${API_ADDRESS.PATH_PREFIX}natal", ` +
+        `refusing to send the API key to '${text}'`,
+      { errorCode: CLIENT_ERROR_CODES.VALIDATION },
+    );
+  }
+  if (!text.startsWith(API_ADDRESS.PATH_PREFIX)) {
+    throw new ValidationError(
+      `path must begin with '${API_ADDRESS.PATH_PREFIX}', got '${path}'`,
       { errorCode: CLIENT_ERROR_CODES.VALIDATION },
     );
   }
@@ -277,19 +321,4 @@ function clientSidePlace(): string | undefined {
     return "a browser page";
   }
   return undefined;
-}
-
-/**
- * Tell whether a text is an absolute http or https URL.
- *
- * @param text - The candidate root.
- * @returns True when it parses as a URL with the http or https scheme.
- */
-function isHttpUrl(text: string): boolean {
-  try {
-    const parsed = new URL(text);
-    return parsed.protocol === "https:" || parsed.protocol === "http:";
-  } catch {
-    return false;
-  }
 }

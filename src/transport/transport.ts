@@ -44,8 +44,10 @@ import type {
   OutgoingRequest,
   TransportConfig,
 } from "../models/records/transport.ts";
+import { HTTP_STATUS } from "../models/constants/http.ts";
+import { TRANSPORT_TIMING } from "../models/constants/transport.ts";
 import { errorCodeOf, isPlainText } from "../responses/decoder.ts";
-import { isRetryable } from "../responses/errorPolicy.ts";
+import { ErrorPolicy } from "../responses/errorPolicy.ts";
 import { backoffDelayMs, retryAfterSeconds } from "./backoff.ts";
 
 /** A call made ready once, before its first attempt, and sent the same by every attempt. */
@@ -90,8 +92,8 @@ export class Transport {
    *
    * @param request - The call, its path already checked.
    * @returns The final answer, of any status. The decoder turns a refusal into its error.
-   * @throws {@link ValidationError} before the first attempt, when the body cannot be written as JSON or the URL cannot be built.
-   * @throws {@link AstroMansionConnectionError} when no answer arrived after every retry, with the last failure as its cause.
+   * @throws {@link ValidationError} before the first attempt, when the body cannot be written as JSON.
+   * @throws {@link AstroMansionConnectionError} when the root and the path form no URL, or no answer arrived after every retry, with the last failure as its cause.
    * @throws The caller's abort reason, when the caller's signal aborts.
    */
   async send(request: OutgoingRequest): Promise<ReceivedResponse> {
@@ -116,7 +118,10 @@ export class Transport {
         continue;
       }
       const { response } = outcome;
-      if (isLast || !isRetryable(response.status, errorCodeOf(response))) {
+      if (
+        isLast ||
+        !ErrorPolicy.isRetryable(response.status, errorCodeOf(response))
+      ) {
         return response;
       }
       await wait(
@@ -165,7 +170,7 @@ export class Transport {
       throwIfAborted(signal);
       // The caller's abort has thrown above, so an aborted attempt here is the timeout's.
       const reason = controller.signal.aborted
-        ? `no answer within ${String(timeoutMs)} ms`
+        ? `no answer within ${String(timeoutMs / TRANSPORT_TIMING.MS_PER_SECOND)} s`
         : describe(error);
       return { kind: "failed", error, reason };
     } finally {
@@ -179,16 +184,16 @@ export class Transport {
    *
    * @param request - The call.
    * @returns The absolute URL, with every defined parameter in its query.
-   * @throws {@link ValidationError} when the root and the path do not form a URL.
+   * @throws {@link AstroMansionConnectionError} when the root and the path do not form a URL, since no request can reach such a root.
    */
   #url(request: OutgoingRequest): string {
     let url: URL;
     try {
       url = new URL(`${this.#config.baseUrl}${request.path}`);
     } catch (error: unknown) {
-      throw new ValidationError(
-        `${request.path} does not form a URL with ${this.#config.baseUrl}`,
-        { errorCode: CLIENT_ERROR_CODES.VALIDATION, cause: error },
+      throw new AstroMansionConnectionError(
+        `could not reach the AstroMansion API: ${this.#config.baseUrl}${request.path} is not a URL`,
+        { cause: error },
       );
     }
     for (const [name, value] of Object.entries(request.params ?? {})) {
@@ -268,7 +273,7 @@ async function readBody(
 ): Promise<ResponseBody> {
   const asText =
     !expectDocument ||
-    response.status >= 400 ||
+    response.status >= HTTP_STATUS.BAD_REQUEST ||
     isPlainText(response.headers.get("Content-Type"));
   return asText
     ? { kind: "text", text: await response.text() }

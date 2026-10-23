@@ -15,6 +15,7 @@ import {
 } from "../../src/models/errors/api.ts";
 import type { JsonValue } from "../../src/models/records/json.ts";
 import type { ReceivedResponse } from "../../src/models/records/response.ts";
+import { Result } from "../../src/response.ts";
 import {
   type DecodeOptions,
   decodeResponse,
@@ -23,12 +24,35 @@ import {
 } from "../../src/responses/decoder.ts";
 
 /** Read the answer as JSON, letting the body decide its wrapper. */
-const AS_JSON: DecodeOptions = { expectDocument: false, enveloped: undefined };
+const AS_JSON: DecodeOptions = {
+  expectDocument: false,
+  technique: undefined,
+  enveloped: undefined,
+};
 /** Read the answer as a document. */
 const AS_DOCUMENT: DecodeOptions = {
   expectDocument: true,
+  technique: undefined,
   enveloped: undefined,
 };
+
+/**
+ * Decode an answer that must be JSON, and return its Result.
+ *
+ * @param received - The answer.
+ * @param options - How the answer is read.
+ * @returns The Result.
+ */
+function resultOf(
+  received: ReceivedResponse,
+  options: DecodeOptions = AS_JSON,
+): Result {
+  const decoded = decodeResponse(received, options);
+  if (!(decoded instanceof Result)) {
+    throw new Error("the answer did not become a Result");
+  }
+  return decoded;
+}
 /** The request id the API's answers carry in these tests. */
 const REQUEST_ID = "66c0af19";
 
@@ -123,7 +147,7 @@ describe("decodeResponse refusals", () => {
     );
 
     expect(error).toBeInstanceOf(RateLimitError);
-    expect(error).toMatchObject({ retryAfterSeconds: 7 });
+    expect(error).toMatchObject({ retryAfter: 7 });
   });
 
   it("keeps a spent quota apart from a rate limit", () => {
@@ -172,27 +196,41 @@ describe("decodeResponse refusals", () => {
 });
 
 describe("decodeResponse successes", () => {
-  it("opens the wrapper of a JSON answer", () => {
+  it("opens the wrapper of a JSON answer, named as the server named it", () => {
     const answer = receivedJson(200, {
-      technique: "natal",
+      technique: "chart",
       result: { summary: { Sun: "Leo" } },
     });
 
-    expect(decodeResponse(answer, AS_JSON)).toEqual({
-      summary: { Sun: "Leo" },
+    const result = resultOf(answer, { ...AS_JSON, technique: "natal" });
+
+    expect(result.data).toEqual({ summary: { Sun: "Leo" } });
+    expect(result.technique).toBe("chart");
+  });
+
+  it("names a direct answer for the endpoint that was called", () => {
+    const result = resultOf(receivedJson(200, { summary: {} }), {
+      ...AS_JSON,
+      technique: "natal",
     });
+
+    expect(result.technique).toBe("natal");
   });
 
   it("keeps a JSON answer whole when told it is not wrapped", () => {
     const body = { technique: "natal", result: { summary: {} } };
 
-    expect(
-      decodeResponse(receivedJson(200, body), { ...AS_JSON, enveloped: false }),
-    ).toEqual(body);
+    const result = resultOf(receivedJson(200, body), {
+      ...AS_JSON,
+      enveloped: false,
+    });
+
+    expect(result.data).toEqual(body);
+    expect(result.raw).toEqual(body);
   });
 
-  it("returns JSON's null as null", () => {
-    expect(decodeResponse(receivedText(200, "null"), AS_JSON)).toBeNull();
+  it("returns JSON's null as a Result whose data is null", () => {
+    expect(resultOf(receivedText(200, "null")).data).toBeNull();
   });
 
   it("returns a plain text answer as text", () => {

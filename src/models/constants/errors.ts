@@ -40,4 +40,6 @@ export const CLIENT_ERROR_CODES = Object.freeze({
   ABORTED: "aborted",
   /** An answer did not have the shape the API publishes for it. */
   UNEXPECTED_ANSWER: "unexpected_answer",
+  /** A catalog walk's answers would never end it, or ended it too late to be whole. */
+  PAGINATION: "pagination",
 } as const);

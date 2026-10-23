@@ -25,10 +25,10 @@
  */
 
 import { API_ERROR_CODES } from "../models/constants/errors.ts";
+import { HTTP_STATUS } from "../models/constants/http.ts";
 import { RETRY_POLICY } from "../models/constants/transport.ts";
 import {
   AstroMansionError,
-  type AstroMansionErrorInit,
   AuthenticationError,
   ConflictError,
   NotFoundError,
@@ -40,104 +40,114 @@ import {
 } from "../models/errors/api.ts";
 
 /**
- * A class of failure, built from a summary and what the failure carries.
+ * Decide which error a refused answer becomes, and whether to repeat the request.
  *
- * @internal
- */
-export type AstroMansionErrorClass = new (
-  summary: string,
-  init?: AstroMansionErrorInit,
-) => AstroMansionError;
-
-/**
- * Tell whether a refusal means a spent allowance rather than a busy moment.
- *
- * @internal
- * @param status - The HTTP status.
- * @param code - The machine code from the error envelope, when there is one.
- * @returns True for a 429 whose code is one of the API's quota codes, compared without regard to case.
- *
- * @example
- * ```ts
- * isQuota(429, "quota_exceeded");   // true
- * isQuota(429, "rate_limited");     // false
- * isQuota(402, "quota_exceeded");   // false, 402 is a quota without the code
- * ```
- */
-export function isQuota(status: number, code: string | undefined): boolean {
-  if (status !== 429 || code === undefined) {
-    return false;
-  }
-  const normalized = code.toLowerCase();
-  return API_ERROR_CODES.QUOTA.some((quotaCode) => quotaCode === normalized);
-}
-
-/**
- * Tell whether repeating a refused request could ever help.
- *
- * @internal
  * @remarks
- * A spent quota is not a busy moment. It answers 429 like a rate limit, and
- * only a new period or a larger plan clears it, so asking again spends more
- * round trips to be told the same thing.
- *
- * @param status - The HTTP status.
- * @param code - The machine code from the error envelope, when there is one.
- * @returns True when another attempt is worth making.
+ * The taxonomy and the mapping onto it live in one module, since a class
+ * added to the errors without a rule here would never be raised.
  *
  * @example
  * ```ts
- * isRetryable(503, undefined);          // true
- * isRetryable(429, "quota_exceeded");   // false
- * isRetryable(422, undefined);          // false
+ * ErrorPolicy.isQuota(429, "quota_exceeded");   // true
+ * ErrorPolicy.isRetryable(503, undefined);      // true
+ * ErrorPolicy.forResponse(401, undefined);      // AuthenticationError
  * ```
  */
-export function isRetryable(status: number, code: string | undefined): boolean {
-  return (
-    RETRY_POLICY.RETRYABLE_STATUSES.some((retryable) => retryable === status) &&
-    !isQuota(status, code)
-  );
-}
+export const ErrorPolicy = Object.freeze({
+  /**
+   * Tell whether a refusal means a spent allowance rather than a busy moment.
+   *
+   * @param status - The HTTP status.
+   * @param code - The machine code from the error envelope, when there is one.
+   * @returns True for a 429 whose code is one of the API's quota codes, compared without regard to case.
+   *
+   * @example
+   * ```ts
+   * ErrorPolicy.isQuota(429, "quota_exceeded");   // true
+   * ErrorPolicy.isQuota(429, "rate_limited");     // false
+   * ErrorPolicy.isQuota(402, "quota_exceeded");   // false, 402 is a quota without the code
+   * ```
+   */
+  isQuota(status: number, code: string | undefined): boolean {
+    if (
+      status !== HTTP_STATUS.TOO_MANY_REQUESTS ||
+      code === undefined ||
+      code === ""
+    ) {
+      return false;
+    }
+    const normalized = code.toLowerCase();
+    return API_ERROR_CODES.QUOTA.some((quotaCode) => quotaCode === normalized);
+  },
 
-/**
- * Name the class of failure a refusal becomes, by the rules drawn above.
- *
- * @internal
- * @param status - The HTTP status, 400 or above.
- * @param code - The machine code from the error envelope, when there is one.
- * @returns The class to raise.
- *
- * @example
- * ```ts
- * errorClassFor(401, undefined);   // AuthenticationError
- * errorClassFor(429, "quota");     // QuotaExceededError
- * errorClassFor(502, undefined);   // ServerError
- * errorClassFor(418, undefined);   // AstroMansionError
- * ```
- */
-export function errorClassFor(
-  status: number,
-  code: string | undefined,
-): AstroMansionErrorClass {
-  if (isQuota(status, code)) {
-    return QuotaExceededError;
-  }
-  switch (status) {
-    case 401:
-      return AuthenticationError;
-    case 402:
+  /**
+   * Tell whether repeating a refused request could ever help.
+   *
+   * @remarks
+   * A spent quota is not a busy moment. It answers 429 like a rate limit, and
+   * only a new period or a larger plan clears it, so asking again spends more
+   * round trips to be told the same thing.
+   *
+   * @param status - The HTTP status.
+   * @param code - The machine code from the error envelope, when there is one.
+   * @returns True when another attempt is worth making.
+   *
+   * @example
+   * ```ts
+   * ErrorPolicy.isRetryable(503, undefined);          // true
+   * ErrorPolicy.isRetryable(429, "quota_exceeded");   // false
+   * ErrorPolicy.isRetryable(422, undefined);          // false
+   * ```
+   */
+  isRetryable(status: number, code: string | undefined): boolean {
+    return (
+      RETRY_POLICY.RETRYABLE_STATUSES.some(
+        (retryable) => retryable === status,
+      ) && !ErrorPolicy.isQuota(status, code)
+    );
+  },
+
+  /**
+   * Name the class of failure a refusal becomes, by the rules drawn above.
+   *
+   * @param status - The HTTP status, 400 or above.
+   * @param code - The machine code from the error envelope, when there is one.
+   * @returns The class to raise.
+   *
+   * @example
+   * ```ts
+   * ErrorPolicy.forResponse(401, undefined);   // AuthenticationError
+   * ErrorPolicy.forResponse(429, "quota");     // QuotaExceededError
+   * ErrorPolicy.forResponse(502, undefined);   // ServerError
+   * ErrorPolicy.forResponse(418, undefined);   // AstroMansionError
+   * ```
+   */
+  forResponse(
+    status: number,
+    code: string | undefined,
+  ): typeof AstroMansionError {
+    if (ErrorPolicy.isQuota(status, code)) {
       return QuotaExceededError;
-    case 403:
-      return PermissionDeniedError;
-    case 404:
-      return NotFoundError;
-    case 409:
-      return ConflictError;
-    case 422:
-      return ValidationError;
-    case 429:
-      return RateLimitError;
-    default:
-      return status >= 500 ? ServerError : AstroMansionError;
-  }
-}
+    }
+    switch (status) {
+      case HTTP_STATUS.UNAUTHORIZED:
+        return AuthenticationError;
+      case HTTP_STATUS.PAYMENT_REQUIRED:
+        return QuotaExceededError;
+      case HTTP_STATUS.FORBIDDEN:
+        return PermissionDeniedError;
+      case HTTP_STATUS.NOT_FOUND:
+        return NotFoundError;
+      case HTTP_STATUS.CONFLICT:
+        return ConflictError;
+      case HTTP_STATUS.UNPROCESSABLE_ENTITY:
+        return ValidationError;
+      case HTTP_STATUS.TOO_MANY_REQUESTS:
+        return RateLimitError;
+      default:
+        return status >= HTTP_STATUS.INTERNAL_SERVER_ERROR
+          ? ServerError
+          : AstroMansionError;
+    }
+  },
+});
