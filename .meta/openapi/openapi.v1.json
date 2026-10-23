@@ -1,0 +1,4968 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AstroMansion API",
+    "description": "Astrology calculation API: natal charts, transits, returns, synastry, traditional and predictive techniques, powered by our own in-house astronomical core with arcsecond precision.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/v1/geo/search": {
+      "get": {
+        "tags": [
+          "natal"
+        ],
+        "summary": "Search place names",
+        "description": "Return candidate places for the birth-location selector.",
+        "operationId": "search_places",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "description": "City or district search query",
+              "title": "Q"
+            },
+            "description": "City or district search query"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 20,
+              "minimum": 1,
+              "default": 6,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(tr|en)$",
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoSearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/natal": {
+      "post": {
+        "tags": [
+          "natal"
+        ],
+        "summary": "Free natal chart",
+        "description": "Calculate the free natal chart response.\n\nThe response includes the big three, planets, aspects, and optionally the\nchart wheel. The SVG wheel is returned only when ``wheel=true``. Otherwise\nthe response is data-only and omits the ``wheel`` field. ``include`` and\n``exclude`` can narrow the planet set within the free subset. ``title``\nheads the wheel. ``author`` signs it, and when it is left empty a\nsigned-in app session signs with its account's chosen name, or leaves the\nwheel unsigned when the account has none.",
+        "operationId": "natal",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NatalApiRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NatalResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/saturn-return": {
+      "post": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "Saturn return dates",
+        "description": "Calculate exact Saturn return dates from birth data.",
+        "operationId": "saturn_return",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaturnReturnRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaturnReturnResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/moon-phases": {
+      "get": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "Lunar phase calendar",
+        "description": "Return every lunar phase in a calendar year.",
+        "operationId": "moon_phases",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 2400,
+              "minimum": 1800,
+              "title": "Year"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(tr|en)$",
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoonPhasesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/moon-phases/query": {
+      "post": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "Lunar phase query filtered by month and phase",
+        "description": "Return detailed machine output with optional month and phase filters.\n\nThis developer endpoint does not use birth data. ``GET /moon-phases``\nreturns a concise localized annual calendar, while this POST endpoint also\nexposes ``jd`` and ``lon`` fields and supports month and phase filters.",
+        "operationId": "moon_phases_for",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoonPhaseQueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoonPhaseQueryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/retrogrades": {
+      "get": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "Planetary retrograde calendar",
+        "description": "Return planetary retrograde cycles for a calendar year.",
+        "operationId": "retrogrades",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 2400,
+              "minimum": 1800,
+              "title": "Year"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(tr|en)$",
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetrogradesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/eclipses": {
+      "get": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "Eclipse calendar",
+        "description": "Return solar and lunar eclipses for a calendar year.",
+        "operationId": "eclipses",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 2400,
+              "minimum": 1800,
+              "title": "Year"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(tr|en)$",
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EclipsesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/void-moon": {
+      "get": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "Void-of-course Moon calendar",
+        "description": "Return void-of-course Moon intervals for a calendar month.",
+        "operationId": "void_moon",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 2400,
+              "minimum": 1800,
+              "title": "Year"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "title": "Month"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(tr|en)$",
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoidMoonResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transits": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Transit scan over a year or date range",
+        "description": "Transit scan over a year or date range.",
+        "operationId": "transits",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transit-hits": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Exact aspect times with bisection precision",
+        "description": "Exact aspect times with bisection precision.",
+        "operationId": "transit_hits",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/stations": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Planetary stations and retrograde shadows",
+        "description": "Planetary stations and retrograde shadows.",
+        "operationId": "stations",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solar-return": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Solar return chart",
+        "description": "Solar return chart.",
+        "operationId": "solar_return",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/lunar-return": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Lunar return charts",
+        "description": "Lunar return charts.",
+        "operationId": "lunar_return",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/progression": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Secondary progressions",
+        "description": "Secondary progressions.",
+        "operationId": "progression",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solar-arc": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Solar arc directions",
+        "description": "Solar arc directions.",
+        "operationId": "solar_arc",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/daily": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Daily sky summary",
+        "description": "Daily sky summary.",
+        "operationId": "daily",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/timeline": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Life timing timeline",
+        "description": "Life timing timeline.",
+        "operationId": "timeline",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/almanac": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Eclipses, retrogrades, planetary hours, and void Moon periods",
+        "description": "Eclipses, retrogrades, planetary hours, and void Moon periods.",
+        "operationId": "almanac",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/synastry": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Two-chart synastry analysis",
+        "description": "Two-chart synastry analysis.",
+        "operationId": "synastry",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PairTechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/composite": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Midpoint composite chart",
+        "description": "Midpoint composite chart.",
+        "operationId": "composite",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PairTechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/compatibility": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Compatibility score from 0 to 100",
+        "description": "Compatibility score from 0 to 100.",
+        "operationId": "compatibility",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PairTechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/pair-aspects": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Aspects between two charts",
+        "description": "Aspects between two charts.",
+        "operationId": "pair_aspects",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PairTechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dignities": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Classical dignities and almuten",
+        "description": "Classical dignities and almuten.",
+        "operationId": "dignities",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/profection": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Annual profections",
+        "description": "Annual profections.",
+        "operationId": "profection",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/firdaria": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Firdaria periods",
+        "description": "Firdaria periods.",
+        "operationId": "firdaria",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/zodiacal-releasing": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Zodiacal releasing",
+        "description": "Zodiacal releasing.",
+        "operationId": "zodiacal_releasing",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/horary": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Horary question chart",
+        "description": "Horary question chart.",
+        "operationId": "horary",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/electional": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Electional date-window scan",
+        "description": "Electional date-window scan.",
+        "operationId": "electional",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/mansions": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Twenty-eight lunar mansions",
+        "description": "Twenty-eight lunar mansions.",
+        "operationId": "mansions",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/custom-lot": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Custom Arabic lot formula (A+B-C)",
+        "description": "Custom Arabic lot formula (A+B-C).",
+        "operationId": "custom_lot",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/custom-body": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Custom elliptic or hyperbolic Keplerian body",
+        "description": "Custom elliptic or hyperbolic Keplerian body.",
+        "operationId": "custom_body",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/vedic-chart": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Sidereal Vedic chart with rashi, nakshatra, and lagna",
+        "description": "Sidereal Vedic chart with rashi, nakshatra, and lagna.",
+        "operationId": "vedic_chart",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nakshatra": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Moon nakshatra, pada, and ruler",
+        "description": "Moon nakshatra, pada, and ruler.",
+        "operationId": "nakshatra",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/vimshottari": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Vimshottari dasha periods",
+        "description": "Vimshottari dasha periods.",
+        "operationId": "vimshottari",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/navamsa": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "D9 Navamsa and other divisional charts",
+        "description": "D9 Navamsa and other divisional charts.",
+        "operationId": "navamsa",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/aspects": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Complete natal aspect list",
+        "description": "Complete natal aspect list.",
+        "operationId": "aspects",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/patterns": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Jones patterns, stelliums, and aspect figures",
+        "description": "Jones patterns, stelliums, and aspect figures.",
+        "operationId": "patterns",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/midpoints": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Planetary midpoints",
+        "description": "Planetary midpoints.",
+        "operationId": "midpoints",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/antiscia": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Antiscia and contra-antiscia",
+        "description": "Antiscia and contra-antiscia.",
+        "operationId": "antiscia",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/declinations": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Declination parallels",
+        "description": "Declination parallels.",
+        "operationId": "declinations",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/harmonics": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Harmonic chart",
+        "description": "Harmonic chart.",
+        "operationId": "harmonics",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/draconic": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Draconic zodiac",
+        "description": "Draconic zodiac.",
+        "operationId": "draconic",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/heliocentric": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Heliocentric positions",
+        "description": "Heliocentric positions.",
+        "operationId": "heliocentric",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/astrocartography": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Astrocartography lines",
+        "description": "Astrocartography lines.",
+        "operationId": "astrocartography",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/parans": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Fixed-star parans",
+        "description": "Fixed-star parans.",
+        "operationId": "parans",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/heliacal": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Heliacal rising and setting events",
+        "description": "Heliacal rising and setting events.",
+        "operationId": "heliacal",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/rectification": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Birth-time rectification",
+        "description": "Birth-time rectification.",
+        "operationId": "rectification",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/chart": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Extended natal chart with category selection",
+        "description": "Calculate a natal chart from the extended body catalog.",
+        "operationId": "chart",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChartRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Chart"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The full catalog, selections above 100 bodies, and all_bodies require the Pro plan or above",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "forbidden",
+                    "message": "This feature is not included in your plan.",
+                    "detail": "The full catalog, selections above 100 bodies, and all_bodies require the Pro plan or above"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/query": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "MansionSQL query over a calculated chart",
+        "description": "Run MansionSQL against a calculated chart.\n\nWithout ``format``, the endpoint returns the standard JSON envelope. With\na format, it returns plain text designed for terminal use through ``curl``.\nEmbedding a rendered table in JSON would make escape sequences unreadable.",
+        "operationId": "query",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Query"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/render/svg": {
+      "post": {
+        "tags": [
+          "output"
+        ],
+        "summary": "Chart wheel SVG with optional interactive HTML",
+        "description": "Render a chart wheel as SVG or interactive HTML.",
+        "operationId": "render_svg",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "image/svg+xml": {},
+              "text/html": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/render/png": {
+      "post": {
+        "tags": [
+          "output"
+        ],
+        "summary": "Chart wheel PNG image",
+        "description": "Render a chart wheel as PNG.",
+        "operationId": "render_png",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "image/png": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/render/sharecard": {
+      "post": {
+        "tags": [
+          "output"
+        ],
+        "summary": "Story card, natal or synastry (1080x1920)",
+        "description": "Render a story card for one chart or for two.",
+        "operationId": "render_sharecard",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareCardRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "image/svg+xml": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/render/astrocartography": {
+      "post": {
+        "tags": [
+          "output"
+        ],
+        "summary": "Astrocartography map with line meanings",
+        "description": "Render an astrocartography map as one self-contained SVG.",
+        "operationId": "render_astrocartography",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcgMapRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "image/svg+xml": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/render/biwheel": {
+      "post": {
+        "tags": [
+          "output"
+        ],
+        "summary": "Bi-wheel chart (natal and second chart)",
+        "description": "Render a bi-wheel SVG with natal and outer charts.",
+        "operationId": "render_biwheel",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BiWheelRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "image/svg+xml": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/export/pdf": {
+      "post": {
+        "tags": [
+          "output"
+        ],
+        "summary": "Multi-page PDF report",
+        "description": "Export a chart as a PDF report.",
+        "operationId": "export_pdf",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/export/csv": {
+      "post": {
+        "tags": [
+          "output"
+        ],
+        "summary": "Chart data as CSV",
+        "description": "Export the chart body table as CSV.",
+        "operationId": "export_csv",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/csv": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/export/report": {
+      "post": {
+        "tags": [
+          "output"
+        ],
+        "summary": "Editable multi-page PDF report",
+        "description": "Build an editable, brandable, multi-page natal PDF report.\n\nPlans with ``Scope.EXPORT`` receive PDF export. A signed-in app session\nwithout it may spend a report credit instead, the same credits the\nwebsite's report studio spends: one credit buys the report for one chart,\nis charged only once the document exists, and a chart already paid for is\ndrawn again for free. Developer keys never spend credits.\n\nHiding the AstroMansion brand or embedding a custom logo additionally\nrequires ``Scope.WHITE_LABEL``. The plan that grants it is read from\n``TierConstants``, so the error, the schema, and the pricing page name the same\nplan. A request without that scope is rejected with 403 rather than\nsilently ignored: a machine caller cannot see a dropped field, and would\nship a branded document it never got. The engine output is already\nunbranded. White-label access means applying the caller's brand.",
+        "operationId": "export_report",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportExportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/pdf": {}
+            }
+          },
+          "403": {
+            "description": "white_label and logo_b64 require the Pro plan or above",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "forbidden",
+                    "message": "This feature is not included in your plan.",
+                    "detail": "white_label and logo_b64 require the Pro plan or above"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/batch": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Batch computation (Enterprise)",
+        "description": "Run multiple techniques sequentially in one request.\n\nEvery item receives an independent scope check. Invalid or unauthorized\nitems do not stop the remaining work and appear as errors in the results.",
+        "operationId": "batch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/custom-body/save": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Save and calculate a named custom Keplerian body",
+        "description": "Calculate a custom body and optionally save it under its owner's identity.\n\nSaved bodies can be calculated later through\n``POST /v1/custom-body/{name}`` without resubmitting orbital elements. The\nAPI-key identity digest owns the stored record.",
+        "operationId": "save_custom_body",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomBodySaveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Save Custom Body"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/custom-body/list": {
+      "get": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "List saved custom bodies",
+        "description": "Return every custom body saved by the current identity.",
+        "operationId": "custom_bodies",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Custom Bodies"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/custom-body/{name}": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Calculate a saved custom body by name",
+        "description": "Calculate an owned custom body by name for the supplied birth data.\n\nOrbital elements do not need to be resubmitted after the body has been\nsaved.",
+        "operationId": "chart_with_custom_body",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomBodyByNameRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Chart With Custom Body"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Delete a saved custom body",
+        "description": "Delete an owned custom body by name.",
+        "operationId": "delete_custom_body",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Delete Custom Body"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "List jobs",
+        "description": "Return lightweight job summaries for the current identity.",
+        "operationId": "list_jobs",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Create an async job for any technique",
+        "description": "Queue one technique for background execution.\n\nThe scope, request body, and optional callback URL are validated before the\njob is stored. The endpoint returns HTTP 202 when the pending-job limit has\nnot been reached. Poll the result through ``GET /v1/jobs/{job_id}``.",
+        "operationId": "submit_job",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAcceptedResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/batch": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Create an async job batch of up to 20 items",
+        "description": "Queue multiple jobs in one request.\n\nEach item receives independent scope and body validation. An invalid item\ndoes not stop the others and appears as an error in the result list. Every\nsuccessful job consumes quota independently.",
+        "operationId": "submit_batch_job",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobBatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobBatchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Inspect job status",
+        "description": "Return a job's status and its result after completion.\n\nThe identity embedded in the key enforces ownership. Jobs owned by another\nidentity are not visible and therefore return 404 without disclosing their\nexistence.",
+        "operationId": "job",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/health": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Service health check",
+        "description": "Confirm that the API can serve, without invoking domain services.\n\nEvery call checks its key and counts against its limits in the cache,\nso the API is unavailable while the cache does not answer.",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AcgMapRequest": {
+        "properties": {
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "place": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Place",
+            "default": ""
+          },
+          "lang": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LanguageCode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth"
+        ],
+        "title": "AcgMapRequest",
+        "description": "A request for a rendered astrocartography map."
+      },
+      "AspectRow": {
+        "properties": {
+          "a": {
+            "type": "string",
+            "title": "A"
+          },
+          "b": {
+            "type": "string",
+            "title": "B"
+          },
+          "aspect": {
+            "type": "string",
+            "title": "Aspect"
+          },
+          "orb": {
+            "type": "number",
+            "title": "Orb"
+          }
+        },
+        "type": "object",
+        "required": [
+          "a",
+          "b",
+          "aspect",
+          "orb"
+        ],
+        "title": "AspectRow",
+        "description": "One aspect between two planets of the public natal answer."
+      },
+      "BatchItem": {
+        "properties": {
+          "technique": {
+            "type": "string",
+            "title": "Technique"
+          },
+          "body": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Body"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "technique",
+          "body"
+        ],
+        "title": "BatchItem",
+        "description": "One operation of a batch."
+      },
+      "BatchItemAnswer": {
+        "properties": {
+          "technique": {
+            "type": "string",
+            "title": "Technique"
+          },
+          "ok": {
+            "type": "boolean",
+            "const": true,
+            "title": "Ok"
+          },
+          "result": {
+            "title": "Result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "technique",
+          "ok",
+          "result"
+        ],
+        "title": "BatchItemAnswer",
+        "description": "A batch item its technique answered."
+      },
+      "BatchItemRefusal": {
+        "properties": {
+          "technique": {
+            "type": "string",
+            "title": "Technique"
+          },
+          "ok": {
+            "type": "boolean",
+            "const": false,
+            "title": "Ok"
+          },
+          "error": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "technique",
+          "ok",
+          "error"
+        ],
+        "title": "BatchItemRefusal",
+        "description": "A batch item refused or failed. The items after it still run."
+      },
+      "BatchRequest": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BatchItem"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "BatchRequest",
+        "description": "A bounded batch of operations, run synchronously."
+      },
+      "BatchResponse": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "results": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/BatchItemAnswer"
+                },
+                {
+                  "$ref": "#/components/schemas/BatchItemRefusal"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "count",
+          "results"
+        ],
+        "title": "BatchResponse",
+        "description": "A batch's answer, one item for each operation, in the operations' order."
+      },
+      "BiWheelRequest": {
+        "properties": {
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "partner": {
+            "$ref": "#/components/schemas/BirthPayload"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth",
+          "partner"
+        ],
+        "title": "BiWheelRequest",
+        "description": "A request for a bi-wheel of two charts."
+      },
+      "BirthDate": {
+        "type": "string"
+      },
+      "BirthPayload": {
+        "properties": {
+          "date": {
+            "$ref": "#/components/schemas/BirthDate"
+          },
+          "time": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ClockTime"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lat": {
+            "$ref": "#/components/schemas/Latitude"
+          },
+          "lon": {
+            "$ref": "#/components/schemas/Longitude"
+          },
+          "timezone": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TimeZoneInput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "houses": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseSystemName"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "lat",
+          "lon"
+        ],
+        "title": "BirthPayload",
+        "description": "The moment and place a chart is cast for, as every technique request carries it."
+      },
+      "BodyRow": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "sign": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sign"
+          },
+          "dms": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dms"
+          },
+          "house": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "House"
+          },
+          "retrograde": {
+            "type": "boolean",
+            "title": "Retrograde"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "sign",
+          "dms",
+          "house",
+          "retrograde"
+        ],
+        "title": "BodyRow",
+        "description": "One planet's position in the public natal answer."
+      },
+      "CalendarZone": {
+        "type": "string",
+        "enum": [
+          "UTC"
+        ],
+        "title": "CalendarZone",
+        "description": "The zone a published calendar states its times in."
+      },
+      "ChartOptions": {
+        "properties": {
+          "categories": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 15,
+            "title": "Categories"
+          },
+          "all_bodies": {
+            "type": "boolean",
+            "title": "All Bodies",
+            "description": "Traverse the full named catalog in pages. true requires the FULL_CATALOG scope, granted from the Pro plan up.",
+            "default": false
+          },
+          "catalog_offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Catalog Offset",
+            "description": "Zero-based offset for a paginated catalog response.",
+            "default": 0
+          },
+          "catalog_limit": {
+            "type": "integer",
+            "maximum": 160.0,
+            "minimum": 1.0,
+            "title": "Catalog Limit",
+            "description": "Bodies requested in one catalog page, at most 160.",
+            "default": 160
+          },
+          "include": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "title": "Include"
+          },
+          "exclude": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "title": "Exclude"
+          },
+          "exclusive": {
+            "type": "boolean",
+            "title": "Exclusive",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ChartOptions",
+        "description": "Which bodies an extended chart computes, and which page of the catalog it returns.\n\n``include`` adds to the selected categories. ``exclusive`` leaves the\ndefault core out, so only the categories and names asked for are\ncomputed."
+      },
+      "ChartRequest": {
+        "properties": {
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "options": {
+            "$ref": "#/components/schemas/ChartOptions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth"
+        ],
+        "title": "ChartRequest",
+        "description": "An extended chart request: a birth and the options that select its bodies.\n\nCallers written before ``options`` existed send the chart options beside\n``birth``. They are moved under ``options`` before the request is checked."
+      },
+      "ClockTime": {
+        "type": "string"
+      },
+      "CustomBodyByNameRequest": {
+        "properties": {
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "wheel": {
+            "type": "boolean",
+            "title": "Wheel",
+            "default": false
+          },
+          "aspects": {
+            "type": "boolean",
+            "title": "Aspects",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth"
+        ],
+        "title": "CustomBodyByNameRequest",
+        "description": "A request that recomputes a saved custom body, named in the path, in a chart."
+      },
+      "CustomBodySaveRequest": {
+        "properties": {
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "elements": {
+            "$ref": "#/components/schemas/KeplerElements"
+          },
+          "heliocentric": {
+            "type": "boolean",
+            "title": "Heliocentric",
+            "default": false
+          },
+          "save": {
+            "type": "boolean",
+            "title": "Save",
+            "default": true
+          },
+          "wheel": {
+            "type": "boolean",
+            "title": "Wheel",
+            "default": false
+          },
+          "aspects": {
+            "type": "boolean",
+            "title": "Aspects",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth",
+          "name",
+          "elements"
+        ],
+        "title": "CustomBodySaveRequest",
+        "description": "A request that computes a named Keplerian body in a chart and may save it for its owner.",
+        "example": {
+          "aspects": false,
+          "birth": {
+            "date": "1990-07-15",
+            "houses": "placidus",
+            "lat": 51.5074,
+            "lon": -0.1278,
+            "time": "14:30",
+            "timezone": "Europe/London"
+          },
+          "elements": {
+            "M0": 174.8,
+            "a": 0.39,
+            "e": 0.02,
+            "epoch": 2451545.0,
+            "incl": 7.0,
+            "node": 48.3,
+            "peri": 29.1
+          },
+          "name": "Vulcan",
+          "save": true,
+          "wheel": false
+        }
+      },
+      "EclipseEvent": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/EclipseKind"
+          },
+          "type": {
+            "$ref": "#/components/schemas/EclipseType"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "time": {
+            "type": "string",
+            "title": "Time"
+          },
+          "timestamp_utc": {
+            "type": "string",
+            "title": "Timestamp Utc"
+          },
+          "sign": {
+            "type": "string",
+            "title": "Sign"
+          },
+          "dms": {
+            "type": "string",
+            "title": "Dms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "type",
+          "date",
+          "time",
+          "timestamp_utc",
+          "sign",
+          "dms"
+        ],
+        "title": "EclipseEvent",
+        "description": "One eclipse at its greatest."
+      },
+      "EclipseKind": {
+        "type": "string",
+        "enum": [
+          "solar",
+          "lunar"
+        ],
+        "title": "EclipseKind",
+        "description": "Which light an eclipse darkens."
+      },
+      "EclipseType": {
+        "type": "string",
+        "enum": [
+          "total",
+          "annular",
+          "partial",
+          "penumbral",
+          "none"
+        ],
+        "title": "EclipseType",
+        "description": "How much of the light an eclipse darkens at its greatest."
+      },
+      "EclipsesResponse": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "timezone": {
+            "$ref": "#/components/schemas/CalendarZone",
+            "default": "UTC"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/EclipseEvent"
+            },
+            "type": "array",
+            "title": "Events"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "events"
+        ],
+        "title": "EclipsesResponse",
+        "description": "One calendar year of eclipses."
+      },
+      "GeoSearchResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/PlaceRow"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results"
+        ],
+        "title": "GeoSearchResponse",
+        "description": "The places a geocoder search found."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HouseSystemName": {
+        "type": "string"
+      },
+      "JobAcceptedResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "state": {
+            "$ref": "#/components/schemas/JobState"
+          },
+          "technique": {
+            "type": "string",
+            "title": "Technique"
+          },
+          "poll": {
+            "type": "string",
+            "title": "Poll"
+          },
+          "webhook_secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Webhook Secret"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "state",
+          "technique",
+          "poll"
+        ],
+        "title": "JobAcceptedResponse",
+        "description": "A job accepted and queued."
+      },
+      "JobBatchAccepted": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "state": {
+            "$ref": "#/components/schemas/JobState"
+          },
+          "technique": {
+            "type": "string",
+            "title": "Technique"
+          },
+          "ok": {
+            "type": "boolean",
+            "const": true,
+            "title": "Ok"
+          },
+          "webhook_secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Webhook Secret"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "state",
+          "technique",
+          "ok"
+        ],
+        "title": "JobBatchAccepted",
+        "description": "A job of a batch, accepted and queued."
+      },
+      "JobBatchItem": {
+        "properties": {
+          "technique": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Technique"
+          },
+          "callback_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Callback Url"
+          },
+          "body": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Body"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "technique",
+          "body"
+        ],
+        "title": "JobBatchItem",
+        "description": "One job of a batch."
+      },
+      "JobBatchRequest": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/JobBatchItem"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "JobBatchRequest",
+        "description": "A bounded batch of jobs, each stored and run on its own."
+      },
+      "JobBatchResponse": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "jobs": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/JobBatchAccepted"
+                },
+                {
+                  "$ref": "#/components/schemas/BatchItemRefusal"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Jobs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "count",
+          "jobs"
+        ],
+        "title": "JobBatchResponse",
+        "description": "A job batch's answer, one entry for each job, in the jobs' order."
+      },
+      "JobBodyRequest": {
+        "properties": {
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "partner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BirthPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "options": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Options"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth"
+        ],
+        "title": "JobBodyRequest",
+        "description": "The nested body a job runs its technique on."
+      },
+      "JobCreateRequest": {
+        "properties": {
+          "technique": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Technique"
+          },
+          "callback_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Callback Url"
+          },
+          "body": {
+            "$ref": "#/components/schemas/JobBodyRequest"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "technique",
+          "body"
+        ],
+        "title": "JobCreateRequest",
+        "description": "One asynchronous job."
+      },
+      "JobListResponse": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "jobs": {
+            "items": {
+              "$ref": "#/components/schemas/JobSummary"
+            },
+            "type": "array",
+            "title": "Jobs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "count",
+          "jobs"
+        ],
+        "title": "JobListResponse",
+        "description": "The jobs of the signed-in identity."
+      },
+      "JobState": {
+        "type": "string",
+        "enum": [
+          "queued",
+          "running",
+          "done",
+          "failed",
+          "interrupted"
+        ],
+        "title": "JobState",
+        "description": "Where a job is in its run."
+      },
+      "JobStatusResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "state": {
+            "$ref": "#/components/schemas/JobState"
+          },
+          "technique": {
+            "type": "string",
+            "title": "Technique"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/TechniqueKind"
+          },
+          "result": {
+            "title": "Result"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/JsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "webhook": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/JsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Webhook"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "state",
+          "technique",
+          "kind",
+          "created_at"
+        ],
+        "title": "JobStatusResponse",
+        "description": "One job's whole status, as polling returns it."
+      },
+      "JobSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "state": {
+            "$ref": "#/components/schemas/JobState"
+          },
+          "technique": {
+            "type": "string",
+            "title": "Technique"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "state",
+          "technique",
+          "created_at"
+        ],
+        "title": "JobSummary",
+        "description": "One job in a listing, without its body or result."
+      },
+      "JsonValue": {},
+      "KeplerElements": {
+        "properties": {
+          "e": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "E"
+          },
+          "a": {
+            "type": "number",
+            "title": "A"
+          },
+          "incl": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": 0.0,
+            "title": "Incl"
+          },
+          "node": {
+            "type": "number",
+            "title": "Node"
+          },
+          "peri": {
+            "type": "number",
+            "title": "Peri"
+          },
+          "M0": {
+            "type": "number",
+            "title": "M0"
+          },
+          "epoch": {
+            "type": "number",
+            "title": "Epoch"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "e",
+          "a",
+          "incl",
+          "node",
+          "peri",
+          "M0",
+          "epoch"
+        ],
+        "title": "KeplerElements",
+        "description": "The osculating elements of a Keplerian orbit, as a request sends them.\n\nThe native builder makes the final check, that the orbit type agrees\nwith the sign of the semi-major axis."
+      },
+      "LanguageCode": {
+        "type": "string",
+        "pattern": "^(tr|en)$"
+      },
+      "Latitude": {
+        "type": "number",
+        "maximum": 90.0,
+        "minimum": -90.0
+      },
+      "Longitude": {
+        "type": "number",
+        "maximum": 180.0,
+        "minimum": -180.0
+      },
+      "MoonPhase": {
+        "type": "string",
+        "enum": [
+          "New Moon",
+          "First Quarter",
+          "Full Moon",
+          "Last Quarter"
+        ],
+        "title": "MoonPhase",
+        "description": "One of the four principal lunar phases, declared in the order the engine numbers them, 0 to 3."
+      },
+      "MoonPhaseEvent": {
+        "properties": {
+          "phase": {
+            "$ref": "#/components/schemas/MoonPhase"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "time": {
+            "type": "string",
+            "title": "Time"
+          },
+          "timestamp_utc": {
+            "type": "string",
+            "title": "Timestamp Utc"
+          },
+          "sign": {
+            "type": "string",
+            "title": "Sign"
+          },
+          "dms": {
+            "type": "string",
+            "title": "Dms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "phase",
+          "date",
+          "time",
+          "timestamp_utc",
+          "sign",
+          "dms"
+        ],
+        "title": "MoonPhaseEvent",
+        "description": "One principal lunar phase."
+      },
+      "MoonPhaseQueryEvent": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "time": {
+            "type": "string",
+            "title": "Time"
+          },
+          "jd": {
+            "type": "number",
+            "title": "Jd"
+          },
+          "lon": {
+            "type": "number",
+            "title": "Lon"
+          },
+          "sign": {
+            "type": "string",
+            "title": "Sign"
+          },
+          "dms": {
+            "type": "string",
+            "title": "Dms"
+          },
+          "phase": {
+            "$ref": "#/components/schemas/MoonPhase"
+          },
+          "timestamp_utc": {
+            "type": "string",
+            "title": "Timestamp Utc"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "time",
+          "jd",
+          "lon",
+          "sign",
+          "dms",
+          "phase",
+          "timestamp_utc"
+        ],
+        "title": "MoonPhaseQueryEvent",
+        "description": "One principal lunar phase as the engine writes it, with the numbers a program reads: its Julian Day in Universal Time, the Moon's longitude, and the sign in English."
+      },
+      "MoonPhaseQueryRequest": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "maximum": 2400.0,
+            "minimum": 1800.0,
+            "title": "Year"
+          },
+          "month": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 12.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Month"
+          },
+          "only": {
+            "items": {
+              "$ref": "#/components/schemas/MoonPhase"
+            },
+            "type": "array",
+            "maxItems": 4,
+            "title": "Only"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "year"
+        ],
+        "title": "MoonPhaseQueryRequest",
+        "description": "A lunar-phase query, which needs no birth."
+      },
+      "MoonPhaseQueryResponse": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "month": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Month"
+          },
+          "only": {
+            "items": {
+              "$ref": "#/components/schemas/MoonPhase"
+            },
+            "type": "array",
+            "title": "Only"
+          },
+          "timezone": {
+            "$ref": "#/components/schemas/CalendarZone",
+            "default": "UTC"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/MoonPhaseQueryEvent"
+            },
+            "type": "array",
+            "title": "Events"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "month",
+          "only",
+          "events"
+        ],
+        "title": "MoonPhaseQueryResponse",
+        "description": "The phases a lunar-phase query kept."
+      },
+      "MoonPhasesResponse": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "timezone": {
+            "$ref": "#/components/schemas/CalendarZone",
+            "default": "UTC"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/MoonPhaseEvent"
+            },
+            "type": "array",
+            "title": "Events"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "events"
+        ],
+        "title": "MoonPhasesResponse",
+        "description": "One calendar year of lunar phases."
+      },
+      "NatalApiOptions": {
+        "properties": {
+          "lang": {
+            "$ref": "#/components/schemas/LanguageCode",
+            "default": "en"
+          },
+          "theme": {
+            "$ref": "#/components/schemas/Theme",
+            "default": "light"
+          },
+          "wheel": {
+            "type": "boolean",
+            "title": "Wheel",
+            "default": false
+          },
+          "include": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Include"
+          },
+          "exclude": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Exclude"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 60,
+            "title": "Title",
+            "default": ""
+          },
+          "author": {
+            "type": "string",
+            "maxLength": 60,
+            "title": "Author",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "NatalApiOptions",
+        "description": "How the public natal answer is drawn, and which planets it keeps.\n\n``title`` heads the wheel in place of the natal chart heading, as a chart\ncast for a return is not a birth chart. ``author`` signs the wheel. Left\nempty, a signed-in app session signs with the name its account chose and\nany other caller signs anonymously."
+      },
+      "NatalApiRequest": {
+        "properties": {
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "options": {
+            "$ref": "#/components/schemas/NatalApiOptions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth"
+        ],
+        "title": "NatalApiRequest",
+        "description": "The public natal request: a birth and the options that shape the answer.\n\nThe deprecated flat body, ``NatalRequest``'s fields at the top level, is\nstill read, by ``NatalRequest``'s rules, and ``flat_shape`` tells the\nroute to mark the answer with a ``Deprecation`` header::\n\n    body holds \"birth\"   ──► read as it stands\n    body without it      ──► read as NatalRequest, moved under \"birth\"\n                             and \"options\", flat_shape set"
+      },
+      "NatalResponse": {
+        "properties": {
+          "summary": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/SummaryRow"
+            },
+            "type": "object",
+            "title": "Summary"
+          },
+          "planets": {
+            "items": {
+              "$ref": "#/components/schemas/BodyRow"
+            },
+            "type": "array",
+            "title": "Planets"
+          },
+          "aspects": {
+            "items": {
+              "$ref": "#/components/schemas/AspectRow"
+            },
+            "type": "array",
+            "title": "Aspects"
+          },
+          "wheel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wheel"
+          }
+        },
+        "type": "object",
+        "required": [
+          "summary",
+          "planets",
+          "aspects"
+        ],
+        "title": "NatalResponse",
+        "description": "The public natal answer."
+      },
+      "PageSize": {
+        "type": "string",
+        "enum": [
+          "a4",
+          "letter"
+        ],
+        "title": "PageSize",
+        "description": "The paper a report is laid out on."
+      },
+      "PairTechniqueRequest": {
+        "properties": {
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "partner": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "options": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Options"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth",
+          "partner"
+        ],
+        "title": "PairTechniqueRequest",
+        "description": "A request for a relational technique that reads two charts."
+      },
+      "PlaceRow": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "lat": {
+            "type": "number",
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "title": "Lon"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "label",
+          "lat",
+          "lon",
+          "timezone"
+        ],
+        "title": "PlaceRow",
+        "description": "One place the geocoder offers for a typed name."
+      },
+      "QueryBorder": {
+        "type": "string",
+        "enum": [
+          "sharp",
+          "round",
+          "ascii",
+          "rules",
+          "markdown"
+        ],
+        "title": "QueryBorder",
+        "description": "The lines a ``box`` table is drawn with."
+      },
+      "QueryFormat": {
+        "type": "string",
+        "enum": [
+          "box",
+          "json",
+          "csv",
+          "scalar",
+          "object"
+        ],
+        "title": "QueryFormat",
+        "description": "How a MansionSQL answer is written."
+      },
+      "QueryRequest": {
+        "properties": {
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "partner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BirthPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "moment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BirthPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sql": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Sql",
+            "default": ""
+          },
+          "query": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Query",
+            "default": ""
+          },
+          "format": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/QueryFormat"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "border": {
+            "$ref": "#/components/schemas/QueryBorder",
+            "default": "sharp"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth"
+        ],
+        "title": "QueryRequest",
+        "description": "One MansionSQL query."
+      },
+      "RenderRequest": {
+        "properties": {
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "options": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Options"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth"
+        ],
+        "title": "RenderRequest",
+        "description": "A request for an SVG, PNG, PDF, or CSV rendering of one chart."
+      },
+      "ReportExportRequest": {
+        "properties": {
+          "sections": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 16,
+            "title": "Sections"
+          },
+          "page_size": {
+            "$ref": "#/components/schemas/PageSize",
+            "default": "a4"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Title",
+            "default": ""
+          },
+          "author": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Author",
+            "default": ""
+          },
+          "custom_text": {
+            "type": "string",
+            "maxLength": 20000,
+            "title": "Custom Text",
+            "default": ""
+          },
+          "accent": {
+            "type": "string",
+            "maxLength": 9,
+            "title": "Accent",
+            "default": ""
+          },
+          "white_label": {
+            "type": "boolean",
+            "title": "White Label",
+            "description": "Hide AstroMansion branding. true requires the WHITE_LABEL scope, granted from the Pro plan up.",
+            "default": false
+          },
+          "logo_b64": {
+            "type": "string",
+            "maxLength": 4000000,
+            "title": "Logo B64",
+            "description": "Base64 or data-URI report logo. A non-empty value requires the WHITE_LABEL scope, granted from the Pro plan up.",
+            "default": ""
+          },
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth"
+        ],
+        "title": "ReportExportRequest",
+        "description": "The API's PDF report export: a birth and the report's layout."
+      },
+      "RetrogradeBody": {
+        "properties": {
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "cycles": {
+            "items": {
+              "$ref": "#/components/schemas/RetrogradeCycle"
+            },
+            "type": "array",
+            "title": "Cycles"
+          }
+        },
+        "type": "object",
+        "required": [
+          "body",
+          "cycles"
+        ],
+        "title": "RetrogradeBody",
+        "description": "One body's retrogrades in a year."
+      },
+      "RetrogradeCycle": {
+        "properties": {
+          "retro_date": {
+            "type": "string",
+            "title": "Retro Date"
+          },
+          "retro_time": {
+            "type": "string",
+            "title": "Retro Time"
+          },
+          "retro_timestamp_utc": {
+            "type": "string",
+            "title": "Retro Timestamp Utc"
+          },
+          "retro_sign": {
+            "type": "string",
+            "title": "Retro Sign"
+          },
+          "retro_dms": {
+            "type": "string",
+            "title": "Retro Dms"
+          },
+          "direct_date": {
+            "type": "string",
+            "title": "Direct Date"
+          },
+          "direct_time": {
+            "type": "string",
+            "title": "Direct Time"
+          },
+          "direct_timestamp_utc": {
+            "type": "string",
+            "title": "Direct Timestamp Utc"
+          },
+          "direct_sign": {
+            "type": "string",
+            "title": "Direct Sign"
+          },
+          "direct_dms": {
+            "type": "string",
+            "title": "Direct Dms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "retro_date",
+          "retro_time",
+          "retro_timestamp_utc",
+          "retro_sign",
+          "retro_dms",
+          "direct_date",
+          "direct_time",
+          "direct_timestamp_utc",
+          "direct_sign",
+          "direct_dms"
+        ],
+        "title": "RetrogradeCycle",
+        "description": "One retrograde, from the station where it turns back to the one where it turns direct."
+      },
+      "RetrogradesResponse": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "timezone": {
+            "$ref": "#/components/schemas/CalendarZone",
+            "default": "UTC"
+          },
+          "bodies": {
+            "items": {
+              "$ref": "#/components/schemas/RetrogradeBody"
+            },
+            "type": "array",
+            "title": "Bodies"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "bodies"
+        ],
+        "title": "RetrogradesResponse",
+        "description": "One calendar year of retrogrades."
+      },
+      "SaturnReturnEvent": {
+        "properties": {
+          "return": {
+            "type": "integer",
+            "title": "Return"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "time": {
+            "type": "string",
+            "title": "Time"
+          },
+          "sign": {
+            "type": "string",
+            "title": "Sign"
+          },
+          "dms": {
+            "type": "string",
+            "title": "Dms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "return",
+          "date",
+          "time",
+          "sign",
+          "dms"
+        ],
+        "title": "SaturnReturnEvent",
+        "description": "One exact Saturn return."
+      },
+      "SaturnReturnRequest": {
+        "properties": {
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "options": {
+            "$ref": "#/components/schemas/NatalApiOptions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth"
+        ],
+        "title": "SaturnReturnRequest",
+        "description": "A Saturn-return request, on the natal request's envelope. It adds no field."
+      },
+      "SaturnReturnResponse": {
+        "properties": {
+          "returns": {
+            "items": {
+              "$ref": "#/components/schemas/SaturnReturnEvent"
+            },
+            "type": "array",
+            "title": "Returns"
+          }
+        },
+        "type": "object",
+        "required": [
+          "returns"
+        ],
+        "title": "SaturnReturnResponse",
+        "description": "The Saturn returns of one birth."
+      },
+      "ShareCardKind": {
+        "type": "string",
+        "enum": [
+          "synastry",
+          "natal"
+        ],
+        "title": "ShareCardKind",
+        "description": "Which story card is drawn."
+      },
+      "ShareCardRequest": {
+        "properties": {
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "partner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BirthPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": {
+            "$ref": "#/components/schemas/ShareCardKind",
+            "default": "synastry"
+          },
+          "names": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "maxItems": 2,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Names"
+          },
+          "lang": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LanguageCode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth"
+        ],
+        "title": "ShareCardRequest",
+        "description": "A story card for one chart or for two.\n\nOne card, two subjects. ``type`` picks which: the synastry card reads\nboth charts and leads on their compatibility score, the natal card reads\n``birth`` alone and leads on its Sun, Moon, and Ascendant. Splitting them\nacross two paths would have published one product as two."
+      },
+      "SummaryRow": {
+        "properties": {
+          "sign": {
+            "type": "string",
+            "title": "Sign"
+          },
+          "dms": {
+            "type": "string",
+            "title": "Dms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sign",
+          "dms"
+        ],
+        "title": "SummaryRow",
+        "description": "One of the chart's leading points in the public natal answer."
+      },
+      "TechniqueEnvelope": {
+        "properties": {
+          "technique": {
+            "type": "string",
+            "title": "Technique"
+          },
+          "result": {
+            "title": "Result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "technique",
+          "result"
+        ],
+        "title": "TechniqueEnvelope",
+        "description": "The answer of a registry technique."
+      },
+      "TechniqueKind": {
+        "type": "string",
+        "enum": [
+          "single",
+          "pair"
+        ],
+        "title": "TechniqueKind",
+        "description": "How many charts a technique reads."
+      },
+      "TechniqueRequest": {
+        "properties": {
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "options": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Options"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth"
+        ],
+        "title": "TechniqueRequest",
+        "description": "A request for a technique that reads one chart."
+      },
+      "Theme": {
+        "type": "string",
+        "enum": [
+          "light",
+          "dark"
+        ],
+        "title": "Theme",
+        "description": "A palette: the page's colour scheme, and the one a wheel is drawn in to match it."
+      },
+      "TimeZoneInput": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VoidMoonInterval": {
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "title": "Start Date"
+          },
+          "start_time": {
+            "type": "string",
+            "title": "Start Time"
+          },
+          "start_timestamp_utc": {
+            "type": "string",
+            "title": "Start Timestamp Utc"
+          },
+          "end_date": {
+            "type": "string",
+            "title": "End Date"
+          },
+          "end_time": {
+            "type": "string",
+            "title": "End Time"
+          },
+          "end_timestamp_utc": {
+            "type": "string",
+            "title": "End Timestamp Utc"
+          },
+          "ingress_sign": {
+            "type": "string",
+            "title": "Ingress Sign"
+          },
+          "duration_hours": {
+            "type": "number",
+            "title": "Duration Hours"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start_date",
+          "start_time",
+          "start_timestamp_utc",
+          "end_date",
+          "end_time",
+          "end_timestamp_utc",
+          "ingress_sign",
+          "duration_hours"
+        ],
+        "title": "VoidMoonInterval",
+        "description": "One void-of-course Moon, from her last major aspect to her next sign."
+      },
+      "VoidMoonResponse": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "month": {
+            "type": "integer",
+            "title": "Month"
+          },
+          "timezone": {
+            "$ref": "#/components/schemas/CalendarZone",
+            "default": "UTC"
+          },
+          "intervals": {
+            "items": {
+              "$ref": "#/components/schemas/VoidMoonInterval"
+            },
+            "type": "array",
+            "title": "Intervals"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "month",
+          "intervals"
+        ],
+        "title": "VoidMoonResponse",
+        "description": "One calendar month of void-of-course Moon intervals."
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "Send the API key in the ``X-API-Key`` header."
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Alternatively send the API key as ``Authorization: Bearer <key>``."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "natal",
+      "description": "Free natal charts and location search (NATAL scope)."
+    },
+    {
+      "name": "tools",
+      "description": "Calendar tools for returns, lunar phases, retrogrades, eclipses, and void Moon periods."
+    },
+    {
+      "name": "techniques",
+      "description": "Predictive, relational, traditional, and advanced calculation techniques."
+    },
+    {
+      "name": "output",
+      "description": "SVG, PNG, PDF, CSV, and white-label output formats."
+    },
+    {
+      "name": "system",
+      "description": "Service health checks."
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyHeader": []
+    },
+    {
+      "BearerAuth": []
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "name": "astromansion",
+  "version": "0.1.0-alpha.1",
+  "description": "Official JavaScript and TypeScript client for the AstroMansion astrology API.",
+  "keywords": [
+    "astrology",
+    "natal",
+    "chart",
+    "ephemeris",
+    "api",
+    "client"
+  ],
+  "homepage": "https://astromansion.com",
+  "bugs": {
+    "url": "https://github.com/mustafayavuzak/astromansion-js/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mustafayavuzak/astromansion-js.git"
+  },
+  "license": "MIT",
+  "author": "Mustafa Yavuz Ak <founder@mustafayavuzak.com>",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsup",
+    "generate": "node .meta/tools/generate/main.ts",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tests/tsconfig.json && tsc -p .meta/tools/generate/tsconfig.json",
+    "lint": "eslint .",
+    "format": "prettier --write src tests .meta/tools package.json tsconfig.json tsup.config.ts eslint.config.js README.md",
+    "format:check": "prettier --check src tests .meta/tools package.json tsconfig.json tsup.config.ts eslint.config.js README.md",
+    "test": "vitest run --config tests/vitest.config.ts",
+    "api-report": "api-extractor run --local --config .meta/api-report/api-extractor.json",
+    "api-report:check": "api-extractor run --config .meta/api-report/api-extractor.json",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run build && npm run api-report:check"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@eslint/js": "^10.0.1",
+    "@microsoft/api-extractor": "^7.59.4",
+    "@types/node": "^22.20.5",
+    "eslint": "^10.13.0",
+    "eslint-plugin-import-x": "^4.17.1",
+    "prettier": "^3.9.10",
+    "publint": "^0.3.25",
+    "tsup": "^9.0.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.72.0",
+    "vitest": "^5.0.5"
+  }
+}
