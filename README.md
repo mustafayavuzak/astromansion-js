@@ -1,4 +1,4 @@
-![Astro Mansion, Official JavaScript SDK](https://raw.githubusercontent.com/mustafayavuzak/astromansion-js/main/banner.webp)
+![Astro Mansion, Official JavaScript SDK](https://api.astromansion.com/v1/sky/banner.svg)
 
 # AstroMansion
 

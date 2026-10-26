@@ -129,7 +129,7 @@ examples/natal_chart.ts             examples/natal_chart.py
 .github/workflows/publish.yml       .github/workflows/publish.yml, test, build, and publish on a v* tag
 package.json, package-lock.json, tsconfig.json, tsup.config.ts, eslint.config.js, .gitignore
 README.md, EXAMPLES.md, CHANGELOG.md, LICENSE
-banner.webp                         banner.webp, the README's banner, which the README loads from GitHub
+banner.webp                         banner.webp, the published packages' banner until their next release, the README now showing the API's live sky
 """
 
 [provenance]
