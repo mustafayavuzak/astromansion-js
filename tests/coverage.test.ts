@@ -72,7 +72,7 @@ beforeEach(() => {
 
 describe("every published endpoint is reachable", () => {
   it("lists every published operation in the table, each under its own name", () => {
-    expect(ENDPOINTS.ALL).toHaveLength(67);
+    expect(ENDPOINTS.ALL).toHaveLength(68);
     expect(Object.keys(ENDPOINTS.BY_NAME)).toHaveLength(ENDPOINTS.ALL.length);
   });
 

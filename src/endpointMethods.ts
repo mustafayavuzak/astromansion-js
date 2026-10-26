@@ -21,7 +21,7 @@
  *     JSON answer   a Result, its body checked against the published shape
  *     document      the bytes, or the path written when output is given
  *
- *   Endpoints: 66. Written on the client itself: renderSharecard.
+ *   Endpoints: 67. Written on the client itself: renderSharecard.
  */
 
 import type {
@@ -62,6 +62,8 @@ import type {
   NatalApiRequest,
   NatalResponse,
   PairTechniqueRequest,
+  PlanetarySystemRequest,
+  PlanetarySystemResponse,
   QueryRequest,
   RenderRequest,
   ReportExportRequest,
@@ -91,6 +93,7 @@ import {
   isMoonPhaseQueryResponse,
   isMoonPhasesResponse,
   isNatalResponse,
+  isPlanetarySystemResponse,
   isRetrogradesResponse,
   isSaturnReturnResponse,
   isTechniqueEnvelope,
@@ -1373,6 +1376,42 @@ export abstract class EndpointMethods {
       signal: call.signal,
     });
     return readWrapped(answer, isTechniqueEnvelope, "patterns");
+  }
+
+  /**
+   * A planet's satellites, in three frames at once.
+   *
+   * @remarks
+   * Sends `POST /v1/planetary-system`. The Python SDK names it planetary_system.
+   *
+   * Calculate a planet's satellite system for a birth moment.
+   *
+   * Three answers come back for every satellite and they are not versions of
+   * one another. From Earth the Galilean moons sit within arcminutes of
+   * Jupiter, so the observed longitude repeats the planet's own. The
+   * planet-centred longitude says where the moon is in its orbit but has no
+   * horizon and therefore no houses. And the projected layer carries that
+   * orbital phase onto the natal circle from Jupiter's own degree, which is
+   * an AstroMansion derivation rather than a received rule. The request names
+   * no language, so the signs are named in English.
+   *
+   * @param fields - The request body, as {@link PlanetarySystemRequest} describes it, sent as given. signal may stand beside its fields.
+   * @param keywords - signal, and output for a document, when they come apart from the body.
+   * @returns The answer as a Result, checked against {@link PlanetarySystemResponse}.
+   * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
+   */
+  async planetarySystem(
+    fields: BodyFields<PlanetarySystemRequest>,
+    keywords?: CallKeywords,
+  ): Promise<Result<PlanetarySystemResponse>> {
+    const call = RequestBodies.body("planetarySystem", fields, keywords, false);
+    const answer = await this.request("POST", "/v1/planetary-system", {
+      json: call.json,
+      technique: "planetary_system",
+      enveloped: false,
+      signal: call.signal,
+    });
+    return readResult(answer, isPlanetarySystemResponse, "planetarySystem");
   }
 
   /**

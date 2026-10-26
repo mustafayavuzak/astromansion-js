@@ -30,6 +30,7 @@ const READER_CONFIG = Object.freeze({
     "required",
     "additionalProperties",
     "items",
+    "prefixItems",
     "anyOf",
     "enum",
     "const",
@@ -169,6 +170,8 @@ export interface SchemaNode {
   readonly additionalProperties: boolean | SchemaNode | undefined;
   /** The schema of an array's items, or undefined when unsaid. */
   readonly items: SchemaNode | undefined;
+  /** The schemas of a fixed-length array's items in their order, or undefined when the node is not one. */
+  readonly prefixItems: readonly SchemaNode[] | undefined;
   /** The schemas a value matches one of, or undefined when the node is not a union. */
   readonly anyOf: readonly SchemaNode[] | undefined;
   /** The values a closed set allows, or undefined when the node is not one. */
@@ -274,7 +277,7 @@ export class GeneratorError extends Error {
  * @example
  * ```ts
  * const document = readOpenApi(await readFile("tools/generate/openapi.v1.json", "utf8"));
- * document.operations.length;              // 67
+ * document.operations.length;              // 68
  * document.components.get("BirthPayload"); // its SchemaNode
  * readOpenApi("not json");                 // throws GeneratorError
  * ```
@@ -506,6 +509,7 @@ function readSchema(value: unknown, at: string): SchemaNode {
       `${at}/additionalProperties`,
     ),
     items: items === undefined ? undefined : readSchema(items, `${at}/items`),
+    prefixItems: readPrefixItems(schema, at),
     anyOf:
       anyOf === undefined
         ? undefined
@@ -528,6 +532,44 @@ function readSchema(value: unknown, at: string): SchemaNode {
         : [{ keyword, json: JSON.stringify(schema[keyword]) }],
     ),
   };
+}
+
+/**
+ * Read the items of a fixed-length array, in their order.
+ *
+ * @remarks
+ * Only the form a tuple takes is written, an array whose minItems and
+ * maxItems both equal the number of its prefixItems and which has no items
+ * keyword for the rest. Any other form allows items the type cannot name.
+ *
+ * @param schema - The schema object.
+ * @param at - Where it stands.
+ * @returns The items' schemas in order, or undefined when the schema has no prefixItems.
+ * @throws {@link GeneratorError} when prefixItems is not a list, or the array is not fixed at its length.
+ */
+function readPrefixItems(
+  schema: JsonRecord,
+  at: string,
+): readonly SchemaNode[] | undefined {
+  const prefixItems = schema["prefixItems"];
+  if (prefixItems === undefined) {
+    return undefined;
+  }
+  const members = listAt(prefixItems, `${at}/prefixItems`);
+  const length = members.length;
+  if (
+    schema["type"] !== "array" ||
+    schema["items"] !== undefined ||
+    schema["minItems"] !== length ||
+    schema["maxItems"] !== length
+  ) {
+    throw new GeneratorError(
+      `${at} uses prefixItems for an array not fixed at the length of its prefixItems, which the generator cannot write`,
+    );
+  }
+  return members.map((member, index) =>
+    readSchema(member, `${at}/prefixItems/${String(index)}`),
+  );
 }
 
 /**

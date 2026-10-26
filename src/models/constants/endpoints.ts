@@ -11,7 +11,7 @@
  *   The tests read it to check that the client and the module-level
  *   shortcuts cover the API, under the Python SDK's names.
  *
- *   Endpoints: 67
+ *   Endpoints: 68
  */
 
 import type { Endpoint } from "../records/endpoints.ts";
@@ -534,6 +534,17 @@ const ALL = Object.freeze([
     binary: false,
     enveloped: true,
     summary: "Jones patterns, stelliums, and aspect figures",
+  },
+  {
+    name: "planetarySystem",
+    operationId: "planetary_system",
+    method: "POST",
+    path: "/v1/planetary-system",
+    kind: "birth_extra",
+    fields: ["birth", "parent", "options"],
+    binary: false,
+    enveloped: false,
+    summary: "A planet's satellites, in three frames at once",
   },
   {
     name: "profection",

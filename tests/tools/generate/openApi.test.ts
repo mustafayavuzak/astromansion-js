@@ -136,6 +136,25 @@ describe("readOpenApi", () => {
     ]);
   });
 
+  it("reads a fixed-length array's items in their order", () => {
+    const document = readOpenApi(
+      snapshot(
+        {},
+        {
+          Span: {
+            type: "array",
+            prefixItems: [{ type: "number" }, { type: "string" }],
+            minItems: 2,
+            maxItems: 2,
+          },
+        },
+      ),
+    );
+    expect(
+      document.components.get("Span")?.prefixItems?.map((item) => item.type),
+    ).toEqual(["number", "string"]);
+  });
+
   it("passes over an extension member", () => {
     const document = readOpenApi(
       snapshot({}, { Theme: { type: "string", "x-origin": "settings" } }),
@@ -148,6 +167,30 @@ describe("readOpenApi", () => {
       "a keyword it cannot write",
       snapshot({}, { Pick: { oneOf: [{ type: "string" }] } }),
       "#/components/schemas/Pick uses the keyword oneOf",
+    ],
+    [
+      "prefixItems with room for more items",
+      snapshot(
+        {},
+        { Span: { type: "array", prefixItems: [{ type: "number" }] } },
+      ),
+      "#/components/schemas/Span uses prefixItems for an array not fixed",
+    ],
+    [
+      "prefixItems beside items for the rest",
+      snapshot(
+        {},
+        {
+          Span: {
+            type: "array",
+            prefixItems: [{ type: "number" }],
+            items: { type: "string" },
+            minItems: 1,
+            maxItems: 1,
+          },
+        },
+      ),
+      "#/components/schemas/Span uses prefixItems for an array not fixed",
     ],
     [
       "a reference outside the components",

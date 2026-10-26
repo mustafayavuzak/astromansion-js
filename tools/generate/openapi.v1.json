@@ -2174,6 +2174,41 @@
         }
       }
     },
+    "/v1/planetary-system": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "A planet's satellites, in three frames at once",
+        "description": "Calculate a planet's satellite system for a birth moment.\n\nThree answers come back for every satellite and they are not versions of\none another. From Earth the Galilean moons sit within arcminutes of\nJupiter, so the observed longitude repeats the planet's own. The\nplanet-centred longitude says where the moon is in its orbit but has no\nhorizon and therefore no houses. And the projected layer carries that\norbital phase onto the natal circle from Jupiter's own degree, which is\nan AstroMansion derivation rather than a received rule. The request names\nno language, so the signs are named in English.",
+        "operationId": "planetary_system",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanetarySystemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanetarySystemResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "An unknown system or satellite, a correction that is not computed, or a date outside the satellite ephemeris."
+          }
+        }
+      }
+    },
     "/v1/render/svg": {
       "post": {
         "tags": [
@@ -3647,6 +3682,29 @@
         "title": "GeoSearchResponse",
         "description": "The places a geocoder search found."
       },
+      "GeocentricFrame": {
+        "properties": {
+          "frame_id": {
+            "type": "string",
+            "title": "Frame Id"
+          },
+          "correction": {
+            "$ref": "#/components/schemas/LightCorrection"
+          },
+          "has_houses": {
+            "type": "boolean",
+            "title": "Has Houses"
+          }
+        },
+        "type": "object",
+        "required": [
+          "frame_id",
+          "correction",
+          "has_houses"
+        ],
+        "title": "GeocentricFrame",
+        "description": "The frame a satellite is seen in from Earth."
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -4097,6 +4155,16 @@
         "maximum": 90.0,
         "minimum": -90.0
       },
+      "LightCorrection": {
+        "type": "string",
+        "enum": [
+          "NONE",
+          "LT",
+          "LT+S"
+        ],
+        "title": "LightCorrection",
+        "description": "A light-time policy, named the way SPICE names it. Its value is the request's key.\n\nThe three are not degrees of the same thing."
+      },
       "Longitude": {
         "type": "number",
         "maximum": 180.0,
@@ -4454,6 +4522,34 @@
         "title": "PairTechniqueRequest",
         "description": "A request for a relational technique that reads two charts."
       },
+      "ParentcentricFrame": {
+        "properties": {
+          "frame_id": {
+            "type": "string",
+            "title": "Frame Id"
+          },
+          "correction": {
+            "$ref": "#/components/schemas/LightCorrection"
+          },
+          "center": {
+            "type": "integer",
+            "title": "Center"
+          },
+          "has_houses": {
+            "type": "boolean",
+            "title": "Has Houses"
+          }
+        },
+        "type": "object",
+        "required": [
+          "frame_id",
+          "correction",
+          "center",
+          "has_houses"
+        ],
+        "title": "ParentcentricFrame",
+        "description": "The frame of the planet's own equator, centred on the planet."
+      },
       "PlaceRow": {
         "properties": {
           "name": {
@@ -4487,6 +4583,135 @@
         ],
         "title": "PlaceRow",
         "description": "One place the geocoder offers for a typed name."
+      },
+      "PlanetarySystemOptions": {
+        "properties": {
+          "satellites": {
+            "items": {
+              "$ref": "#/components/schemas/Satellite"
+            },
+            "type": "array",
+            "maxItems": 16,
+            "title": "Satellites",
+            "description": "Satellite keys, in the order to report them. Left empty it means every satellite of the named system, which is why the default cannot be a list: it depends on which planet was asked for."
+          },
+          "correction": {
+            "$ref": "#/components/schemas/LightCorrection",
+            "description": "Light-time policy for the observed layer. NONE is geometric, LT is astrometric. LT+S adds stellar aberration and is not computed.",
+            "default": "LT"
+          },
+          "include_geocentric": {
+            "type": "boolean",
+            "title": "Include Geocentric",
+            "description": "Report where each satellite is seen from Earth.",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PlanetarySystemOptions",
+        "description": "What to compute, and how far to correct it."
+      },
+      "PlanetarySystemRequest": {
+        "properties": {
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "parent": {
+            "$ref": "#/components/schemas/SatelliteSystem",
+            "description": "Planetary system to read.",
+            "default": "jupiter"
+          },
+          "options": {
+            "$ref": "#/components/schemas/PlanetarySystemOptions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "birth"
+        ],
+        "title": "PlanetarySystemRequest",
+        "description": "The birth, the system to read, and the options that shape it.\n\nThe parent's own natal position is not a field: it is calculated from the\nsame birth data as everything else, so accepting it would let a caller\nanchor the projected layer on a longitude the chart does not agree with."
+      },
+      "PlanetarySystemResponse": {
+        "properties": {
+          "parent": {
+            "$ref": "#/components/schemas/SystemParent"
+          },
+          "ephemeris": {
+            "$ref": "#/components/schemas/SystemEphemeris"
+          },
+          "time": {
+            "$ref": "#/components/schemas/SystemTime"
+          },
+          "frames": {
+            "$ref": "#/components/schemas/SystemFrames"
+          },
+          "satellites": {
+            "items": {
+              "$ref": "#/components/schemas/SatelliteRow"
+            },
+            "type": "array",
+            "title": "Satellites"
+          }
+        },
+        "type": "object",
+        "required": [
+          "parent",
+          "ephemeris",
+          "time",
+          "frames",
+          "satellites"
+        ],
+        "title": "PlanetarySystemResponse",
+        "description": "A planet's satellite system for a birth moment."
+      },
+      "ProjectedFrame": {
+        "properties": {
+          "frame_id": {
+            "type": "string",
+            "title": "Frame Id"
+          },
+          "technique": {
+            "type": "string",
+            "title": "Technique"
+          },
+          "tradition": {
+            "type": "string",
+            "title": "Tradition"
+          },
+          "zero_reference": {
+            "type": "string",
+            "title": "Zero Reference"
+          },
+          "zero_longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zero Longitude"
+          },
+          "has_houses": {
+            "type": "boolean",
+            "title": "Has Houses"
+          }
+        },
+        "type": "object",
+        "required": [
+          "frame_id",
+          "technique",
+          "tradition",
+          "zero_reference",
+          "zero_longitude",
+          "has_houses"
+        ],
+        "title": "ProjectedFrame",
+        "description": "The natal circle the satellites' orbital phases are carried onto."
       },
       "QueryBorder": {
         "type": "string",
@@ -4763,6 +4988,293 @@
         "title": "RetrogradesResponse",
         "description": "One calendar year of retrogrades."
       },
+      "Satellite": {
+        "type": "string",
+        "enum": [
+          "phobos",
+          "deimos",
+          "io",
+          "europa",
+          "ganymede",
+          "callisto",
+          "mimas",
+          "enceladus",
+          "tethys",
+          "dione",
+          "rhea",
+          "titan",
+          "hyperion",
+          "iapetus",
+          "ariel",
+          "umbriel",
+          "titania",
+          "oberon",
+          "miranda",
+          "triton",
+          "charon",
+          "nix",
+          "hydra",
+          "kerberos",
+          "styx"
+        ],
+        "title": "Satellite",
+        "description": "A satellite the API publishes. Its value is the request's key."
+      },
+      "SatelliteGeocentric": {
+        "properties": {
+          "frame_id": {
+            "type": "string",
+            "title": "Frame Id"
+          },
+          "correction": {
+            "$ref": "#/components/schemas/LightCorrection"
+          },
+          "correction_label": {
+            "type": "string",
+            "title": "Correction Label"
+          },
+          "observer": {
+            "type": "integer",
+            "title": "Observer"
+          },
+          "origin": {
+            "type": "integer",
+            "title": "Origin"
+          },
+          "distance_km": {
+            "type": "number",
+            "title": "Distance Km"
+          },
+          "light_time_seconds": {
+            "type": "number",
+            "title": "Light Time Seconds"
+          },
+          "target_epoch_et": {
+            "type": "number",
+            "title": "Target Epoch Et"
+          },
+          "iterations": {
+            "type": "integer",
+            "title": "Iterations"
+          },
+          "has_houses": {
+            "type": "boolean",
+            "title": "Has Houses"
+          }
+        },
+        "type": "object",
+        "required": [
+          "frame_id",
+          "correction",
+          "correction_label",
+          "observer",
+          "origin",
+          "distance_km",
+          "light_time_seconds",
+          "target_epoch_et",
+          "iterations",
+          "has_houses"
+        ],
+        "title": "SatelliteGeocentric",
+        "description": "Where a satellite is seen from Earth."
+      },
+      "SatelliteParentcentric": {
+        "properties": {
+          "frame_id": {
+            "type": "string",
+            "title": "Frame Id"
+          },
+          "correction": {
+            "$ref": "#/components/schemas/LightCorrection"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "distance_km": {
+            "type": "number",
+            "title": "Distance Km"
+          },
+          "sector": {
+            "type": "integer",
+            "title": "Sector"
+          },
+          "degree_in_sector": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Degree In Sector"
+          },
+          "has_houses": {
+            "type": "boolean",
+            "title": "Has Houses"
+          }
+        },
+        "type": "object",
+        "required": [
+          "frame_id",
+          "correction",
+          "longitude",
+          "latitude",
+          "distance_km",
+          "sector",
+          "degree_in_sector",
+          "has_houses"
+        ],
+        "title": "SatelliteParentcentric",
+        "description": "Where a satellite is in its orbit around the planet."
+      },
+      "SatelliteProjected": {
+        "properties": {
+          "frame_id": {
+            "type": "string",
+            "title": "Frame Id"
+          },
+          "technique": {
+            "type": "string",
+            "title": "Technique"
+          },
+          "tradition": {
+            "type": "string",
+            "title": "Tradition"
+          },
+          "zero_reference": {
+            "type": "string",
+            "title": "Zero Reference"
+          },
+          "orbital_phase": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orbital Phase"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "sign": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sign"
+          },
+          "house": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "House"
+          }
+        },
+        "type": "object",
+        "required": [
+          "frame_id",
+          "technique",
+          "tradition",
+          "zero_reference",
+          "orbital_phase",
+          "longitude",
+          "sign",
+          "house"
+        ],
+        "title": "SatelliteProjected",
+        "description": "A satellite's orbital phase carried onto the natal circle from the planet's own degree."
+      },
+      "SatelliteRow": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "naif_id": {
+            "type": "integer",
+            "title": "Naif Id"
+          },
+          "geocentric": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SatelliteGeocentric"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "parentcentric": {
+            "$ref": "#/components/schemas/SatelliteParentcentric"
+          },
+          "natal_parent_projected": {
+            "$ref": "#/components/schemas/SatelliteProjected"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "naif_id",
+          "geocentric",
+          "parentcentric",
+          "natal_parent_projected"
+        ],
+        "title": "SatelliteRow",
+        "description": "One satellite, a record per frame."
+      },
+      "SatelliteSystem": {
+        "type": "string",
+        "enum": [
+          "mars",
+          "jupiter",
+          "saturn",
+          "uranus",
+          "neptune",
+          "pluto"
+        ],
+        "title": "SatelliteSystem",
+        "description": "A planet whose satellite system the API publishes. Its value is the request's key."
+      },
       "SaturnReturnEvent": {
         "properties": {
           "return": {
@@ -4939,6 +5451,148 @@
         ],
         "title": "SummaryRow",
         "description": "One of the chart's leading points in the public natal answer."
+      },
+      "SystemEphemeris": {
+        "properties": {
+          "kernel": {
+            "type": "string",
+            "title": "Kernel"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "planetary_kernel": {
+            "type": "string",
+            "title": "Planetary Kernel"
+          },
+          "matches_horizons": {
+            "type": "boolean",
+            "title": "Matches Horizons"
+          },
+          "horizons_delta_km": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Horizons Delta Km"
+          },
+          "coverage_jd": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "array",
+            "title": "Coverage Jd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kernel",
+          "source",
+          "planetary_kernel",
+          "matches_horizons",
+          "horizons_delta_km",
+          "coverage_jd"
+        ],
+        "title": "SystemEphemeris",
+        "description": "The satellite kernel an answer was read from."
+      },
+      "SystemFrames": {
+        "properties": {
+          "geocentric": {
+            "$ref": "#/components/schemas/GeocentricFrame"
+          },
+          "parentcentric": {
+            "$ref": "#/components/schemas/ParentcentricFrame"
+          },
+          "natal_parent_projected": {
+            "$ref": "#/components/schemas/ProjectedFrame"
+          }
+        },
+        "type": "object",
+        "required": [
+          "geocentric",
+          "parentcentric",
+          "natal_parent_projected"
+        ],
+        "title": "SystemFrames",
+        "description": "The three frames of a satellite system."
+      },
+      "SystemParent": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "naif_id": {
+            "type": "integer",
+            "title": "Naif Id"
+          },
+          "natal_longitude": {
+            "type": "number",
+            "title": "Natal Longitude"
+          },
+          "natal_sign": {
+            "type": "string",
+            "title": "Natal Sign"
+          },
+          "parentcentric_longitude": {
+            "type": "null",
+            "title": "Parentcentric Longitude"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "naif_id",
+          "natal_longitude",
+          "natal_sign"
+        ],
+        "title": "SystemParent",
+        "description": "The planet a satellite system is read around."
+      },
+      "SystemTime": {
+        "properties": {
+          "scale": {
+            "type": "string",
+            "title": "Scale"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "et_seconds": {
+            "type": "number",
+            "title": "Et Seconds"
+          },
+          "jd": {
+            "type": "number",
+            "title": "Jd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scale",
+          "model",
+          "et_seconds",
+          "jd"
+        ],
+        "title": "SystemTime",
+        "description": "The epoch an answer is read at."
       },
       "TechniqueEnvelope": {
         "properties": {

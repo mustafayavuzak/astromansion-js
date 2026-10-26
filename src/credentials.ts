@@ -177,7 +177,7 @@ export function resolveBaseUrl(
  * ```ts
  * buildHeaders("am_Zx81qP0vT3kL9mN2bC7dE4fG6hJ1sR5w");
  * // { Accept: "application/json", "Content-Type": "application/json",
- * //   "User-Agent": "astromansion/0.1.0-alpha.2", "X-API-Key": "am_Zx81qP0vT3kL9mN2bC7dE4fG6hJ1sR5w" }
+ * //   "User-Agent": "astromansion/0.1.0-alpha.3", "X-API-Key": "am_Zx81qP0vT3kL9mN2bC7dE4fG6hJ1sR5w" }
  * buildHeaders(undefined);   // the same without "X-API-Key", for a visitor
  * ```
  */

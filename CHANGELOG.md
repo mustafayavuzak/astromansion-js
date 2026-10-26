@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.0-alpha.3
+
+- `planetarySystem` calculates a planet's satellites for a birth, in three
+  frames at once. It is the API's new operation, so the client has 68
+  methods. Its body is sent as given, as in
+  `client.planetarySystem({ birth, parent: "jupiter" })`, and it needs a plan
+  with extended bodies.
+- Its answer is typed and checked like every other typed answer. A satellite
+  kernel's coverage reads as pairs of Julian days, typed as
+  `readonly [number, number]`.
+
 ## 0.1.0-alpha.2
 
 - The four custom body methods answer with typed results, as the API's

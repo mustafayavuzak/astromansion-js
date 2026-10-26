@@ -14,7 +14,7 @@
  *     import * as am from "astromansion";
  *     const chart = await am.natal(birth);   // defaultClient().natal(birth)
  *
- *   Endpoints: 67
+ *   Endpoints: 68
  */
 
 import type { AstroMansion } from "./client.ts";
@@ -674,6 +674,22 @@ export async function patterns(
   ...args: Parameters<AstroMansion["patterns"]>
 ): ReturnType<AstroMansion["patterns"]> {
   return defaultClient().patterns(...args);
+}
+
+/**
+ * A planet's satellites, in three frames at once.
+ *
+ * @remarks
+ * Forwards to {@link EndpointMethods.planetarySystem} on the shared client.
+ *
+ * @param args - The arguments {@link EndpointMethods.planetarySystem} takes.
+ * @returns What {@link EndpointMethods.planetarySystem} returns.
+ * @throws {@link AuthenticationError} when the shared client is built now and no key was found, and whatever the method throws.
+ */
+export async function planetarySystem(
+  ...args: Parameters<AstroMansion["planetarySystem"]>
+): ReturnType<AstroMansion["planetarySystem"]> {
+  return defaultClient().planetarySystem(...args);
 }
 
 /**

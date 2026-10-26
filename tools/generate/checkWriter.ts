@@ -292,10 +292,13 @@ class CheckWriter {
    * @param schema - The list's schema.
    * @param value - The expression that reads the list.
    * @param depth - How many nested tests stand around this one.
-   * @returns The test of a list whose every item passes the items' test.
+   * @returns The test of a list whose every item passes the items' test, or of a fixed-length list whose items each pass their own.
    */
   #listTest(schema: SchemaNode, value: string, depth: number): string {
     this.#tests.add("isJsonArrayOf");
+    if (schema.prefixItems !== undefined) {
+      return this.#tupleTest(schema.prefixItems, value, depth);
+    }
     const item = `${CHECK_WRITER_CONFIG.ITEM}${String(depth)}`;
     const test =
       schema.items === undefined
@@ -304,6 +307,30 @@ class CheckWriter {
     return test === undefined
       ? `isJsonArrayOf(${value})`
       : `isJsonArrayOf(${value}, (${item}) => ${test})`;
+  }
+
+  /**
+   * Write the test of a fixed-length list.
+   *
+   * @param items - The schemas of its items, in their order.
+   * @param value - The expression that reads the list.
+   * @param depth - How many nested tests stand around this one.
+   * @returns The test of a list of exactly that many items, each passing the test of its own place.
+   */
+  #tupleTest(
+    items: readonly SchemaNode[],
+    value: string,
+    depth: number,
+  ): string {
+    const places = items.flatMap((item, index) => {
+      const test = this.#test(item, `${value}[${String(index)}]`, depth + 1);
+      return test === undefined ? [] : [test];
+    });
+    return `(${[
+      `isJsonArrayOf(${value})`,
+      `${value}.length === ${String(items.length)}`,
+      ...places,
+    ].join(" && ")})`;
   }
 
   /**

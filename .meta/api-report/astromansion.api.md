@@ -399,6 +399,7 @@ export abstract class EndpointMethods {
     pairAspects(birth: BirthFields, partner: BirthFields, keywords?: PairKeywords<PairTechniqueRequest["options"]>): Promise<Result>;
     parans(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     patterns(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    planetarySystem(fields: BodyFields<PlanetarySystemRequest>, keywords?: CallKeywords): Promise<Result<PlanetarySystemResponse>>;
     profection(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     progression(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     query(fields: BodyFields<QueryRequest>, keywords?: CallKeywords): Promise<Result | string>;
@@ -448,6 +449,13 @@ export type FetchFunction = (input: string, init: RequestInit) => Promise<Respon
 
 // @public
 export function firdaria(...args: Parameters<AstroMansion["firdaria"]>): ReturnType<AstroMansion["firdaria"]>;
+
+// @public
+export type GeocentricFrame = Readonly<{
+    frame_id: string;
+    correction: OpenSet<LightCorrection>;
+    has_houses: boolean;
+}>;
 
 // @public
 export type GeoSearchResponse = Readonly<{
@@ -586,6 +594,9 @@ export type LanguageCode = string;
 
 // @public
 export type Latitude = number;
+
+// @public
+export type LightCorrection = "NONE" | "LT" | "LT+S";
 
 // @public
 export function listJobs(...args: Parameters<AstroMansion["listJobs"]>): ReturnType<AstroMansion["listJobs"]>;
@@ -727,6 +738,14 @@ export type ParamsFields<Query> = Query & CallKeywords;
 export function parans(...args: Parameters<AstroMansion["parans"]>): ReturnType<AstroMansion["parans"]>;
 
 // @public
+export type ParentcentricFrame = Readonly<{
+    frame_id: string;
+    correction: OpenSet<LightCorrection>;
+    center: number;
+    has_houses: boolean;
+}>;
+
+// @public
 export function patterns(...args: Parameters<AstroMansion["patterns"]>): ReturnType<AstroMansion["patterns"]>;
 
 // @public
@@ -744,10 +763,46 @@ export type PlaceRow = Readonly<{
 }>;
 
 // @public
+export function planetarySystem(...args: Parameters<AstroMansion["planetarySystem"]>): ReturnType<AstroMansion["planetarySystem"]>;
+
+// @public
+export type PlanetarySystemOptions = Readonly<{
+    satellites?: readonly Satellite[];
+    correction?: LightCorrection;
+    include_geocentric?: boolean;
+}>;
+
+// @public
+export type PlanetarySystemRequest = Readonly<{
+    birth: BirthPayload;
+    parent?: SatelliteSystem;
+    options?: PlanetarySystemOptions;
+}>;
+
+// @public
+export type PlanetarySystemResponse = Readonly<{
+    parent: SystemParent;
+    ephemeris: SystemEphemeris;
+    time: SystemTime;
+    frames: SystemFrames;
+    satellites: readonly SatelliteRow[];
+}>;
+
+// @public
 export function profection(...args: Parameters<AstroMansion["profection"]>): ReturnType<AstroMansion["profection"]>;
 
 // @public
 export function progression(...args: Parameters<AstroMansion["progression"]>): ReturnType<AstroMansion["progression"]>;
+
+// @public
+export type ProjectedFrame = Readonly<{
+    frame_id: string;
+    technique: string;
+    tradition: string;
+    zero_reference: string;
+    zero_longitude?: number | null;
+    has_houses: boolean;
+}>;
 
 // @public
 export function query(...args: Parameters<AstroMansion["query"]>): ReturnType<AstroMansion["query"]>;
@@ -905,6 +960,59 @@ export type RetrogradesResponse = Readonly<{
 }>;
 
 // @public
+export type Satellite = "phobos" | "deimos" | "io" | "europa" | "ganymede" | "callisto" | "mimas" | "enceladus" | "tethys" | "dione" | "rhea" | "titan" | "hyperion" | "iapetus" | "ariel" | "umbriel" | "titania" | "oberon" | "miranda" | "triton" | "charon" | "nix" | "hydra" | "kerberos" | "styx";
+
+// @public
+export type SatelliteGeocentric = Readonly<{
+    frame_id: string;
+    correction: OpenSet<LightCorrection>;
+    correction_label: string;
+    observer: number;
+    origin: number;
+    distance_km: number;
+    light_time_seconds: number;
+    target_epoch_et: number;
+    iterations: number;
+    has_houses: boolean;
+}>;
+
+// @public
+export type SatelliteParentcentric = Readonly<{
+    frame_id: string;
+    correction: OpenSet<LightCorrection>;
+    longitude?: number | null;
+    latitude?: number | null;
+    distance_km: number;
+    sector: number;
+    degree_in_sector?: number | null;
+    has_houses: boolean;
+}>;
+
+// @public
+export type SatelliteProjected = Readonly<{
+    frame_id: string;
+    technique: string;
+    tradition: string;
+    zero_reference: string;
+    orbital_phase?: number | null;
+    longitude?: number | null;
+    sign?: string | null;
+    house?: number | null;
+}>;
+
+// @public
+export type SatelliteRow = Readonly<{
+    name: string;
+    naif_id: number;
+    geocentric?: SatelliteGeocentric | null;
+    parentcentric: SatelliteParentcentric;
+    natal_parent_projected: SatelliteProjected;
+}>;
+
+// @public
+export type SatelliteSystem = "mars" | "jupiter" | "saturn" | "uranus" | "neptune" | "pluto";
+
+// @public
 export function saturnReturn(...args: Parameters<AstroMansion["saturnReturn"]>): ReturnType<AstroMansion["saturnReturn"]>;
 
 // @public
@@ -998,6 +1106,40 @@ export type SummaryRow = Readonly<{
 
 // @public
 export function synastry(...args: Parameters<AstroMansion["synastry"]>): ReturnType<AstroMansion["synastry"]>;
+
+// @public
+export type SystemEphemeris = Readonly<{
+    kernel: string;
+    source: string;
+    planetary_kernel: string;
+    matches_horizons: boolean;
+    horizons_delta_km?: number | null;
+    coverage_jd: readonly (readonly [number, number])[];
+}>;
+
+// @public
+export type SystemFrames = Readonly<{
+    geocentric: GeocentricFrame;
+    parentcentric: ParentcentricFrame;
+    natal_parent_projected: ProjectedFrame;
+}>;
+
+// @public
+export type SystemParent = Readonly<{
+    name: string;
+    naif_id: number;
+    natal_longitude: number;
+    natal_sign: string;
+    parentcentric_longitude?: null;
+}>;
+
+// @public
+export type SystemTime = Readonly<{
+    scale: string;
+    model: string;
+    et_seconds: number;
+    jd: number;
+}>;
 
 // @public
 export type TechniqueEnvelope = Readonly<{

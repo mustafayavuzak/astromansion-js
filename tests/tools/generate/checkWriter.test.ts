@@ -101,6 +101,29 @@ describe("renderAnswerChecks", () => {
     expect(checks).toContain("export function isRefused(");
   });
 
+  it("tests a fixed-length list by its length and each place's own test", () => {
+    const tuples = checksOf({
+      Answer: {
+        type: "object",
+        properties: {
+          spans: {
+            type: "array",
+            items: {
+              type: "array",
+              prefixItems: [{ type: "number" }, { type: "string" }],
+              minItems: 2,
+              maxItems: 2,
+            },
+          },
+        },
+        required: ["spans"],
+      },
+    });
+    expect(tuples).toContain(
+      'isJsonArrayOf(value["spans"], (item0) => (isJsonArrayOf(item0) && item0.length === 2 && typeof item0[0] === "number" && typeof item0[1] === "string"))',
+    );
+  });
+
   it("refuses an object that names its members inside an answer", () => {
     expect(() =>
       checksOf({

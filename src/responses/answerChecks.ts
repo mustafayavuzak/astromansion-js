@@ -35,6 +35,7 @@ import type {
   EclipseEvent,
   EclipsesResponse,
   GeoSearchResponse,
+  GeocentricFrame,
   JobAcceptedResponse,
   JobBatchAccepted,
   JobBatchResponse,
@@ -46,14 +47,25 @@ import type {
   MoonPhaseQueryResponse,
   MoonPhasesResponse,
   NatalResponse,
+  ParentcentricFrame,
   PlaceRow,
+  PlanetarySystemResponse,
+  ProjectedFrame,
   RetrogradeBody,
   RetrogradeCycle,
   RetrogradesResponse,
+  SatelliteGeocentric,
+  SatelliteParentcentric,
+  SatelliteProjected,
+  SatelliteRow,
   SaturnReturnEvent,
   SaturnReturnResponse,
   SavedCustomBody,
   SummaryRow,
+  SystemEphemeris,
+  SystemFrames,
+  SystemParent,
+  SystemTime,
   TechniqueEnvelope,
   VoidMoonInterval,
   VoidMoonResponse,
@@ -323,6 +335,24 @@ export function isEclipsesResponse(
 }
 
 /**
+ * Check that a value has the {@link GeocentricFrame} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member GeocentricFrame requires, each of its published type.
+ */
+export function isGeocentricFrame(
+  value: JsonValue | undefined,
+): value is GeocentricFrame {
+  return (
+    isJsonObject(value) &&
+    typeof value["frame_id"] === "string" &&
+    typeof value["correction"] === "string" &&
+    typeof value["has_houses"] === "boolean"
+  );
+}
+
+/**
  * Check that a value has the {@link GeoSearchResponse} shape.
  *
  * @internal
@@ -578,6 +608,25 @@ export function isNatalResponse(
 }
 
 /**
+ * Check that a value has the {@link ParentcentricFrame} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member ParentcentricFrame requires, each of its published type.
+ */
+export function isParentcentricFrame(
+  value: JsonValue | undefined,
+): value is ParentcentricFrame {
+  return (
+    isJsonObject(value) &&
+    typeof value["frame_id"] === "string" &&
+    typeof value["correction"] === "string" &&
+    Number.isInteger(value["center"]) &&
+    typeof value["has_houses"] === "boolean"
+  );
+}
+
+/**
  * Check that a value has the {@link PlaceRow} shape.
  *
  * @internal
@@ -592,6 +641,49 @@ export function isPlaceRow(value: JsonValue | undefined): value is PlaceRow {
     typeof value["lat"] === "number" &&
     typeof value["lon"] === "number" &&
     typeof value["timezone"] === "string"
+  );
+}
+
+/**
+ * Check that a value has the {@link PlanetarySystemResponse} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member PlanetarySystemResponse requires, each of its published type.
+ */
+export function isPlanetarySystemResponse(
+  value: JsonValue | undefined,
+): value is PlanetarySystemResponse {
+  return (
+    isJsonObject(value) &&
+    isSystemParent(value["parent"]) &&
+    isSystemEphemeris(value["ephemeris"]) &&
+    isSystemTime(value["time"]) &&
+    isSystemFrames(value["frames"]) &&
+    isJsonArrayOf(value["satellites"], (item0) => isSatelliteRow(item0))
+  );
+}
+
+/**
+ * Check that a value has the {@link ProjectedFrame} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member ProjectedFrame requires, each of its published type.
+ */
+export function isProjectedFrame(
+  value: JsonValue | undefined,
+): value is ProjectedFrame {
+  return (
+    isJsonObject(value) &&
+    typeof value["frame_id"] === "string" &&
+    typeof value["technique"] === "string" &&
+    typeof value["tradition"] === "string" &&
+    typeof value["zero_reference"] === "string" &&
+    (value["zero_longitude"] === undefined ||
+      typeof value["zero_longitude"] === "number" ||
+      value["zero_longitude"] === null) &&
+    typeof value["has_houses"] === "boolean"
   );
 }
 
@@ -653,6 +745,113 @@ export function isRetrogradesResponse(
     (value["timezone"] === undefined ||
       typeof value["timezone"] === "string") &&
     isJsonArrayOf(value["bodies"], (item0) => isRetrogradeBody(item0))
+  );
+}
+
+/**
+ * Check that a value has the {@link SatelliteGeocentric} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member SatelliteGeocentric requires, each of its published type.
+ */
+export function isSatelliteGeocentric(
+  value: JsonValue | undefined,
+): value is SatelliteGeocentric {
+  return (
+    isJsonObject(value) &&
+    typeof value["frame_id"] === "string" &&
+    typeof value["correction"] === "string" &&
+    typeof value["correction_label"] === "string" &&
+    Number.isInteger(value["observer"]) &&
+    Number.isInteger(value["origin"]) &&
+    typeof value["distance_km"] === "number" &&
+    typeof value["light_time_seconds"] === "number" &&
+    typeof value["target_epoch_et"] === "number" &&
+    Number.isInteger(value["iterations"]) &&
+    typeof value["has_houses"] === "boolean"
+  );
+}
+
+/**
+ * Check that a value has the {@link SatelliteParentcentric} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member SatelliteParentcentric requires, each of its published type.
+ */
+export function isSatelliteParentcentric(
+  value: JsonValue | undefined,
+): value is SatelliteParentcentric {
+  return (
+    isJsonObject(value) &&
+    typeof value["frame_id"] === "string" &&
+    typeof value["correction"] === "string" &&
+    (value["longitude"] === undefined ||
+      typeof value["longitude"] === "number" ||
+      value["longitude"] === null) &&
+    (value["latitude"] === undefined ||
+      typeof value["latitude"] === "number" ||
+      value["latitude"] === null) &&
+    typeof value["distance_km"] === "number" &&
+    Number.isInteger(value["sector"]) &&
+    (value["degree_in_sector"] === undefined ||
+      typeof value["degree_in_sector"] === "number" ||
+      value["degree_in_sector"] === null) &&
+    typeof value["has_houses"] === "boolean"
+  );
+}
+
+/**
+ * Check that a value has the {@link SatelliteProjected} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member SatelliteProjected requires, each of its published type.
+ */
+export function isSatelliteProjected(
+  value: JsonValue | undefined,
+): value is SatelliteProjected {
+  return (
+    isJsonObject(value) &&
+    typeof value["frame_id"] === "string" &&
+    typeof value["technique"] === "string" &&
+    typeof value["tradition"] === "string" &&
+    typeof value["zero_reference"] === "string" &&
+    (value["orbital_phase"] === undefined ||
+      typeof value["orbital_phase"] === "number" ||
+      value["orbital_phase"] === null) &&
+    (value["longitude"] === undefined ||
+      typeof value["longitude"] === "number" ||
+      value["longitude"] === null) &&
+    (value["sign"] === undefined ||
+      typeof value["sign"] === "string" ||
+      value["sign"] === null) &&
+    (value["house"] === undefined ||
+      Number.isInteger(value["house"]) ||
+      value["house"] === null)
+  );
+}
+
+/**
+ * Check that a value has the {@link SatelliteRow} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member SatelliteRow requires, each of its published type.
+ */
+export function isSatelliteRow(
+  value: JsonValue | undefined,
+): value is SatelliteRow {
+  return (
+    isJsonObject(value) &&
+    typeof value["name"] === "string" &&
+    Number.isInteger(value["naif_id"]) &&
+    (value["geocentric"] === undefined ||
+      isSatelliteGeocentric(value["geocentric"]) ||
+      value["geocentric"] === null) &&
+    isSatelliteParentcentric(value["parentcentric"]) &&
+    isSatelliteProjected(value["natal_parent_projected"])
   );
 }
 
@@ -724,6 +923,94 @@ export function isSummaryRow(
     isJsonObject(value) &&
     typeof value["sign"] === "string" &&
     typeof value["dms"] === "string"
+  );
+}
+
+/**
+ * Check that a value has the {@link SystemEphemeris} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member SystemEphemeris requires, each of its published type.
+ */
+export function isSystemEphemeris(
+  value: JsonValue | undefined,
+): value is SystemEphemeris {
+  return (
+    isJsonObject(value) &&
+    typeof value["kernel"] === "string" &&
+    typeof value["source"] === "string" &&
+    typeof value["planetary_kernel"] === "string" &&
+    typeof value["matches_horizons"] === "boolean" &&
+    (value["horizons_delta_km"] === undefined ||
+      typeof value["horizons_delta_km"] === "number" ||
+      value["horizons_delta_km"] === null) &&
+    isJsonArrayOf(
+      value["coverage_jd"],
+      (item0) =>
+        isJsonArrayOf(item0) &&
+        item0.length === 2 &&
+        typeof item0[0] === "number" &&
+        typeof item0[1] === "number",
+    )
+  );
+}
+
+/**
+ * Check that a value has the {@link SystemFrames} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member SystemFrames requires, each of its published type.
+ */
+export function isSystemFrames(
+  value: JsonValue | undefined,
+): value is SystemFrames {
+  return (
+    isJsonObject(value) &&
+    isGeocentricFrame(value["geocentric"]) &&
+    isParentcentricFrame(value["parentcentric"]) &&
+    isProjectedFrame(value["natal_parent_projected"])
+  );
+}
+
+/**
+ * Check that a value has the {@link SystemParent} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member SystemParent requires, each of its published type.
+ */
+export function isSystemParent(
+  value: JsonValue | undefined,
+): value is SystemParent {
+  return (
+    isJsonObject(value) &&
+    typeof value["name"] === "string" &&
+    Number.isInteger(value["naif_id"]) &&
+    typeof value["natal_longitude"] === "number" &&
+    typeof value["natal_sign"] === "string" &&
+    (value["parentcentric_longitude"] === undefined ||
+      value["parentcentric_longitude"] === null)
+  );
+}
+
+/**
+ * Check that a value has the {@link SystemTime} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member SystemTime requires, each of its published type.
+ */
+export function isSystemTime(
+  value: JsonValue | undefined,
+): value is SystemTime {
+  return (
+    isJsonObject(value) &&
+    typeof value["scale"] === "string" &&
+    typeof value["model"] === "string" &&
+    typeof value["et_seconds"] === "number" &&
+    typeof value["jd"] === "number"
   );
 }
 

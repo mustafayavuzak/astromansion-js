@@ -90,6 +90,28 @@ describe("renderSchemaTypes", () => {
     );
   });
 
+  it("writes a fixed-length list as a tuple, in parentheses inside a list", () => {
+    const tuples = typesOf({
+      Request: { type: "object", properties: {} },
+      Answer: {
+        type: "object",
+        properties: {
+          spans: {
+            type: "array",
+            items: {
+              type: "array",
+              prefixItems: [{ type: "number" }, { type: "number" }],
+              minItems: 2,
+              maxItems: 2,
+            },
+          },
+        },
+        required: ["spans"],
+      },
+    });
+    expect(tuples).toContain("spans: readonly (readonly [number, number])[];");
+  });
+
   it.each([
     ['"wheel-size"?: number;', "a name with a hyphen"],
     ['"2nd"?: string;', "a name that begins with a digit"],

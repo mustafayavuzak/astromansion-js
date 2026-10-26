@@ -134,7 +134,7 @@ export class ShapeCatalog {
  * List the schemas directly inside a schema.
  *
  * @param schema - The schema.
- * @returns Its members' schemas, its other members' schema, its items' schema, and its union's members.
+ * @returns Its members' schemas, its other members' schema, its items' schemas, and its union's members.
  */
 export function childrenOf(schema: SchemaNode): readonly SchemaNode[] {
   const others = schema.additionalProperties;
@@ -142,6 +142,7 @@ export function childrenOf(schema: SchemaNode): readonly SchemaNode[] {
     ...(schema.properties ?? []).map((property) => property.schema),
     ...(typeof others === "object" ? [others] : []),
     ...(schema.items === undefined ? [] : [schema.items]),
+    ...(schema.prefixItems ?? []),
     ...(schema.anyOf ?? []),
   ];
 }
@@ -159,6 +160,7 @@ export function isAnyJson(schema: SchemaNode): boolean {
     schema.properties === undefined &&
     schema.additionalProperties === undefined &&
     schema.items === undefined &&
+    schema.prefixItems === undefined &&
     schema.anyOf === undefined &&
     schema.enumValues === undefined &&
     schema.constValue === undefined

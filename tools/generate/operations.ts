@@ -797,6 +797,7 @@ function untypedSchema(at: string): SchemaNode {
     properties: undefined,
     additionalProperties: undefined,
     items: undefined,
+    prefixItems: undefined,
     anyOf: undefined,
     enumValues: undefined,
     constValue: undefined,

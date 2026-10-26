@@ -370,6 +370,11 @@ class TypeWriter {
       case "null":
         return "null";
       case "array":
+        if (schema.prefixItems !== undefined) {
+          return `readonly [${schema.prefixItems
+            .map((item) => this.#expression(item, context, indent))
+            .join(", ")}]`;
+        }
         return `readonly ${grouped(
           schema.items === undefined
             ? this.#json("JsonValue")
@@ -551,13 +556,19 @@ function isTextSet(schema: SchemaNode): boolean {
 }
 
 /**
- * Wrap a union in parentheses where it stands inside an array type.
+ * Wrap a type in parentheses where it stands as the items of an array type.
+ *
+ * @remarks
+ * A union would otherwise spread over the brackets, and a list or a tuple
+ * would read `readonly readonly …`, which TypeScript refuses.
  *
  * @param type - The type's text.
- * @returns The text, in parentheses when it holds a union.
+ * @returns The text, in parentheses when it holds a union or is itself a list or a tuple.
  */
 function grouped(type: string): string {
-  return type.includes(" | ") ? `(${type})` : type;
+  return type.includes(" | ") || type.startsWith("readonly ")
+    ? `(${type})`
+    : type;
 }
 
 /**

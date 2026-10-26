@@ -356,6 +356,15 @@ export type EclipseType =
   "total" | "annular" | "partial" | "penumbral" | "none";
 
 /**
+ * The frame a satellite is seen in from Earth.
+ */
+export type GeocentricFrame = Readonly<{
+  frame_id: string;
+  correction: OpenSet<LightCorrection>;
+  has_houses: boolean;
+}>;
+
+/**
  * The places a geocoder search found.
  */
 export type GeoSearchResponse = Readonly<{
@@ -514,6 +523,13 @@ export type LanguageCode = string;
  * At least -90. At most 90.
  */
 export type Latitude = number;
+
+/**
+ * A light-time policy, named the way SPICE names it. Its value is the request's key.
+ *
+ * The three are not degrees of the same thing.
+ */
+export type LightCorrection = "NONE" | "LT" | "LT+S";
 
 /**
  * The Longitude value, as the API's schema defines it.
@@ -695,6 +711,16 @@ export type PairTechniqueRequest = Readonly<{
 }>;
 
 /**
+ * The frame of the planet's own equator, centred on the planet.
+ */
+export type ParentcentricFrame = Readonly<{
+  frame_id: string;
+  correction: OpenSet<LightCorrection>;
+  center: number;
+  has_houses: boolean;
+}>;
+
+/**
  * One place the geocoder offers for a typed name.
  */
 export type PlaceRow = Readonly<{
@@ -703,6 +729,71 @@ export type PlaceRow = Readonly<{
   lat: number;
   lon: number;
   timezone: string;
+}>;
+
+/**
+ * What to compute, and how far to correct it.
+ */
+export type PlanetarySystemOptions = Readonly<{
+  /**
+   * Satellite keys, in the order to report them. Left empty it means every satellite of the named system, which is why the default cannot be a list: it depends on which planet was asked for.
+   *
+   * At most 16 items.
+   */
+  satellites?: readonly Satellite[];
+  /**
+   * Light-time policy for the observed layer. NONE is geometric, LT is astrometric. LT+S adds stellar aberration and is not computed.
+   *
+   * @defaultValue `"LT"`
+   */
+  correction?: LightCorrection;
+  /**
+   * Report where each satellite is seen from Earth.
+   *
+   * @defaultValue `true`
+   */
+  include_geocentric?: boolean;
+}>;
+
+/**
+ * The birth, the system to read, and the options that shape it.
+ *
+ * The parent's own natal position is not a field: it is calculated from the
+ * same birth data as everything else, so accepting it would let a caller
+ * anchor the projected layer on a longitude the chart does not agree with.
+ */
+export type PlanetarySystemRequest = Readonly<{
+  birth: BirthPayload;
+  /**
+   * Planetary system to read.
+   *
+   * @defaultValue `"jupiter"`
+   */
+  parent?: SatelliteSystem;
+  options?: PlanetarySystemOptions;
+}>;
+
+/**
+ * A planet's satellite system for a birth moment.
+ */
+export type PlanetarySystemResponse = Readonly<{
+  parent: SystemParent;
+  ephemeris: SystemEphemeris;
+  time: SystemTime;
+  frames: SystemFrames;
+  satellites: readonly SatelliteRow[];
+}>;
+
+/**
+ * The natal circle the satellites' orbital phases are carried onto.
+ */
+export type ProjectedFrame = Readonly<{
+  frame_id: string;
+  technique: string;
+  tradition: string;
+  zero_reference: string;
+  zero_longitude?: number | null;
+  has_houses: boolean;
 }>;
 
 /**
@@ -855,6 +946,97 @@ export type RetrogradesResponse = Readonly<{
 }>;
 
 /**
+ * A satellite the API publishes. Its value is the request's key.
+ */
+export type Satellite =
+  | "phobos"
+  | "deimos"
+  | "io"
+  | "europa"
+  | "ganymede"
+  | "callisto"
+  | "mimas"
+  | "enceladus"
+  | "tethys"
+  | "dione"
+  | "rhea"
+  | "titan"
+  | "hyperion"
+  | "iapetus"
+  | "ariel"
+  | "umbriel"
+  | "titania"
+  | "oberon"
+  | "miranda"
+  | "triton"
+  | "charon"
+  | "nix"
+  | "hydra"
+  | "kerberos"
+  | "styx";
+
+/**
+ * Where a satellite is seen from Earth.
+ */
+export type SatelliteGeocentric = Readonly<{
+  frame_id: string;
+  correction: OpenSet<LightCorrection>;
+  correction_label: string;
+  observer: number;
+  origin: number;
+  distance_km: number;
+  light_time_seconds: number;
+  target_epoch_et: number;
+  iterations: number;
+  has_houses: boolean;
+}>;
+
+/**
+ * Where a satellite is in its orbit around the planet.
+ */
+export type SatelliteParentcentric = Readonly<{
+  frame_id: string;
+  correction: OpenSet<LightCorrection>;
+  longitude?: number | null;
+  latitude?: number | null;
+  distance_km: number;
+  sector: number;
+  degree_in_sector?: number | null;
+  has_houses: boolean;
+}>;
+
+/**
+ * A satellite's orbital phase carried onto the natal circle from the planet's own degree.
+ */
+export type SatelliteProjected = Readonly<{
+  frame_id: string;
+  technique: string;
+  tradition: string;
+  zero_reference: string;
+  orbital_phase?: number | null;
+  longitude?: number | null;
+  sign?: string | null;
+  house?: number | null;
+}>;
+
+/**
+ * One satellite, a record per frame.
+ */
+export type SatelliteRow = Readonly<{
+  name: string;
+  naif_id: number;
+  geocentric?: SatelliteGeocentric | null;
+  parentcentric: SatelliteParentcentric;
+  natal_parent_projected: SatelliteProjected;
+}>;
+
+/**
+ * A planet whose satellite system the API publishes. Its value is the request's key.
+ */
+export type SatelliteSystem =
+  "mars" | "jupiter" | "saturn" | "uranus" | "neptune" | "pluto";
+
+/**
  * One exact Saturn return.
  */
 export type SaturnReturnEvent = Readonly<{
@@ -943,6 +1125,48 @@ export type ShareCardRequest = Readonly<{
 export type SummaryRow = Readonly<{
   sign: string;
   dms: string;
+}>;
+
+/**
+ * The satellite kernel an answer was read from.
+ */
+export type SystemEphemeris = Readonly<{
+  kernel: string;
+  source: string;
+  planetary_kernel: string;
+  matches_horizons: boolean;
+  horizons_delta_km?: number | null;
+  coverage_jd: readonly (readonly [number, number])[];
+}>;
+
+/**
+ * The three frames of a satellite system.
+ */
+export type SystemFrames = Readonly<{
+  geocentric: GeocentricFrame;
+  parentcentric: ParentcentricFrame;
+  natal_parent_projected: ProjectedFrame;
+}>;
+
+/**
+ * The planet a satellite system is read around.
+ */
+export type SystemParent = Readonly<{
+  name: string;
+  naif_id: number;
+  natal_longitude: number;
+  natal_sign: string;
+  parentcentric_longitude?: null;
+}>;
+
+/**
+ * The epoch an answer is read at.
+ */
+export type SystemTime = Readonly<{
+  scale: string;
+  model: string;
+  et_seconds: number;
+  jd: number;
 }>;
 
 /**
