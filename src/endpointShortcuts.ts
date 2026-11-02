@@ -14,7 +14,7 @@
  *     import * as am from "astromansion";
  *     const chart = await am.natal(birth);   // defaultClient().natal(birth)
  *
- *   Endpoints: 68
+ *   Endpoints: 69
  */
 
 import type { AstroMansion } from "./client.ts";
@@ -786,6 +786,22 @@ export async function renderBiwheel(
   ...args: Parameters<AstroMansion["renderBiwheel"]>
 ): ReturnType<AstroMansion["renderBiwheel"]> {
   return defaultClient().renderBiwheel(...args);
+}
+
+/**
+ * Any kind of chart as a styled wheel: natal, rising sign, transits, synastry, and more.
+ *
+ * @remarks
+ * Forwards to {@link EndpointMethods.renderChart} on the shared client.
+ *
+ * @param args - The arguments {@link EndpointMethods.renderChart} takes.
+ * @returns What {@link EndpointMethods.renderChart} returns.
+ * @throws {@link AuthenticationError} when the shared client is built now and no key was found, and whatever the method throws.
+ */
+export async function renderChart(
+  ...args: Parameters<AstroMansion["renderChart"]>
+): ReturnType<AstroMansion["renderChart"]> {
+  return defaultClient().renderChart(...args);
 }
 
 /**

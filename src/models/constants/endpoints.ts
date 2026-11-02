@@ -11,7 +11,7 @@
  *   The tests read it to check that the client and the module-level
  *   shortcuts cover the API, under the Python SDK's names.
  *
- *   Endpoints: 68
+ *   Endpoints: 69
  */
 
 import type { Endpoint } from "../records/endpoints.ts";
@@ -285,6 +285,7 @@ const ALL = Object.freeze([
       "author",
       "custom_text",
       "accent",
+      "watermark",
       "white_label",
       "logo_b64",
       "birth",
@@ -607,10 +608,21 @@ const ALL = Object.freeze([
     method: "POST",
     path: "/v1/render/biwheel",
     kind: "pair",
-    fields: ["birth", "partner"],
+    fields: ["birth", "partner", "watermark"],
     binary: true,
     enveloped: undefined,
     summary: "Bi-wheel chart (natal and second chart)",
+  },
+  {
+    name: "renderChart",
+    operationId: "render_chart",
+    method: "POST",
+    path: "/v1/render/chart",
+    kind: "birth_extra",
+    fields: ["type", "format", "birth", "partner", "options"],
+    binary: true,
+    enveloped: undefined,
+    summary: "Any kind of chart as a styled wheel: natal, rising sign,…",
   },
   {
     name: "renderPng",

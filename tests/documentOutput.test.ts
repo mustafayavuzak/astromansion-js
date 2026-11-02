@@ -23,6 +23,7 @@ import {
   exportReport,
   renderAstrocartography,
   renderBiwheel,
+  renderChart,
   renderPng,
   renderSharecard,
   renderSvg,
@@ -35,6 +36,20 @@ import { FakeFetch, type ScriptedAnswer } from "./fakes/fetch.ts";
 
 const KEY = "am_test_key_0123456789";
 const BIRTH = Object.freeze({ date: "2000-01-01", lat: 51.4779, lon: 0 });
+/** A chart renderer's complete body, including its image type and custom style. */
+const CHART_REQUEST = Object.freeze({
+  type: "natal",
+  format: "png",
+  birth: BIRTH,
+  options: {
+    theme: "dark",
+    style: {
+      preset: "ink",
+      colors: { house_lines: "#123456" },
+      show: { watermark: false, canvas_background: false },
+    },
+  },
+});
 const BLOB = new TextEncoder().encode(
   "%PDF-1.4 or <svg/> or PNG, the client does not care",
 );
@@ -60,6 +75,8 @@ const CALLS: Readonly<Record<string, DocumentCall>> = Object.freeze({
     client.renderAstrocartography({ birth: BIRTH, output }),
   renderBiwheel: (client, output) =>
     client.renderBiwheel(BIRTH, BIRTH, { output }),
+  renderChart: (client, output) =>
+    client.renderChart(CHART_REQUEST, { output }),
   renderPng: (client, output) => client.renderPng({ ...BIRTH, output }),
   renderSharecard: (client, output) =>
     client.renderSharecard(BIRTH, BIRTH, { output }),
@@ -76,6 +93,7 @@ const SHORTCUT_CALLS: Readonly<
   renderAstrocartography: (output) =>
     renderAstrocartography({ birth: BIRTH, output }),
   renderBiwheel: (output) => renderBiwheel(BIRTH, BIRTH, { output }),
+  renderChart: (output) => renderChart(CHART_REQUEST, { output }),
   renderPng: (output) => renderPng({ ...BIRTH, output }),
   renderSharecard: (output) => renderSharecard(BIRTH, BIRTH, { output }),
   renderSvg: (output) => renderSvg({ ...BIRTH, output }),
@@ -127,11 +145,27 @@ describe("writing a document to a path", () => {
         "exportReport",
         "renderAstrocartography",
         "renderBiwheel",
+        "renderChart",
         "renderPng",
         "renderSharecard",
         "renderSvg",
       ]),
     );
+  });
+
+  it("keeps the chart kind, image type and custom style in the request", async () => {
+    const fake = new FakeFetch([DOCUMENT]);
+    const client = new AstroMansion({ apiKey: KEY, fetch: fake.fetch });
+
+    expect(await client.renderChart(CHART_REQUEST)).toEqual(BLOB);
+    expect(fake.calls).toHaveLength(1);
+    const [call] = fake.calls;
+    if (call === undefined) {
+      throw new Error("the chart request was not recorded");
+    }
+    const body: unknown = JSON.parse(call.body ?? "null");
+    expect(call.url).toBe("https://api.astromansion.com/v1/render/chart");
+    expect(body).toEqual(CHART_REQUEST);
   });
 
   it.each(BINARY)("lets %s write itself", async (name) => {

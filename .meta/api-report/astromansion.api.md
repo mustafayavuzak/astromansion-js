@@ -128,6 +128,7 @@ export type BirthPayload = Readonly<{
 export type BiWheelRequest = Readonly<{
     birth: BirthPayload;
     partner: BirthPayload;
+    watermark?: boolean;
 }>;
 
 // @public
@@ -171,9 +172,15 @@ export function chart(...args: Parameters<AstroMansion["chart"]>): ReturnType<As
 export type ChartFields<Options> = BirthFields & ChartKeywords<Options>;
 
 // @public
+export type ChartImage = "svg" | "png";
+
+// @public
 export type ChartKeywords<Options> = CallKeywords & Readonly<{
     options?: Options | undefined;
 }>;
+
+// @public
+export type ChartKind = "natal" | "rising" | "transits" | "synastry" | "composite" | "solar_return" | "lunar_return" | "saturn_return" | "progressions" | "solar_arc";
 
 // @public
 export type ChartOptions = Readonly<{
@@ -184,6 +191,15 @@ export type ChartOptions = Readonly<{
     include?: readonly string[];
     exclude?: readonly string[];
     exclusive?: boolean;
+}>;
+
+// @public
+export type ChartRenderRequest = Readonly<{
+    type: ChartKind;
+    format?: ChartImage;
+    birth: BirthPayload;
+    partner?: BirthPayload | null;
+    options?: Readonly<Record<string, JsonValue>>;
 }>;
 
 // @public
@@ -405,7 +421,8 @@ export abstract class EndpointMethods {
     query(fields: BodyFields<QueryRequest>, keywords?: CallKeywords): Promise<Result | string>;
     rectification(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     renderAstrocartography(fields: BodyFields<AcgMapRequest> & DocumentKeywords, keywords?: CallKeywords & DocumentKeywords): Promise<Uint8Array | string>;
-    renderBiwheel(birth: BirthFields, partner: BirthFields, keywords?: PairKeywords<never> & DocumentKeywords): Promise<Uint8Array | string>;
+    renderBiwheel(birth: BirthFields, partner: BirthFields, keywords?: PairKeywords<never, Omit<BiWheelRequest, "birth" | "partner" | "options">> & DocumentKeywords): Promise<Uint8Array | string>;
+    renderChart(fields: BodyFields<ChartRenderRequest> & DocumentKeywords, keywords?: CallKeywords & DocumentKeywords): Promise<Uint8Array | string>;
     renderPng(fields: ChartFields<RenderRequest["options"]> & DocumentKeywords, keywords?: ChartKeywords<RenderRequest["options"]> & DocumentKeywords): Promise<Uint8Array | string>;
     renderSvg(fields: ChartFields<RenderRequest["options"]> & DocumentKeywords, keywords?: ChartKeywords<RenderRequest["options"]> & DocumentKeywords): Promise<Uint8Array | string>;
     abstract request(method: string, path: string, options?: RequestOptions): Promise<Result | string | Uint8Array>;
@@ -449,6 +466,15 @@ export type FetchFunction = (input: string, init: RequestInit) => Promise<Respon
 
 // @public
 export function firdaria(...args: Parameters<AstroMansion["firdaria"]>): ReturnType<AstroMansion["firdaria"]>;
+
+// @public
+export type FramePole = Readonly<{
+    ra_deg: number;
+    dec_deg: number;
+    model: string;
+    epoch: string;
+    fixed: boolean;
+}>;
 
 // @public
 export type GeocentricFrame = Readonly<{
@@ -684,6 +710,7 @@ export type NatalApiOptions = Readonly<{
     lang?: LanguageCode;
     theme?: Theme;
     wheel?: boolean;
+    watermark?: boolean;
     include?: readonly string[];
     exclude?: readonly string[];
     title?: string;
@@ -742,6 +769,7 @@ export type ParentcentricFrame = Readonly<{
     frame_id: string;
     correction: OpenSet<LightCorrection>;
     center: number;
+    pole: FramePole;
     has_houses: boolean;
 }>;
 
@@ -847,6 +875,9 @@ export function renderAstrocartography(...args: Parameters<AstroMansion["renderA
 export function renderBiwheel(...args: Parameters<AstroMansion["renderBiwheel"]>): ReturnType<AstroMansion["renderBiwheel"]>;
 
 // @public
+export function renderChart(...args: Parameters<AstroMansion["renderChart"]>): ReturnType<AstroMansion["renderChart"]>;
+
+// @public
 export function renderPng(...args: Parameters<AstroMansion["renderPng"]>): ReturnType<AstroMansion["renderPng"]>;
 
 // @public
@@ -869,6 +900,7 @@ export type ReportExportRequest = Readonly<{
     author?: string;
     custom_text?: string;
     accent?: string;
+    watermark?: boolean;
     white_label?: boolean;
     logo_b64?: string;
     birth: BirthPayload;
@@ -969,6 +1001,9 @@ export type SatelliteGeocentric = Readonly<{
     correction_label: string;
     observer: number;
     origin: number;
+    longitude?: number | null;
+    latitude?: number | null;
+    position_icrf_km?: readonly number[] | null;
     distance_km: number;
     light_time_seconds: number;
     target_epoch_et: number;
@@ -1139,6 +1174,9 @@ export type SystemTime = Readonly<{
     model: string;
     et_seconds: number;
     jd: number;
+    offset_seconds: number;
+    utc: string;
+    local: string;
 }>;
 
 // @public

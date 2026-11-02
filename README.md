@@ -430,6 +430,68 @@ There is no ceiling on how many you may read this way. `options.all_bodies`
 walks every category at once and needs the full-catalog scope that comes with
 Pro and Enterprise. Naming the categories yourself does not.
 
+## A planet's moons
+
+`planetarySystem` reads one planet's satellites at the birth moment. It
+covers Mars, Jupiter, Saturn, Uranus, Neptune and Pluto, and it needs the
+`extended` scope that comes with Basic, Pro and Enterprise. With the `birth`
+object from the examples above:
+
+```js
+const system = await client.planetarySystem({ birth, parent: "jupiter" });
+
+system.parent.natal_sign; // "Aries"
+system.time.utc; // "2000-01-01T12:00:00Z"
+
+for (const moon of system.satellites) {
+  console.log(
+    moon.name,
+    moon.geocentric?.longitude?.toFixed(2),
+    moon.parentcentric.longitude?.toFixed(2),
+    moon.natal_parent_projected.sign,
+  );
+}
+// Io 25.24 18.11 Libra
+// Europa 25.25 212.49 Taurus
+// Ganymede 25.23 219.91 Taurus
+// Callisto 25.38 80.07 Sagittarius
+```
+
+Every satellite carries three answers, and they are not versions of one
+another:
+
+- `geocentric` is where the moon is seen from Earth, on the ecliptic of
+  date, with the light time solved. From Earth the Galilean moons sit within
+  a fraction of a degree of Jupiter, so this longitude nearly repeats the
+  planet's own.
+- `parentcentric` is where the moon is in its orbit, measured on the
+  planet's equator. A planet-centred frame has no horizon, so it has no
+  houses.
+- `natal_parent_projected` carries that orbital phase onto the natal circle
+  from the planet's own natal degree. It is an AstroMansion derivation rather
+  than a received rule, and its `tradition` field says so.
+
+`system.frames` names each frame. The planet-centred one also publishes the
+pole its equator is built on, so the plane can be checked:
+
+```js
+const frame = system.frames.parentcentric;
+frame.frame_id; // "jupiter_equator_iau2015_j2000_fixed"
+[frame.pole.ra_deg, frame.pole.dec_deg]; // [268.057204, 64.49581]
+```
+
+`options` narrows the answer. `satellites` names the moons and their order,
+and `include_geocentric: false` leaves the view from Earth out, so
+`geocentric` comes back as `null`:
+
+```js
+await client.planetarySystem({
+  birth,
+  parent: "saturn",
+  options: { satellites: ["titan", "enceladus"], include_geocentric: false },
+});
+```
+
 ## MansionSQL
 
 A chart is a table of bodies, a table of houses and a table of aspects, and
@@ -802,7 +864,7 @@ list of one:
 
 ## Every endpoint
 
-Every published operation, 68 of them, has a method on the client and a
+Every published operation, 69 of them, has a method on the client and a
 module-level shortcut, all generated from the schema. They are the Python
 SDK's methods under the same names, written in camelCase: `natal`,
 `transits`, `synastry`, `composite`, `solarReturn`, `progression`,
@@ -898,7 +960,7 @@ await client.exportPdf({
 
 Every endpoint that answers with a document takes `output` the same way:
 `exportPdf`, `exportCsv`, `exportReport`, `renderSvg`, `renderPng`,
-`renderBiwheel`, `renderAstrocartography` and `renderSharecard`, and their
+`renderBiwheel`, `renderChart`, `renderAstrocartography` and `renderSharecard`, and their
 module-level shortcuts.
 
 ```js
@@ -918,6 +980,74 @@ runtime and React Native have none. There a call with `output` is refused
 before the request is sent, so no quota is spent. The refusal is a
 `ValidationError` that says "output needs a file system, and this runtime has
 none. Leave output out to get the bytes."
+
+### Styled chart wheels
+
+`renderChart` draws a chart as SVG or PNG. Its body is typed as
+`ChartRenderRequest`, exported by the package, and includes the chart kind,
+the birth and the drawing's options.
+
+```ts
+const birth = {
+  date: "1990-07-15",
+  time: "14:30",
+  lat: 51.5074,
+  lon: -0.1278,
+  timezone: "Europe/London",
+};
+
+await client.renderChart({
+  type: "natal",
+  format: "svg",
+  birth,
+  options: {
+    theme: "light",
+    style: {
+      preset: "ink",
+      colors: { house_lines: "#123456" },
+      show: { ticks: false, watermark: false, canvas_background: false },
+    },
+  },
+  output: "styled-chart.svg",
+});
+
+await client.renderChart({
+  type: "natal",
+  format: "png",
+  birth,
+  options: { width: 800, style: { preset: "premium" } },
+  output: "styled-chart.png",
+});
+```
+
+The kinds are `natal`, `rising`, `transits`, `synastry`, `composite`,
+`solar_return`, `lunar_return`, `saturn_return`, `progressions` and `solar_arc`. Synastry and
+composite need a second birth as `partner`. Moment options belong under
+`options`: `date` and `time` for transits, `year` for solar returns, `date`
+for lunar returns, and either `date` or `age` for progressions and solar arcs.
+Saturn returns use `cycle: 1`, `2` or `3`, defaulting to the first return.
+`custom_bodies` accepts up to eight Keplerian bodies on the first ring,
+using the custom-body endpoint's orbital fields. Their positions follow
+the chart's actual moment; a composite uses the midpoint of both placements.
+Rising-sign charts accept no bodies.
+
+Presets are `classic`, `minimal`, `ink`, `editorial` and `premium`. With no
+style the server uses `minimal`. Colours use six hexadecimal digits, such
+as `#123456`. The server validates style sections, ring order and the
+options each kind reads. `renderSvg` and `renderPng` also take `style`
+inside their `options`.
+
+`style.show.watermark` controls the faint centre logo. Set
+`style.show.canvas_background` to `false` for a painted wheel with
+transparent surroundings. Both default to `true` in the API. The designer
+starts with transparent surroundings and writes that choice into its JSON.
+For other outputs, use `options.watermark` in `natal` and `exportPdf`,
+and `watermark` in `renderBiwheel` and `exportReport`. White-label
+reports always omit the centre logo.
+
+Use the [chart designer](https://astromansion.com/en/chart-designer) to edit
+every setting and copy its JSON. A timeline, firdaria and zodiacal releasing
+are not wheel kinds in this version.
 
 ## Security
 

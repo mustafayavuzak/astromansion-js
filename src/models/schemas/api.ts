@@ -114,6 +114,10 @@ export type BirthPayload = Readonly<{
 export type BiWheelRequest = Readonly<{
   birth: BirthPayload;
   partner: BirthPayload;
+  /**
+   * @defaultValue `true`
+   */
+  watermark?: boolean;
 }>;
 
 /**
@@ -131,6 +135,26 @@ export type BodyRow = Readonly<{
  * The zone a published calendar states its times in.
  */
 export type CalendarZone = "UTC";
+
+/**
+ * The kind of image a drawn chart is written as.
+ */
+export type ChartImage = "svg" | "png";
+
+/**
+ * A kind of chart the API draws as a wheel. A value is the name a request gives it.
+ */
+export type ChartKind =
+  | "natal"
+  | "rising"
+  | "transits"
+  | "synastry"
+  | "composite"
+  | "solar_return"
+  | "lunar_return"
+  | "saturn_return"
+  | "progressions"
+  | "solar_arc";
 
 /**
  * Which bodies an extended chart computes, and which page of the catalog it returns.
@@ -178,6 +202,20 @@ export type ChartOptions = Readonly<{
    * @defaultValue `false`
    */
   exclusive?: boolean;
+}>;
+
+/**
+ * A request for a chart of any kind drawn as a wheel, written as an SVG or a PNG.
+ */
+export type ChartRenderRequest = Readonly<{
+  type: ChartKind;
+  /**
+   * @defaultValue `"svg"`
+   */
+  format?: ChartImage;
+  birth: BirthPayload;
+  partner?: BirthPayload | null;
+  options?: Readonly<Record<string, JsonValue>>;
 }>;
 
 /**
@@ -354,6 +392,17 @@ export type EclipsesResponse = Readonly<{
  */
 export type EclipseType =
   "total" | "annular" | "partial" | "penumbral" | "none";
+
+/**
+ * The north pole a planet-centred frame's equator is built on.
+ */
+export type FramePole = Readonly<{
+  ra_deg: number;
+  dec_deg: number;
+  model: string;
+  epoch: string;
+  fixed: boolean;
+}>;
 
 /**
  * The frame a satellite is seen in from Earth.
@@ -649,6 +698,10 @@ export type NatalApiOptions = Readonly<{
    */
   wheel?: boolean;
   /**
+   * @defaultValue `true`
+   */
+  watermark?: boolean;
+  /**
    * At most 30 items.
    */
   include?: readonly string[];
@@ -717,6 +770,7 @@ export type ParentcentricFrame = Readonly<{
   frame_id: string;
   correction: OpenSet<LightCorrection>;
   center: number;
+  pole: FramePole;
   has_houses: boolean;
 }>;
 
@@ -877,6 +931,12 @@ export type ReportExportRequest = Readonly<{
    */
   accent?: string;
   /**
+   * Show the faint centre mark on the wheel. White-label hides it regardless of this choice.
+   *
+   * @defaultValue `true`
+   */
+  watermark?: boolean;
+  /**
    * Hide AstroMansion branding. true requires the WHITE_LABEL scope, granted from the Pro plan up.
    *
    * @defaultValue `false`
@@ -984,6 +1044,9 @@ export type SatelliteGeocentric = Readonly<{
   correction_label: string;
   observer: number;
   origin: number;
+  longitude?: number | null;
+  latitude?: number | null;
+  position_icrf_km?: readonly number[] | null;
   distance_km: number;
   light_time_seconds: number;
   target_epoch_et: number;
@@ -1161,12 +1224,19 @@ export type SystemParent = Readonly<{
 
 /**
  * The epoch an answer is read at.
+ *
+ * The satellites are read at this instant. On the API it is the birth; on
+ * the page it is the birth plus `offset_seconds`, while the natal anchor
+ * stays the birth's.
  */
 export type SystemTime = Readonly<{
   scale: string;
   model: string;
   et_seconds: number;
   jd: number;
+  offset_seconds: number;
+  utc: string;
+  local: string;
 }>;
 
 /**

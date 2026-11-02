@@ -21,7 +21,7 @@
  *     JSON answer   a Result, its body checked against the published shape
  *     document      the bytes, or the path written when output is given
  *
- *   Endpoints: 67. Written on the client itself: renderSharecard.
+ *   Endpoints: 68. Written on the client itself: renderSharecard.
  */
 
 import type {
@@ -39,6 +39,8 @@ import type {
   AcgMapRequest,
   BatchRequest,
   BatchResponse,
+  BiWheelRequest,
+  ChartRenderRequest,
   ChartRequest,
   CustomBodyByNameRequest,
   CustomBodyDeleteResponse,
@@ -764,6 +766,9 @@ export abstract class EndpointMethods {
    *
    * Export a chart as a PDF report.
    *
+   * `options.watermark` defaults to true. Set it to false to omit the
+   * centre logo. The document's paper remains painted.
+   *
    * @param fields - The birth fields, flat: date, time, lat, lon, timezone, and houses. options and signal may stand beside them. output, the path to write the document to, is allowed among them.
    * @param keywords - The method's other arguments, when they come apart from the birth fields.
    * @returns The document's bytes, sent as application/pdf, or the path it was written to when output is given.
@@ -799,13 +804,16 @@ export abstract class EndpointMethods {
    * is charged only once the document exists, and a chart already paid for is
    * drawn again for free. Developer keys never spend credits.
    *
-   * Hiding the AstroMansion brand or embedding a custom logo additionally
+   * Removing the document's AstroMansion branding or embedding a custom logo additionally
    * requires `Scope.WHITE_LABEL`. The plan that grants it is read from
    * `TierConstants`, so the error, the schema, and the pricing page name the same
    * plan. A request without that scope is rejected with 403 rather than
    * silently ignored: a machine caller cannot see a dropped field, and would
-   * ship a branded document it never got. The engine output is already
-   * unbranded. White-label access means applying the caller's brand.
+   * ship a branded document it never got. White-label access means applying
+   * the caller's brand and also removes the centre watermark.
+   *
+   * `watermark` defaults to true. Set it to false to omit only the faint
+   * centre logo. This switch requires no additional branding scope.
    *
    * @param fields - The request body, as {@link ReportExportRequest} describes it, sent as given. signal may stand beside its fields. output, the path to write the document to, is allowed among them.
    * @param keywords - signal, and output for a document, when they come apart from the body.
@@ -1573,6 +1581,9 @@ export abstract class EndpointMethods {
    *
    * Render a bi-wheel SVG with natal and outer charts.
    *
+   * `watermark` defaults to true. Set it to false to omit the centre logo.
+   * Use render/chart for the full style and transparent surroundings options.
+   *
    * @param birth - The first person's birth fields, as natal takes them.
    * @param partner - The second person's birth fields.
    * @param keywords - The options, signal, and the body's further fields. output, the path to write the document to, is allowed among them.
@@ -1583,7 +1594,11 @@ export abstract class EndpointMethods {
   async renderBiwheel(
     birth: BirthFields,
     partner: BirthFields,
-    keywords?: PairKeywords<never> & DocumentKeywords,
+    keywords?: PairKeywords<
+      never,
+      Omit<BiWheelRequest, "birth" | "partner" | "options">
+    > &
+      DocumentKeywords,
   ): Promise<Uint8Array | string> {
     const call = RequestBodies.pair(
       "renderBiwheel",
@@ -1607,12 +1622,76 @@ export abstract class EndpointMethods {
   }
 
   /**
+   * Any kind of chart as a styled wheel: natal, rising sign, transits, synastry, and more.
+   *
+   * @remarks
+   * Sends `POST /v1/render/chart`. The Python SDK names it render_chart.
+   *
+   * Draw a chart of any kind as one wheel, in a style, as SVG or PNG.
+   *
+   * `type` names the kind. Each is cast by the technique of its own
+   * endpoint, so the wheel shows what that endpoint answers. A wheel of two
+   * charts draws the second on a ring of its own around the first one's
+   * houses, with the chords between them. `options` takes the drawing's
+   * settings of render/svg and render/png, `style` among them, and the
+   * moment the kind is drawn for. An option the kind or the image does not
+   * read is refused.
+   *
+   * Every heading names the drawn frame's Ascendant sign and degree.
+   * `options.lang` selects `en` (the default) or `tr` for the heading
+   * and rising centre caption. Body labels retain their published names.
+   *
+   * `options.style.show.watermark` controls faint branding: the centre
+   * logo, or a wordmark below the zodiac on a rising-sign chart.
+   * `options.style.show.canvas_background` defaults to true. Set it to false
+   * to keep the wheel painted and its surroundings transparent in SVG or PNG.
+   *
+   * `saturn_return` reads `options.cycle` from 1 through 3, defaulting to
+   * the first return. `options.custom_bodies` accepts up to eight Keplerian
+   * bodies with the custom-body endpoint's orbital fields. They join the first
+   * ring at its actual chart moment. A composite uses the midpoint of both
+   * placements. Rising-sign charts accept no body selection or custom bodies.
+   *
+   * @param fields - The request body, as {@link ChartRenderRequest} describes it, sent as given. signal may stand beside its fields. output, the path to write the document to, is allowed among them.
+   * @param keywords - signal, and output for a document, when they come apart from the body.
+   * @returns The document's bytes, sent as image/svg+xml or image/png, or the path it was written to when output is given.
+   * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
+   */
+  async renderChart(
+    fields: BodyFields<ChartRenderRequest> & DocumentKeywords,
+    keywords?: CallKeywords & DocumentKeywords,
+  ): Promise<Uint8Array | string> {
+    const call = RequestBodies.body("renderChart", fields, keywords, true);
+    const writer = documentWriter(call.output);
+    const answer = await this.request("POST", "/v1/render/chart", {
+      json: call.json,
+      binary: true,
+      technique: "render_chart",
+      signal: call.signal,
+    });
+    return saveDocument(
+      readDocument(answer, "renderChart"),
+      call.output,
+      writer,
+    );
+  }
+
+  /**
    * Chart wheel PNG image.
    *
    * @remarks
    * Sends `POST /v1/render/png`. The Python SDK names it render_png.
    *
    * Render a chart wheel as PNG.
+   *
+   * Every heading names the drawn frame's Ascendant sign and degree.
+   * `options.lang` selects `en` (the default) or `tr` for the heading
+   * and rising centre caption. Body labels retain their published names.
+   *
+   * `options.style.show.watermark` controls faint branding: the centre
+   * logo, or a wordmark below the zodiac on a rising-sign chart.
+   * `options.style.show.canvas_background` defaults to true. Set it to false
+   * for transparent pixels outside the painted wheel.
    *
    * @param fields - The birth fields, flat: date, time, lat, lon, timezone, and houses. options and signal may stand beside them. output, the path to write the document to, is allowed among them.
    * @param keywords - The method's other arguments, when they come apart from the birth fields.
@@ -1642,6 +1721,11 @@ export abstract class EndpointMethods {
    * Sends `POST /v1/render/svg`. The Python SDK names it render_svg.
    *
    * Render a chart wheel as SVG or interactive HTML.
+   *
+   * `options.style.show.watermark` controls the faint centre logo.
+   * `options.style.show.canvas_background` controls the rectangular ground
+   * outside the wheel. Both default to true. Set the latter to false to keep
+   * the wheel painted and its surroundings transparent.
    *
    * @param fields - The birth fields, flat: date, time, lat, lon, timezone, and houses. options and signal may stand beside them. output, the path to write the document to, is allowed among them.
    * @param keywords - The method's other arguments, when they come apart from the birth fields.

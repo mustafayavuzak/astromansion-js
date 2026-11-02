@@ -34,6 +34,7 @@ import type {
   CustomBodySaveResponse,
   EclipseEvent,
   EclipsesResponse,
+  FramePole,
   GeoSearchResponse,
   GeocentricFrame,
   JobAcceptedResponse,
@@ -335,6 +336,24 @@ export function isEclipsesResponse(
 }
 
 /**
+ * Check that a value has the {@link FramePole} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member FramePole requires, each of its published type.
+ */
+export function isFramePole(value: JsonValue | undefined): value is FramePole {
+  return (
+    isJsonObject(value) &&
+    typeof value["ra_deg"] === "number" &&
+    typeof value["dec_deg"] === "number" &&
+    typeof value["model"] === "string" &&
+    typeof value["epoch"] === "string" &&
+    typeof value["fixed"] === "boolean"
+  );
+}
+
+/**
  * Check that a value has the {@link GeocentricFrame} shape.
  *
  * @internal
@@ -622,6 +641,7 @@ export function isParentcentricFrame(
     typeof value["frame_id"] === "string" &&
     typeof value["correction"] === "string" &&
     Number.isInteger(value["center"]) &&
+    isFramePole(value["pole"]) &&
     typeof value["has_houses"] === "boolean"
   );
 }
@@ -765,6 +785,18 @@ export function isSatelliteGeocentric(
     typeof value["correction_label"] === "string" &&
     Number.isInteger(value["observer"]) &&
     Number.isInteger(value["origin"]) &&
+    (value["longitude"] === undefined ||
+      typeof value["longitude"] === "number" ||
+      value["longitude"] === null) &&
+    (value["latitude"] === undefined ||
+      typeof value["latitude"] === "number" ||
+      value["latitude"] === null) &&
+    (value["position_icrf_km"] === undefined ||
+      isJsonArrayOf(
+        value["position_icrf_km"],
+        (item0) => typeof item0 === "number",
+      ) ||
+      value["position_icrf_km"] === null) &&
     typeof value["distance_km"] === "number" &&
     typeof value["light_time_seconds"] === "number" &&
     typeof value["target_epoch_et"] === "number" &&
@@ -1010,7 +1042,10 @@ export function isSystemTime(
     typeof value["scale"] === "string" &&
     typeof value["model"] === "string" &&
     typeof value["et_seconds"] === "number" &&
-    typeof value["jd"] === "number"
+    typeof value["jd"] === "number" &&
+    Number.isInteger(value["offset_seconds"]) &&
+    typeof value["utc"] === "string" &&
+    typeof value["local"] === "string"
   );
 }
 

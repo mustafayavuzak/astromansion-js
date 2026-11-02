@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.1.0-alpha.4
+
+- Centre watermark switches follow the API across natal, paired wheels and
+  PDF reports. Styled SVG and PNG examples also show transparent surroundings.
+
+- `renderChart` draws ten chart kinds as SVG or PNG, with the API's
+  optional style. The client and the module shortcut return bytes or write
+  the document to `output`. Its body is the generated `ChartRenderRequest`
+  type. Examples cover styled SVG and PNG requests.
+
+- Saturn-return wheels accept cycles 1 through 3. Custom Keplerian bodies
+  follow the actual chart moment, including composite midpoints.
+
+- The README has a section on `planetarySystem`. It shows the three answers
+  every satellite carries, the frame with its pole, and the options that
+  narrow the answer.
+
+- The satellite answer's new fields are typed and checked. `FramePole` types
+  the `pole` the planet-centred frame's equator is built on.
+  `SatelliteGeocentric` adds the optional `longitude`, `latitude` and
+  `position_icrf_km`, and `SystemTime` adds `offset_seconds`, `utc` and
+  `local`.
+
+- The planet-centred frame is the planet's equator on its IAU 2015 pole at
+  J2000.0. Its `frame_id` reads `jupiter_equator_iau2015_j2000_fixed` where it
+  read `jupiter_equatorial_inertial`, and likewise for the other five
+  systems. Neptune's pole moved by 0.51 degrees, Mars's and Jupiter's by one
+  or two arcseconds, and the other three did not move.
+
+- `renderChart` and `renderPng` describe the API's headings as they now are.
+  Every heading names the drawn frame's Ascendant sign and degree, and
+  `options.lang` picks `en` or `tr` for it.
+
 ## 0.1.0-alpha.3
 
 - `planetarySystem` calculates a planet's satellites for a birth, in three

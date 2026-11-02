@@ -2215,7 +2215,7 @@
           "output"
         ],
         "summary": "Chart wheel SVG with optional interactive HTML",
-        "description": "Render a chart wheel as SVG or interactive HTML.",
+        "description": "Render a chart wheel as SVG or interactive HTML.\n\n``options.style.show.watermark`` controls the faint centre logo.\n``options.style.show.canvas_background`` controls the rectangular ground\noutside the wheel. Both default to true. Set the latter to false to keep\nthe wheel painted and its surroundings transparent.",
         "operationId": "render_svg",
         "requestBody": {
           "content": {
@@ -2254,7 +2254,7 @@
           "output"
         ],
         "summary": "Chart wheel PNG image",
-        "description": "Render a chart wheel as PNG.",
+        "description": "Render a chart wheel as PNG.\n\nEvery heading names the drawn frame's Ascendant sign and degree.\n``options.lang`` selects ``en`` (the default) or ``tr`` for the heading\nand rising centre caption. Body labels retain their published names.\n\n``options.style.show.watermark`` controls faint branding: the centre\nlogo, or a wordmark below the zodiac on a rising-sign chart.\n``options.style.show.canvas_background`` defaults to true. Set it to false\nfor transparent pixels outside the painted wheel.",
         "operationId": "render_png",
         "requestBody": {
           "content": {
@@ -2368,7 +2368,7 @@
           "output"
         ],
         "summary": "Bi-wheel chart (natal and second chart)",
-        "description": "Render a bi-wheel SVG with natal and outer charts.",
+        "description": "Render a bi-wheel SVG with natal and outer charts.\n\n``watermark`` defaults to true. Set it to false to omit the centre logo.\nUse render/chart for the full style and transparent surroundings options.",
         "operationId": "render_biwheel",
         "requestBody": {
           "content": {
@@ -2400,13 +2400,52 @@
         }
       }
     },
+    "/v1/render/chart": {
+      "post": {
+        "tags": [
+          "output"
+        ],
+        "summary": "Any kind of chart as a styled wheel: natal, rising sign, transits, synastry, and more",
+        "description": "Draw a chart of any kind as one wheel, in a style, as SVG or PNG.\n\n``type`` names the kind. Each is cast by the technique of its own\nendpoint, so the wheel shows what that endpoint answers. A wheel of two\ncharts draws the second on a ring of its own around the first one's\nhouses, with the chords between them. ``options`` takes the drawing's\nsettings of render/svg and render/png, ``style`` among them, and the\nmoment the kind is drawn for. An option the kind or the image does not\nread is refused.\n\nEvery heading names the drawn frame's Ascendant sign and degree.\n``options.lang`` selects ``en`` (the default) or ``tr`` for the heading\nand rising centre caption. Body labels retain their published names.\n\n``options.style.show.watermark`` controls faint branding: the centre\nlogo, or a wordmark below the zodiac on a rising-sign chart.\n``options.style.show.canvas_background`` defaults to true. Set it to false\nto keep the wheel painted and its surroundings transparent in SVG or PNG.\n\n``saturn_return`` reads ``options.cycle`` from 1 through 3, defaulting to\nthe first return. ``options.custom_bodies`` accepts up to eight Keplerian\nbodies with the custom-body endpoint's orbital fields. They join the first\nring at its actual chart moment. A composite uses the midpoint of both\nplacements. Rising-sign charts accept no body selection or custom bodies.",
+        "operationId": "render_chart",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChartRenderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "image/svg+xml": {},
+              "image/png": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/export/pdf": {
       "post": {
         "tags": [
           "output"
         ],
         "summary": "Multi-page PDF report",
-        "description": "Export a chart as a PDF report.",
+        "description": "Export a chart as a PDF report.\n\n``options.watermark`` defaults to true. Set it to false to omit the\ncentre logo. The document's paper remains painted.",
         "operationId": "export_pdf",
         "requestBody": {
           "content": {
@@ -2482,7 +2521,7 @@
           "output"
         ],
         "summary": "Editable multi-page PDF report",
-        "description": "Build an editable, brandable, multi-page natal PDF report.\n\nPlans with ``Scope.EXPORT`` receive PDF export. A signed-in app session\nwithout it may spend a report credit instead, the same credits the\nwebsite's report studio spends: one credit buys the report for one chart,\nis charged only once the document exists, and a chart already paid for is\ndrawn again for free. Developer keys never spend credits.\n\nHiding the AstroMansion brand or embedding a custom logo additionally\nrequires ``Scope.WHITE_LABEL``. The plan that grants it is read from\n``TierConstants``, so the error, the schema, and the pricing page name the same\nplan. A request without that scope is rejected with 403 rather than\nsilently ignored: a machine caller cannot see a dropped field, and would\nship a branded document it never got. The engine output is already\nunbranded. White-label access means applying the caller's brand.",
+        "description": "Build an editable, brandable, multi-page natal PDF report.\n\nPlans with ``Scope.EXPORT`` receive PDF export. A signed-in app session\nwithout it may spend a report credit instead, the same credits the\nwebsite's report studio spends: one credit buys the report for one chart,\nis charged only once the document exists, and a chart already paid for is\ndrawn again for free. Developer keys never spend credits.\n\nRemoving the document's AstroMansion branding or embedding a custom logo additionally\nrequires ``Scope.WHITE_LABEL``. The plan that grants it is read from\n``TierConstants``, so the error, the schema, and the pricing page name the same\nplan. A request without that scope is rejected with 403 rather than\nsilently ignored: a machine caller cannot see a dropped field, and would\nship a branded document it never got. White-label access means applying\nthe caller's brand and also removes the centre watermark.\n\n``watermark`` defaults to true. Set it to false to omit only the faint\ncentre logo. This switch requires no additional branding scope.",
         "operationId": "export_report",
         "requestBody": {
           "content": {
@@ -3089,6 +3128,11 @@
           },
           "partner": {
             "$ref": "#/components/schemas/BirthPayload"
+          },
+          "watermark": {
+            "type": "boolean",
+            "title": "Watermark",
+            "default": true
           }
         },
         "additionalProperties": false,
@@ -3218,6 +3262,32 @@
         "title": "CalendarZone",
         "description": "The zone a published calendar states its times in."
       },
+      "ChartImage": {
+        "type": "string",
+        "enum": [
+          "svg",
+          "png"
+        ],
+        "title": "ChartImage",
+        "description": "The kind of image a drawn chart is written as."
+      },
+      "ChartKind": {
+        "type": "string",
+        "enum": [
+          "natal",
+          "rising",
+          "transits",
+          "synastry",
+          "composite",
+          "solar_return",
+          "lunar_return",
+          "saturn_return",
+          "progressions",
+          "solar_arc"
+        ],
+        "title": "ChartKind",
+        "description": "A kind of chart the API draws as a wheel. A value is the name a request gives it."
+      },
       "ChartOptions": {
         "properties": {
           "categories": {
@@ -3275,6 +3345,45 @@
         "type": "object",
         "title": "ChartOptions",
         "description": "Which bodies an extended chart computes, and which page of the catalog it returns.\n\n``include`` adds to the selected categories. ``exclusive`` leaves the\ndefault core out, so only the categories and names asked for are\ncomputed."
+      },
+      "ChartRenderRequest": {
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/ChartKind"
+          },
+          "format": {
+            "$ref": "#/components/schemas/ChartImage",
+            "default": "svg"
+          },
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "partner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BirthPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "options": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Options"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "type",
+          "birth"
+        ],
+        "title": "ChartRenderRequest",
+        "description": "A request for a chart of any kind drawn as a wheel, written as an SVG or a PNG."
       },
       "ChartRequest": {
         "properties": {
@@ -3664,6 +3773,40 @@
         ],
         "title": "EclipsesResponse",
         "description": "One calendar year of eclipses."
+      },
+      "FramePole": {
+        "properties": {
+          "ra_deg": {
+            "type": "number",
+            "title": "Ra Deg"
+          },
+          "dec_deg": {
+            "type": "number",
+            "title": "Dec Deg"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "epoch": {
+            "type": "string",
+            "title": "Epoch"
+          },
+          "fixed": {
+            "type": "boolean",
+            "title": "Fixed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ra_deg",
+          "dec_deg",
+          "model",
+          "epoch",
+          "fixed"
+        ],
+        "title": "FramePole",
+        "description": "The north pole a planet-centred frame's equator is built on."
       },
       "GeoSearchResponse": {
         "properties": {
@@ -4393,6 +4536,11 @@
             "title": "Wheel",
             "default": false
           },
+          "watermark": {
+            "type": "boolean",
+            "title": "Watermark",
+            "default": true
+          },
           "include": {
             "items": {
               "type": "string"
@@ -4535,6 +4683,9 @@
             "type": "integer",
             "title": "Center"
           },
+          "pole": {
+            "$ref": "#/components/schemas/FramePole"
+          },
           "has_houses": {
             "type": "boolean",
             "title": "Has Houses"
@@ -4545,6 +4696,7 @@
           "frame_id",
           "correction",
           "center",
+          "pole",
           "has_houses"
         ],
         "title": "ParentcentricFrame",
@@ -4856,6 +5008,12 @@
             "title": "Accent",
             "default": ""
           },
+          "watermark": {
+            "type": "boolean",
+            "title": "Watermark",
+            "description": "Show the faint centre mark on the wheel. White-label hides it regardless of this choice.",
+            "default": true
+          },
           "white_label": {
             "type": "boolean",
             "title": "White Label",
@@ -5041,6 +5199,42 @@
             "type": "integer",
             "title": "Origin"
           },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "position_icrf_km": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Position Icrf Km"
+          },
           "distance_km": {
             "type": "number",
             "title": "Distance Km"
@@ -5069,6 +5263,9 @@
           "correction_label",
           "observer",
           "origin",
+          "longitude",
+          "latitude",
+          "position_icrf_km",
           "distance_km",
           "light_time_seconds",
           "target_epoch_et",
@@ -5582,6 +5779,18 @@
           "jd": {
             "type": "number",
             "title": "Jd"
+          },
+          "offset_seconds": {
+            "type": "integer",
+            "title": "Offset Seconds"
+          },
+          "utc": {
+            "type": "string",
+            "title": "Utc"
+          },
+          "local": {
+            "type": "string",
+            "title": "Local"
           }
         },
         "type": "object",
@@ -5589,10 +5798,13 @@
           "scale",
           "model",
           "et_seconds",
-          "jd"
+          "jd",
+          "offset_seconds",
+          "utc",
+          "local"
         ],
         "title": "SystemTime",
-        "description": "The epoch an answer is read at."
+        "description": "The epoch an answer is read at.\n\nThe satellites are read at this instant. On the API it is the birth; on\nthe page it is the birth plus ``offset_seconds``, while the natal anchor\nstays the birth's."
       },
       "TechniqueEnvelope": {
         "properties": {
