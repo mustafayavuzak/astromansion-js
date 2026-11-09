@@ -38,7 +38,7 @@ export type AcgMapRequest = Readonly<{
 }>;
 
 /**
- * One aspect between two planets of the public natal answer.
+ * One aspect of the public natal answer, between two of its planets and angles.
  */
 export type AspectRow = Readonly<{
   a: string;
@@ -1180,6 +1180,42 @@ export type ShareCardRequest = Readonly<{
   type?: ShareCardKind;
   names?: readonly string[] | null;
   lang?: LanguageCode | null;
+}>;
+
+/**
+ * How a body's sign is written.
+ */
+export type SignOptions = Readonly<{
+  /**
+   * @defaultValue `"en"`
+   */
+  lang?: LanguageCode;
+}>;
+
+/**
+ * A body's sign at a birth, whose time may be unknown.
+ */
+export type SignRequest = Readonly<{
+  /**
+   * At most 120 characters long.
+   */
+  body: string;
+  birth: BirthPayload;
+  options?: SignOptions;
+}>;
+
+/**
+ * One body's sign at a birth, and the signs it held through the birth's local day.
+ */
+export type SignResponse = Readonly<{
+  body: string;
+  sign: string;
+  dms?: string | null;
+  house?: number | null;
+  retrograde?: boolean | null;
+  day_signs: readonly string[];
+  change?: string | null;
+  time_known: boolean;
 }>;
 
 /**

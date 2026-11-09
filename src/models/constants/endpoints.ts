@@ -11,7 +11,7 @@
  *   The tests read it to check that the client and the module-level
  *   shortcuts cover the API, under the Python SDK's names.
  *
- *   Endpoints: 69
+ *   Endpoints: 70
  */
 
 import type { Endpoint } from "../records/endpoints.ts";
@@ -678,6 +678,17 @@ const ALL = Object.freeze([
     binary: false,
     enveloped: false,
     summary: "Saturn return dates",
+  },
+  {
+    name: "sign",
+    operationId: "sign",
+    method: "POST",
+    path: "/v1/sign",
+    kind: "birth_extra",
+    fields: ["body", "birth", "options"],
+    binary: false,
+    enveloped: false,
+    summary: "A body's sign at a birth",
   },
   {
     name: "solarArc",

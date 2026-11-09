@@ -159,6 +159,48 @@
         }
       }
     },
+    "/v1/sign": {
+      "post": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "A body's sign at a birth",
+        "description": "Return one body's sign at a birth, its house and motion, and the signs it held through the birth's day.\n\nThe Sun, the Moon and the planets are open to every plan. Any other\ncatalogued minor planet or comet, such as Juno, needs the named catalog.\nA birth without a time is read through its local day, so a day the body\nchanged sign names both signs and the local time of the change.",
+        "operationId": "sign",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/moon-phases": {
       "get": {
         "tags": [
@@ -2995,7 +3037,7 @@
           "orb"
         ],
         "title": "AspectRow",
-        "description": "One aspect between two planets of the public natal answer."
+        "description": "One aspect of the public natal answer, between two of its planets and angles."
       },
       "BatchItem": {
         "properties": {
@@ -5629,6 +5671,121 @@
         ],
         "title": "ShareCardRequest",
         "description": "A story card for one chart or for two.\n\nOne card, two subjects. ``type`` picks which: the synastry card reads\nboth charts and leads on their compatibility score, the natal card reads\n``birth`` alone and leads on its Sun, Moon, and Ascendant. Splitting them\nacross two paths would have published one product as two."
+      },
+      "SignOptions": {
+        "properties": {
+          "lang": {
+            "$ref": "#/components/schemas/LanguageCode",
+            "default": "en"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SignOptions",
+        "description": "How a body's sign is written."
+      },
+      "SignRequest": {
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Body"
+          },
+          "birth": {
+            "$ref": "#/components/schemas/BirthPayload"
+          },
+          "options": {
+            "$ref": "#/components/schemas/SignOptions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "body",
+          "birth"
+        ],
+        "title": "SignRequest",
+        "description": "A body's sign at a birth, whose time may be unknown."
+      },
+      "SignResponse": {
+        "properties": {
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "sign": {
+            "type": "string",
+            "title": "Sign"
+          },
+          "dms": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dms"
+          },
+          "house": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "House"
+          },
+          "retrograde": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retrograde"
+          },
+          "day_signs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Day Signs"
+          },
+          "change": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change"
+          },
+          "time_known": {
+            "type": "boolean",
+            "title": "Time Known"
+          }
+        },
+        "type": "object",
+        "required": [
+          "body",
+          "sign",
+          "dms",
+          "house",
+          "retrograde",
+          "day_signs",
+          "change",
+          "time_known"
+        ],
+        "title": "SignResponse",
+        "description": "One body's sign at a birth, and the signs it held through the birth's local day."
       },
       "SummaryRow": {
         "properties": {

@@ -14,7 +14,7 @@
  *     import * as am from "astromansion";
  *     const chart = await am.natal(birth);   // defaultClient().natal(birth)
  *
- *   Endpoints: 69
+ *   Endpoints: 70
  */
 
 import type { AstroMansion } from "./client.ts";
@@ -914,6 +914,22 @@ export async function searchPlaces(
   ...args: Parameters<AstroMansion["searchPlaces"]>
 ): ReturnType<AstroMansion["searchPlaces"]> {
   return defaultClient().searchPlaces(...args);
+}
+
+/**
+ * A body's sign at a birth.
+ *
+ * @remarks
+ * Forwards to {@link EndpointMethods.sign} on the shared client.
+ *
+ * @param args - The arguments {@link EndpointMethods.sign} takes.
+ * @returns What {@link EndpointMethods.sign} returns.
+ * @throws {@link AuthenticationError} when the shared client is built now and no key was found, and whatever the method throws.
+ */
+export async function sign(
+  ...args: Parameters<AstroMansion["sign"]>
+): ReturnType<AstroMansion["sign"]> {
+  return defaultClient().sign(...args);
 }
 
 /**

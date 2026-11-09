@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+- `sign` wraps `POST /v1/sign`: one body's sign at a birth, its degree, house
+  and motion, and the signs it held that day, typed as `SignRequest` and
+  `SignResponse`. It is generated from the API's schema like the others, so
+  the client and the module shortcut have it, and the endpoint table counts
+  70 operations.
+
+- `renderChart` documents the zodiac a chart of one moment is drawn in:
+  `zodiac` (`tropical`, `sidereal` or `draconic`) and a sidereal chart's
+  `ayanamsa`, both under `options`. The client passes them as it passes every
+  option, so no code changed.
+
+- `natal` answers every major aspect between the planets, the Ascendant and
+  the Midheaven that holds within its pair's orb, tightest first. It listed
+  only the planets' aspects under one degree before. The client is unchanged.
+
 ## 0.1.0-alpha.5
 
 - MansionSQL opens with Basic. `query` needs the API's own `query` scope,

@@ -62,6 +62,7 @@ import type {
   SaturnReturnEvent,
   SaturnReturnResponse,
   SavedCustomBody,
+  SignResponse,
   SummaryRow,
   SystemEphemeris,
   SystemFrames,
@@ -938,6 +939,37 @@ export function isSavedCustomBody(
     typeof value["name"] === "string" &&
     typeof value["heliocentric"] === "boolean" &&
     isJsonRecordOf(value["elements"], (member0) => typeof member0 === "number")
+  );
+}
+
+/**
+ * Check that a value has the {@link SignResponse} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member SignResponse requires, each of its published type.
+ */
+export function isSignResponse(
+  value: JsonValue | undefined,
+): value is SignResponse {
+  return (
+    isJsonObject(value) &&
+    typeof value["body"] === "string" &&
+    typeof value["sign"] === "string" &&
+    (value["dms"] === undefined ||
+      typeof value["dms"] === "string" ||
+      value["dms"] === null) &&
+    (value["house"] === undefined ||
+      Number.isInteger(value["house"]) ||
+      value["house"] === null) &&
+    (value["retrograde"] === undefined ||
+      typeof value["retrograde"] === "boolean" ||
+      value["retrograde"] === null) &&
+    isJsonArrayOf(value["day_signs"], (item0) => typeof item0 === "string") &&
+    (value["change"] === undefined ||
+      typeof value["change"] === "string" ||
+      value["change"] === null) &&
+    typeof value["time_known"] === "boolean"
   );
 }
 

@@ -21,7 +21,7 @@
  *     JSON answer   a Result, its body checked against the published shape
  *     document      the bytes, or the path written when output is given
  *
- *   Endpoints: 68. Written on the client itself: renderSharecard.
+ *   Endpoints: 69. Written on the client itself: renderSharecard.
  */
 
 import type {
@@ -74,6 +74,8 @@ import type {
   SaturnReturnRequest,
   SaturnReturnResponse,
   SearchPlacesQuery,
+  SignRequest,
+  SignResponse,
   TechniqueRequest,
   VoidMoonQuery,
   VoidMoonResponse,
@@ -98,6 +100,7 @@ import {
   isPlanetarySystemResponse,
   isRetrogradesResponse,
   isSaturnReturnResponse,
+  isSignResponse,
   isTechniqueEnvelope,
   isVoidMoonResponse,
 } from "./responses/answerChecks.ts";
@@ -1855,6 +1858,38 @@ export abstract class EndpointMethods {
       signal: call.signal,
     });
     return readResult(answer, isGeoSearchResponse, "searchPlaces");
+  }
+
+  /**
+   * A body's sign at a birth.
+   *
+   * @remarks
+   * Sends `POST /v1/sign`. The Python SDK names it sign.
+   *
+   * Return one body's sign at a birth, its house and motion, and the signs it held through the birth's day.
+   *
+   * The Sun, the Moon and the planets are open to every plan. Any other
+   * catalogued minor planet or comet, such as Juno, needs the named catalog.
+   * A birth without a time is read through its local day, so a day the body
+   * changed sign names both signs and the local time of the change.
+   *
+   * @param fields - The request body, as {@link SignRequest} describes it, sent as given. signal may stand beside its fields.
+   * @param keywords - signal, and output for a document, when they come apart from the body.
+   * @returns The answer as a Result, checked against {@link SignResponse}.
+   * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
+   */
+  async sign(
+    fields: BodyFields<SignRequest>,
+    keywords?: CallKeywords,
+  ): Promise<Result<SignResponse>> {
+    const call = RequestBodies.body("sign", fields, keywords, false);
+    const answer = await this.request("POST", "/v1/sign", {
+      json: call.json,
+      technique: "sign",
+      enveloped: false,
+      signal: call.signal,
+    });
+    return readResult(answer, isSignResponse, "sign");
   }
 
   /**

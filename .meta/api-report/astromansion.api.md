@@ -430,6 +430,7 @@ export abstract class EndpointMethods {
     saturnReturn(fields: ChartFields<SaturnReturnRequest["options"]>, keywords?: ChartKeywords<SaturnReturnRequest["options"]>): Promise<Result<SaturnReturnResponse>>;
     saveCustomBody(fields: BodyFields<CustomBodySaveRequest>, keywords?: CallKeywords): Promise<Result<CustomBodySaveResponse>>;
     searchPlaces(params: ParamsFields<SearchPlacesQuery>): Promise<Result<GeoSearchResponse>>;
+    sign(fields: BodyFields<SignRequest>, keywords?: CallKeywords): Promise<Result<SignResponse>>;
     solarArc(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     solarReturn(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     stations(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
@@ -1116,6 +1117,33 @@ export type ShareCardRequest = Readonly<{
     type?: ShareCardKind;
     names?: readonly string[] | null;
     lang?: LanguageCode | null;
+}>;
+
+// @public
+export function sign(...args: Parameters<AstroMansion["sign"]>): ReturnType<AstroMansion["sign"]>;
+
+// @public
+export type SignOptions = Readonly<{
+    lang?: LanguageCode;
+}>;
+
+// @public
+export type SignRequest = Readonly<{
+    body: string;
+    birth: BirthPayload;
+    options?: SignOptions;
+}>;
+
+// @public
+export type SignResponse = Readonly<{
+    body: string;
+    sign: string;
+    dms?: string | null;
+    house?: number | null;
+    retrograde?: boolean | null;
+    day_signs: readonly string[];
+    change?: string | null;
+    time_known: boolean;
 }>;
 
 // @public
