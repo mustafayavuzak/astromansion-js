@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0-alpha.6
 
 - `sign` wraps `POST /v1/sign`: one body's sign at a birth, its degree, house
   and motion, and the signs it held that day, typed as `SignRequest` and
