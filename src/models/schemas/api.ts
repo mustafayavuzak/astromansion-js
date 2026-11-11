@@ -1100,22 +1100,77 @@ export type SatelliteSystem =
   "mars" | "jupiter" | "saturn" | "uranus" | "neptune" | "pluto";
 
 /**
- * One exact Saturn return.
+ * The natal request's options, and how many Saturn returns to follow.
+ */
+export type SaturnReturnApiOptions = Readonly<{
+  /**
+   * @defaultValue `"en"`
+   */
+  lang?: LanguageCode;
+  /**
+   * @defaultValue `"light"`
+   */
+  theme?: Theme;
+  /**
+   * @defaultValue `false`
+   */
+  wheel?: boolean;
+  /**
+   * @defaultValue `true`
+   */
+  watermark?: boolean;
+  /**
+   * At most 30 items.
+   */
+  include?: readonly string[];
+  /**
+   * At most 30 items.
+   */
+  exclude?: readonly string[];
+  /**
+   * At most 60 characters long.
+   *
+   * @defaultValue `""`
+   */
+  title?: string;
+  /**
+   * At most 60 characters long.
+   *
+   * @defaultValue `""`
+   */
+  author?: string;
+  /**
+   * At least 1. At most 4.
+   *
+   * @defaultValue `2`
+   */
+  returns?: number;
+}>;
+
+/**
+ * One exact crossing of a Saturn return.
+ *
+ * Saturn near its natal degree can cross it, turn, cross back and cross a
+ * third time, and all of them are one return, so a return has one row a
+ * crossing.
  */
 export type SaturnReturnEvent = Readonly<{
   return: number;
+  pass: number;
   date: string;
   time: string;
+  jd: number;
+  lon: number;
   sign: string;
   dms: string;
 }>;
 
 /**
- * A Saturn-return request, on the natal request's envelope. It adds no field.
+ * A Saturn-return request, on the natal request's envelope, whose options also say how many returns to follow.
  */
 export type SaturnReturnRequest = Readonly<{
   birth: BirthPayload;
-  options?: NatalApiOptions;
+  options?: SaturnReturnApiOptions;
 }>;
 
 /**
@@ -1212,7 +1267,7 @@ export type SignResponse = Readonly<{
   sign: string;
   dms?: string | null;
   house?: number | null;
-  retrograde?: boolean | null;
+  retrograde: boolean;
   day_signs: readonly string[];
   change?: string | null;
   time_known: boolean;

@@ -901,8 +901,11 @@ export function isSaturnReturnEvent(
   return (
     isJsonObject(value) &&
     Number.isInteger(value["return"]) &&
+    Number.isInteger(value["pass"]) &&
     typeof value["date"] === "string" &&
     typeof value["time"] === "string" &&
+    typeof value["jd"] === "number" &&
+    typeof value["lon"] === "number" &&
     typeof value["sign"] === "string" &&
     typeof value["dms"] === "string"
   );
@@ -962,9 +965,7 @@ export function isSignResponse(
     (value["house"] === undefined ||
       Number.isInteger(value["house"]) ||
       value["house"] === null) &&
-    (value["retrograde"] === undefined ||
-      typeof value["retrograde"] === "boolean" ||
-      value["retrograde"] === null) &&
+    typeof value["retrograde"] === "boolean" &&
     isJsonArrayOf(value["day_signs"], (item0) => typeof item0 === "string") &&
     (value["change"] === undefined ||
       typeof value["change"] === "string" ||

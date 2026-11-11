@@ -12,6 +12,9 @@ export type AcgMapRequest = Readonly<{
 }>;
 
 // @public
+export function agePoint(...args: Parameters<AstroMansion["agePoint"]>): ReturnType<AstroMansion["agePoint"]>;
+
+// @public
 export function almanac(...args: Parameters<AstroMansion["almanac"]>): ReturnType<AstroMansion["almanac"]>;
 
 // @public
@@ -317,6 +320,9 @@ export function customLot(...args: Parameters<AstroMansion["customLot"]>): Retur
 export function daily(...args: Parameters<AstroMansion["daily"]>): ReturnType<AstroMansion["daily"]>;
 
 // @public
+export function decennials(...args: Parameters<AstroMansion["decennials"]>): ReturnType<AstroMansion["decennials"]>;
+
+// @public
 export function declinations(...args: Parameters<AstroMansion["declinations"]>): ReturnType<AstroMansion["declinations"]>;
 
 // @public
@@ -374,6 +380,7 @@ export function electional(...args: Parameters<AstroMansion["electional"]>): Ret
 
 // @public
 export abstract class EndpointMethods {
+    agePoint(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     almanac(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     antiscia(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     aspects(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
@@ -387,6 +394,7 @@ export abstract class EndpointMethods {
     customBody(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     customLot(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     daily(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    decennials(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     declinations(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     deleteCustomBody(name: string, params?: CallKeywords): Promise<Result<CustomBodyDeleteResponse>>;
     dignities(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
@@ -397,13 +405,17 @@ export abstract class EndpointMethods {
     exportPdf(fields: ChartFields<RenderRequest["options"]> & DocumentKeywords, keywords?: ChartKeywords<RenderRequest["options"]> & DocumentKeywords): Promise<Uint8Array | string>;
     exportReport(fields: BodyFields<ReportExportRequest> & DocumentKeywords, keywords?: CallKeywords & DocumentKeywords): Promise<Uint8Array | string>;
     firdaria(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    fixedStars(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    greatConjunctions(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     harmonics(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     health(params?: CallKeywords): Promise<Result | string>;
     heliacal(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     heliocentric(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     horary(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    ingresses(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     job(jobId: string, params?: CallKeywords): Promise<Result<JobStatusResponse>>;
     listJobs(params?: CallKeywords): Promise<Result<JobListResponse>>;
+    lots(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     lunarReturn(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     mansions(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     midpoints(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
@@ -416,6 +428,7 @@ export abstract class EndpointMethods {
     parans(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     patterns(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     planetarySystem(fields: BodyFields<PlanetarySystemRequest>, keywords?: CallKeywords): Promise<Result<PlanetarySystemResponse>>;
+    primaryDirections(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     profection(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     progression(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     query(fields: BodyFields<QueryRequest>, keywords?: CallKeywords): Promise<Result | string>;
@@ -437,10 +450,12 @@ export abstract class EndpointMethods {
     submitBatchJob(fields: BodyFields<JobBatchRequest>, keywords?: CallKeywords): Promise<Result<JobBatchResponse>>;
     submitJob(fields: BodyFields<JobCreateRequest>, keywords?: CallKeywords): Promise<Result<JobAcceptedResponse>>;
     synastry(birth: BirthFields, partner: BirthFields, keywords?: PairKeywords<PairTechniqueRequest["options"]>): Promise<Result>;
+    temperament(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     timeline(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     transitHits(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     transits(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     vedicChart(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    venusStar(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     vimshottari(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     voidMoon(params: ParamsFields<VoidMoonQuery>): Promise<Result<VoidMoonResponse>>;
     zodiacalReleasing(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
@@ -469,6 +484,9 @@ export type FetchFunction = (input: string, init: RequestInit) => Promise<Respon
 export function firdaria(...args: Parameters<AstroMansion["firdaria"]>): ReturnType<AstroMansion["firdaria"]>;
 
 // @public
+export function fixedStars(...args: Parameters<AstroMansion["fixedStars"]>): ReturnType<AstroMansion["fixedStars"]>;
+
+// @public
 export type FramePole = Readonly<{
     ra_deg: number;
     dec_deg: number;
@@ -490,6 +508,9 @@ export type GeoSearchResponse = Readonly<{
 }>;
 
 // @public
+export function greatConjunctions(...args: Parameters<AstroMansion["greatConjunctions"]>): ReturnType<AstroMansion["greatConjunctions"]>;
+
+// @public
 export function harmonics(...args: Parameters<AstroMansion["harmonics"]>): ReturnType<AstroMansion["harmonics"]>;
 
 // @public
@@ -506,6 +527,9 @@ export function horary(...args: Parameters<AstroMansion["horary"]>): ReturnType<
 
 // @public
 export type HouseSystemName = string;
+
+// @public
+export function ingresses(...args: Parameters<AstroMansion["ingresses"]>): ReturnType<AstroMansion["ingresses"]>;
 
 // @public
 export function job(...args: Parameters<AstroMansion["job"]>): ReturnType<AstroMansion["job"]>;
@@ -630,6 +654,9 @@ export function listJobs(...args: Parameters<AstroMansion["listJobs"]>): ReturnT
 
 // @public
 export type Longitude = number;
+
+// @public
+export function lots(...args: Parameters<AstroMansion["lots"]>): ReturnType<AstroMansion["lots"]>;
 
 // @public
 export function lunarReturn(...args: Parameters<AstroMansion["lunarReturn"]>): ReturnType<AstroMansion["lunarReturn"]>;
@@ -816,6 +843,9 @@ export type PlanetarySystemResponse = Readonly<{
     frames: SystemFrames;
     satellites: readonly SatelliteRow[];
 }>;
+
+// @public
+export function primaryDirections(...args: Parameters<AstroMansion["primaryDirections"]>): ReturnType<AstroMansion["primaryDirections"]>;
 
 // @public
 export function profection(...args: Parameters<AstroMansion["profection"]>): ReturnType<AstroMansion["profection"]>;
@@ -1052,10 +1082,26 @@ export type SatelliteSystem = "mars" | "jupiter" | "saturn" | "uranus" | "neptun
 export function saturnReturn(...args: Parameters<AstroMansion["saturnReturn"]>): ReturnType<AstroMansion["saturnReturn"]>;
 
 // @public
+export type SaturnReturnApiOptions = Readonly<{
+    lang?: LanguageCode;
+    theme?: Theme;
+    wheel?: boolean;
+    watermark?: boolean;
+    include?: readonly string[];
+    exclude?: readonly string[];
+    title?: string;
+    author?: string;
+    returns?: number;
+}>;
+
+// @public
 export type SaturnReturnEvent = Readonly<{
     return: number;
+    pass: number;
     date: string;
     time: string;
+    jd: number;
+    lon: number;
     sign: string;
     dms: string;
 }>;
@@ -1063,7 +1109,7 @@ export type SaturnReturnEvent = Readonly<{
 // @public
 export type SaturnReturnRequest = Readonly<{
     birth: BirthPayload;
-    options?: NatalApiOptions;
+    options?: SaturnReturnApiOptions;
 }>;
 
 // @public
@@ -1140,7 +1186,7 @@ export type SignResponse = Readonly<{
     sign: string;
     dms?: string | null;
     house?: number | null;
-    retrograde?: boolean | null;
+    retrograde: boolean;
     day_signs: readonly string[];
     change?: string | null;
     time_known: boolean;
@@ -1223,6 +1269,9 @@ export type TechniqueRequest = Readonly<{
 }>;
 
 // @public
+export function temperament(...args: Parameters<AstroMansion["temperament"]>): ReturnType<AstroMansion["temperament"]>;
+
+// @public
 export type Theme = "light" | "dark";
 
 // @public
@@ -1244,6 +1293,9 @@ export class ValidationError extends AstroMansionError {
 
 // @public
 export function vedicChart(...args: Parameters<AstroMansion["vedicChart"]>): ReturnType<AstroMansion["vedicChart"]>;
+
+// @public
+export function venusStar(...args: Parameters<AstroMansion["venusStar"]>): ReturnType<AstroMansion["venusStar"]>;
 
 // @public
 export const VERSION: string;

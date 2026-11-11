@@ -14,11 +14,27 @@
  *     import * as am from "astromansion";
  *     const chart = await am.natal(birth);   // defaultClient().natal(birth)
  *
- *   Endpoints: 70
+ *   Endpoints: 79
  */
 
 import type { AstroMansion } from "./client.ts";
 import { defaultClient } from "./shortcuts.ts";
+
+/**
+ * Huber age point through the houses.
+ *
+ * @remarks
+ * Forwards to {@link EndpointMethods.agePoint} on the shared client.
+ *
+ * @param args - The arguments {@link EndpointMethods.agePoint} takes.
+ * @returns What {@link EndpointMethods.agePoint} returns.
+ * @throws {@link AuthenticationError} when the shared client is built now and no key was found, and whatever the method throws.
+ */
+export async function agePoint(
+  ...args: Parameters<AstroMansion["agePoint"]>
+): ReturnType<AstroMansion["agePoint"]> {
+  return defaultClient().agePoint(...args);
+}
 
 /**
  * Eclipses, retrogrades, planetary hours, and void Moon periods.
@@ -229,6 +245,22 @@ export async function daily(
 }
 
 /**
+ * Valens' decennials.
+ *
+ * @remarks
+ * Forwards to {@link EndpointMethods.decennials} on the shared client.
+ *
+ * @param args - The arguments {@link EndpointMethods.decennials} takes.
+ * @returns What {@link EndpointMethods.decennials} returns.
+ * @throws {@link AuthenticationError} when the shared client is built now and no key was found, and whatever the method throws.
+ */
+export async function decennials(
+  ...args: Parameters<AstroMansion["decennials"]>
+): ReturnType<AstroMansion["decennials"]> {
+  return defaultClient().decennials(...args);
+}
+
+/**
  * Declination parallels.
  *
  * @remarks
@@ -389,6 +421,38 @@ export async function firdaria(
 }
 
 /**
+ * Fixed stars and the points on them.
+ *
+ * @remarks
+ * Forwards to {@link EndpointMethods.fixedStars} on the shared client.
+ *
+ * @param args - The arguments {@link EndpointMethods.fixedStars} takes.
+ * @returns What {@link EndpointMethods.fixedStars} returns.
+ * @throws {@link AuthenticationError} when the shared client is built now and no key was found, and whatever the method throws.
+ */
+export async function fixedStars(
+  ...args: Parameters<AstroMansion["fixedStars"]>
+): ReturnType<AstroMansion["fixedStars"]> {
+  return defaultClient().fixedStars(...args);
+}
+
+/**
+ * Jupiter and Saturn's great conjunctions.
+ *
+ * @remarks
+ * Forwards to {@link EndpointMethods.greatConjunctions} on the shared client.
+ *
+ * @param args - The arguments {@link EndpointMethods.greatConjunctions} takes.
+ * @returns What {@link EndpointMethods.greatConjunctions} returns.
+ * @throws {@link AuthenticationError} when the shared client is built now and no key was found, and whatever the method throws.
+ */
+export async function greatConjunctions(
+  ...args: Parameters<AstroMansion["greatConjunctions"]>
+): ReturnType<AstroMansion["greatConjunctions"]> {
+  return defaultClient().greatConjunctions(...args);
+}
+
+/**
  * Harmonic chart.
  *
  * @remarks
@@ -469,6 +533,22 @@ export async function horary(
 }
 
 /**
+ * Equinoxes, solstices, and the Aries ingress chart.
+ *
+ * @remarks
+ * Forwards to {@link EndpointMethods.ingresses} on the shared client.
+ *
+ * @param args - The arguments {@link EndpointMethods.ingresses} takes.
+ * @returns What {@link EndpointMethods.ingresses} returns.
+ * @throws {@link AuthenticationError} when the shared client is built now and no key was found, and whatever the method throws.
+ */
+export async function ingresses(
+  ...args: Parameters<AstroMansion["ingresses"]>
+): ReturnType<AstroMansion["ingresses"]> {
+  return defaultClient().ingresses(...args);
+}
+
+/**
  * Inspect job status.
  *
  * @remarks
@@ -498,6 +578,22 @@ export async function listJobs(
   ...args: Parameters<AstroMansion["listJobs"]>
 ): ReturnType<AstroMansion["listJobs"]> {
   return defaultClient().listJobs(...args);
+}
+
+/**
+ * All 38 classical Arabic lots.
+ *
+ * @remarks
+ * Forwards to {@link EndpointMethods.lots} on the shared client.
+ *
+ * @param args - The arguments {@link EndpointMethods.lots} takes.
+ * @returns What {@link EndpointMethods.lots} returns.
+ * @throws {@link AuthenticationError} when the shared client is built now and no key was found, and whatever the method throws.
+ */
+export async function lots(
+  ...args: Parameters<AstroMansion["lots"]>
+): ReturnType<AstroMansion["lots"]> {
+  return defaultClient().lots(...args);
 }
 
 /**
@@ -690,6 +786,22 @@ export async function planetarySystem(
   ...args: Parameters<AstroMansion["planetarySystem"]>
 ): ReturnType<AstroMansion["planetarySystem"]> {
   return defaultClient().planetarySystem(...args);
+}
+
+/**
+ * Primary directions of the Ascendant and the Midheaven.
+ *
+ * @remarks
+ * Forwards to {@link EndpointMethods.primaryDirections} on the shared client.
+ *
+ * @param args - The arguments {@link EndpointMethods.primaryDirections} takes.
+ * @returns What {@link EndpointMethods.primaryDirections} returns.
+ * @throws {@link AuthenticationError} when the shared client is built now and no key was found, and whatever the method throws.
+ */
+export async function primaryDirections(
+  ...args: Parameters<AstroMansion["primaryDirections"]>
+): ReturnType<AstroMansion["primaryDirections"]> {
+  return defaultClient().primaryDirections(...args);
 }
 
 /**
@@ -1029,6 +1141,22 @@ export async function synastry(
 }
 
 /**
+ * Temperament by Lilly's method.
+ *
+ * @remarks
+ * Forwards to {@link EndpointMethods.temperament} on the shared client.
+ *
+ * @param args - The arguments {@link EndpointMethods.temperament} takes.
+ * @returns What {@link EndpointMethods.temperament} returns.
+ * @throws {@link AuthenticationError} when the shared client is built now and no key was found, and whatever the method throws.
+ */
+export async function temperament(
+  ...args: Parameters<AstroMansion["temperament"]>
+): ReturnType<AstroMansion["temperament"]> {
+  return defaultClient().temperament(...args);
+}
+
+/**
  * Life timing timeline.
  *
  * @remarks
@@ -1090,6 +1218,22 @@ export async function vedicChart(
   ...args: Parameters<AstroMansion["vedicChart"]>
 ): ReturnType<AstroMansion["vedicChart"]> {
   return defaultClient().vedicChart(...args);
+}
+
+/**
+ * Venus star point and the eight-year star.
+ *
+ * @remarks
+ * Forwards to {@link EndpointMethods.venusStar} on the shared client.
+ *
+ * @param args - The arguments {@link EndpointMethods.venusStar} takes.
+ * @returns What {@link EndpointMethods.venusStar} returns.
+ * @throws {@link AuthenticationError} when the shared client is built now and no key was found, and whatever the method throws.
+ */
+export async function venusStar(
+  ...args: Parameters<AstroMansion["venusStar"]>
+): ReturnType<AstroMansion["venusStar"]> {
+  return defaultClient().venusStar(...args);
 }
 
 /**

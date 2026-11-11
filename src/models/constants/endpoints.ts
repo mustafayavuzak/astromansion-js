@@ -11,7 +11,7 @@
  *   The tests read it to check that the client and the module-level
  *   shortcuts cover the API, under the Python SDK's names.
  *
- *   Endpoints: 70
+ *   Endpoints: 79
  */
 
 import type { Endpoint } from "../records/endpoints.ts";
@@ -22,6 +22,17 @@ import type { Endpoint } from "../records/endpoints.ts";
  * @internal
  */
 const ALL = Object.freeze([
+  {
+    name: "agePoint",
+    operationId: "age_point",
+    method: "POST",
+    path: "/v1/age-point",
+    kind: "chart",
+    fields: ["birth", "options"],
+    binary: false,
+    enveloped: true,
+    summary: "Huber age point through the houses",
+  },
   {
     name: "almanac",
     operationId: "almanac",
@@ -196,6 +207,17 @@ const ALL = Object.freeze([
     summary: "Daily sky summary",
   },
   {
+    name: "decennials",
+    operationId: "decennials",
+    method: "POST",
+    path: "/v1/decennials",
+    kind: "chart",
+    fields: ["birth", "options"],
+    binary: false,
+    enveloped: true,
+    summary: "Valens' decennials",
+  },
+  {
     name: "declinations",
     operationId: "declinations",
     method: "POST",
@@ -306,6 +328,17 @@ const ALL = Object.freeze([
     summary: "Firdaria periods",
   },
   {
+    name: "fixedStars",
+    operationId: "fixed_stars",
+    method: "POST",
+    path: "/v1/fixed-stars",
+    kind: "chart",
+    fields: ["birth", "options"],
+    binary: false,
+    enveloped: true,
+    summary: "Fixed stars and the points on them",
+  },
+  {
     name: "searchPlaces",
     operationId: "search_places",
     method: "GET",
@@ -315,6 +348,17 @@ const ALL = Object.freeze([
     binary: false,
     enveloped: false,
     summary: "Search place names",
+  },
+  {
+    name: "greatConjunctions",
+    operationId: "great_conjunctions",
+    method: "POST",
+    path: "/v1/great-conjunctions",
+    kind: "chart",
+    fields: ["birth", "options"],
+    binary: false,
+    enveloped: true,
+    summary: "Jupiter and Saturn's great conjunctions",
   },
   {
     name: "harmonics",
@@ -372,6 +416,17 @@ const ALL = Object.freeze([
     summary: "Horary question chart",
   },
   {
+    name: "ingresses",
+    operationId: "ingresses",
+    method: "POST",
+    path: "/v1/ingresses",
+    kind: "chart",
+    fields: ["birth", "options"],
+    binary: false,
+    enveloped: true,
+    summary: "Equinoxes, solstices, and the Aries ingress chart",
+  },
+  {
     name: "listJobs",
     operationId: "list_jobs",
     method: "GET",
@@ -414,6 +469,17 @@ const ALL = Object.freeze([
     binary: false,
     enveloped: false,
     summary: "Inspect job status",
+  },
+  {
+    name: "lots",
+    operationId: "lots",
+    method: "POST",
+    path: "/v1/lots",
+    kind: "chart",
+    fields: ["birth", "options"],
+    binary: false,
+    enveloped: true,
+    summary: "All 38 classical Arabic lots",
   },
   {
     name: "lunarReturn",
@@ -546,6 +612,17 @@ const ALL = Object.freeze([
     binary: false,
     enveloped: false,
     summary: "A planet's satellites, in three frames at once",
+  },
+  {
+    name: "primaryDirections",
+    operationId: "primary_directions",
+    method: "POST",
+    path: "/v1/primary-directions",
+    kind: "chart",
+    fields: ["birth", "options"],
+    binary: false,
+    enveloped: true,
+    summary: "Primary directions of the Ascendant and the Midheaven",
   },
   {
     name: "profection",
@@ -735,6 +812,17 @@ const ALL = Object.freeze([
     summary: "Two-chart synastry analysis",
   },
   {
+    name: "temperament",
+    operationId: "temperament",
+    method: "POST",
+    path: "/v1/temperament",
+    kind: "chart",
+    fields: ["birth", "options"],
+    binary: false,
+    enveloped: true,
+    summary: "Temperament by Lilly's method",
+  },
+  {
     name: "timeline",
     operationId: "timeline",
     method: "POST",
@@ -777,6 +865,17 @@ const ALL = Object.freeze([
     binary: false,
     enveloped: true,
     summary: "Sidereal Vedic chart with rashi, nakshatra, and lagna",
+  },
+  {
+    name: "venusStar",
+    operationId: "venus_star",
+    method: "POST",
+    path: "/v1/venus-star-point",
+    kind: "chart",
+    fields: ["birth", "options"],
+    binary: false,
+    enveloped: true,
+    summary: "Venus star point and the eight-year star",
   },
   {
     name: "vimshottari",

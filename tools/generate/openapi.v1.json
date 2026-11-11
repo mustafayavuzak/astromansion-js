@@ -1402,6 +1402,48 @@
         }
       }
     },
+    "/v1/lots": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "All 38 classical Arabic lots",
+        "description": "All 38 classical Arabic lots.",
+        "operationId": "lots",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/custom-body": {
       "post": {
         "tags": [
@@ -1990,6 +2032,48 @@
         }
       }
     },
+    "/v1/fixed-stars": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Fixed stars and the points on them",
+        "description": "Fixed stars and the points on them.",
+        "operationId": "fixed_stars",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/parans": {
       "post": {
         "tags": [
@@ -2082,6 +2166,300 @@
         "summary": "Birth-time rectification",
         "description": "Birth-time rectification.",
         "operationId": "rectification",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/great-conjunctions": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Jupiter and Saturn's great conjunctions",
+        "description": "Jupiter and Saturn's great conjunctions.",
+        "operationId": "great_conjunctions",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/venus-star-point": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Venus star point and the eight-year star",
+        "description": "Venus star point and the eight-year star.",
+        "operationId": "venus_star",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ingresses": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Equinoxes, solstices, and the Aries ingress chart",
+        "description": "Equinoxes, solstices, and the Aries ingress chart.",
+        "operationId": "ingresses",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/age-point": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Huber age point through the houses",
+        "description": "Huber age point through the houses.",
+        "operationId": "age_point",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/temperament": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Temperament by Lilly's method",
+        "description": "Temperament by Lilly's method.",
+        "operationId": "temperament",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/decennials": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Valens' decennials",
+        "description": "Valens' decennials.",
+        "operationId": "decennials",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechniqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechniqueEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/primary-directions": {
+      "post": {
+        "tags": [
+          "techniques"
+        ],
+        "summary": "Primary directions of the Ascendant and the Midheaven",
+        "description": "Primary directions of the Ascendant and the Midheaven.",
+        "operationId": "primary_directions",
         "requestBody": {
           "content": {
             "application/json": {
@@ -2448,7 +2826,7 @@
           "output"
         ],
         "summary": "Any kind of chart as a styled wheel: natal, rising sign, transits, synastry, and more",
-        "description": "Draw a chart of any kind as one wheel, in a style, as SVG or PNG.\n\n``type`` names the kind. Each is cast by the technique of its own\nendpoint, so the wheel shows what that endpoint answers. A wheel of two\ncharts draws the second on a ring of its own around the first one's\nhouses, with the chords between them. ``options`` takes the drawing's\nsettings of render/svg and render/png, ``style`` among them, and the\nmoment the kind is drawn for. An option the kind or the image does not\nread is refused.\n\nEvery heading names the drawn frame's Ascendant sign and degree.\n``options.lang`` selects ``en`` (the default) or ``tr`` for the heading\nand rising centre caption. Body labels retain their published names.\n\n``options.style.show.watermark`` controls faint branding: the centre\nlogo, or a wordmark below the zodiac on a rising-sign chart.\n``options.style.show.canvas_background`` defaults to true. Set it to false\nto keep the wheel painted and its surroundings transparent in SVG or PNG.\n\n``saturn_return`` reads ``options.cycle`` from 1 through 3, defaulting to\nthe first return. ``options.custom_bodies`` accepts up to eight Keplerian\nbodies with the custom-body endpoint's orbital fields. They join the first\nring at its actual chart moment. A composite uses the midpoint of both\nplacements. Rising-sign charts accept no body selection or custom bodies.",
+        "description": "Draw a chart of any kind as one wheel, in a style, as SVG or PNG.\n\n``type`` names the kind. Each is cast by the technique of its own\nendpoint, so the wheel shows what that endpoint answers. A wheel of two\ncharts draws the second on a ring of its own around the first one's\nhouses, with the chords between them. ``options`` takes the drawing's\nsettings of render/svg and render/png, ``style`` among them, and the\nmoment the kind is drawn for. An option the kind or the image does not\nread is refused.\n\nEvery heading names the drawn frame's Ascendant sign and degree.\n``options.lang`` selects ``en`` (the default) or ``tr`` for the heading,\nthe rising centre caption, and the bodies' labels on the wheel.\n\n``options.style.show.watermark`` controls faint branding: the centre\nlogo, or a wordmark below the zodiac on a rising-sign chart.\n``options.style.show.canvas_background`` defaults to true. Set it to false\nto keep the wheel painted and its surroundings transparent in SVG or PNG.\n\n``saturn_return`` reads ``options.cycle`` from 1 through 3, defaulting to\nthe first return. ``options.custom_bodies`` accepts up to eight Keplerian\nbodies with the custom-body endpoint's orbital fields. They join the first\nring at its actual chart moment. A composite uses the midpoint of both\nplacements. Rising-sign charts accept no body selection or custom bodies.",
         "operationId": "render_chart",
         "requestBody": {
           "content": {
@@ -5514,11 +5892,76 @@
         "title": "SatelliteSystem",
         "description": "A planet whose satellite system the API publishes. Its value is the request's key."
       },
+      "SaturnReturnApiOptions": {
+        "properties": {
+          "lang": {
+            "$ref": "#/components/schemas/LanguageCode",
+            "default": "en"
+          },
+          "theme": {
+            "$ref": "#/components/schemas/Theme",
+            "default": "light"
+          },
+          "wheel": {
+            "type": "boolean",
+            "title": "Wheel",
+            "default": false
+          },
+          "watermark": {
+            "type": "boolean",
+            "title": "Watermark",
+            "default": true
+          },
+          "include": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Include"
+          },
+          "exclude": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Exclude"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 60,
+            "title": "Title",
+            "default": ""
+          },
+          "author": {
+            "type": "string",
+            "maxLength": 60,
+            "title": "Author",
+            "default": ""
+          },
+          "returns": {
+            "type": "integer",
+            "maximum": 4.0,
+            "minimum": 1.0,
+            "title": "Returns",
+            "default": 2
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SaturnReturnApiOptions",
+        "description": "The natal request's options, and how many Saturn returns to follow."
+      },
       "SaturnReturnEvent": {
         "properties": {
           "return": {
             "type": "integer",
             "title": "Return"
+          },
+          "pass": {
+            "type": "integer",
+            "title": "Pass"
           },
           "date": {
             "type": "string",
@@ -5527,6 +5970,14 @@
           "time": {
             "type": "string",
             "title": "Time"
+          },
+          "jd": {
+            "type": "number",
+            "title": "Jd"
+          },
+          "lon": {
+            "type": "number",
+            "title": "Lon"
           },
           "sign": {
             "type": "string",
@@ -5540,13 +5991,16 @@
         "type": "object",
         "required": [
           "return",
+          "pass",
           "date",
           "time",
+          "jd",
+          "lon",
           "sign",
           "dms"
         ],
         "title": "SaturnReturnEvent",
-        "description": "One exact Saturn return."
+        "description": "One exact crossing of a Saturn return.\n\nSaturn near its natal degree can cross it, turn, cross back and cross a\nthird time, and all of them are one return, so a return has one row a\ncrossing."
       },
       "SaturnReturnRequest": {
         "properties": {
@@ -5554,7 +6008,7 @@
             "$ref": "#/components/schemas/BirthPayload"
           },
           "options": {
-            "$ref": "#/components/schemas/NatalApiOptions"
+            "$ref": "#/components/schemas/SaturnReturnApiOptions"
           }
         },
         "additionalProperties": false,
@@ -5563,7 +6017,7 @@
           "birth"
         ],
         "title": "SaturnReturnRequest",
-        "description": "A Saturn-return request, on the natal request's envelope. It adds no field."
+        "description": "A Saturn-return request, on the natal request's envelope, whose options also say how many returns to follow."
       },
       "SaturnReturnResponse": {
         "properties": {
@@ -5740,14 +6194,7 @@
             "title": "House"
           },
           "retrograde": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "boolean",
             "title": "Retrograde"
           },
           "day_signs": {

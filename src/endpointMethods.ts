@@ -21,7 +21,7 @@
  *     JSON answer   a Result, its body checked against the published shape
  *     document      the bytes, or the path written when output is given
  *
- *   Endpoints: 69. Written on the client itself: renderSharecard.
+ *   Endpoints: 78. Written on the client itself: renderSharecard.
  */
 
 import type {
@@ -163,6 +163,34 @@ export abstract class EndpointMethods {
     path: string,
     options?: RequestOptions,
   ): Promise<Result | string | Uint8Array>;
+
+  /**
+   * Huber age point through the houses.
+   *
+   * @remarks
+   * Sends `POST /v1/age-point`. The Python SDK names it age_point.
+   *
+   * Huber age point through the houses.
+   *
+   * @param fields - The birth fields, flat: date, time, lat, lon, timezone, and houses. options and signal may stand beside them.
+   * @param keywords - The method's other arguments, when they come apart from the birth fields.
+   * @returns The answer as a Result reading the result inside it, after the answer was checked against {@link TechniqueEnvelope}.
+   * @throws {@link ValidationError} when a birth field is malformed, before anything is sent, or when the API refuses the body.
+   * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
+   */
+  async agePoint(
+    fields: ChartFields<TechniqueRequest["options"]>,
+    keywords?: ChartKeywords<TechniqueRequest["options"]>,
+  ): Promise<Result> {
+    const call = RequestBodies.chart("agePoint", fields, keywords, false);
+    const answer = await this.request("POST", "/v1/age-point", {
+      json: call.json,
+      technique: "age_point",
+      enveloped: true,
+      signal: call.signal,
+    });
+    return readWrapped(answer, isTechniqueEnvelope, "agePoint");
+  }
 
   /**
    * Eclipses, retrogrades, planetary hours, and void Moon periods.
@@ -565,6 +593,34 @@ export abstract class EndpointMethods {
   }
 
   /**
+   * Valens' decennials.
+   *
+   * @remarks
+   * Sends `POST /v1/decennials`. The Python SDK names it decennials.
+   *
+   * Valens' decennials.
+   *
+   * @param fields - The birth fields, flat: date, time, lat, lon, timezone, and houses. options and signal may stand beside them.
+   * @param keywords - The method's other arguments, when they come apart from the birth fields.
+   * @returns The answer as a Result reading the result inside it, after the answer was checked against {@link TechniqueEnvelope}.
+   * @throws {@link ValidationError} when a birth field is malformed, before anything is sent, or when the API refuses the body.
+   * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
+   */
+  async decennials(
+    fields: ChartFields<TechniqueRequest["options"]>,
+    keywords?: ChartKeywords<TechniqueRequest["options"]>,
+  ): Promise<Result> {
+    const call = RequestBodies.chart("decennials", fields, keywords, false);
+    const answer = await this.request("POST", "/v1/decennials", {
+      json: call.json,
+      technique: "decennials",
+      enveloped: true,
+      signal: call.signal,
+    });
+    return readWrapped(answer, isTechniqueEnvelope, "decennials");
+  }
+
+  /**
    * Declination parallels.
    *
    * @remarks
@@ -871,6 +927,67 @@ export abstract class EndpointMethods {
   }
 
   /**
+   * Fixed stars and the points on them.
+   *
+   * @remarks
+   * Sends `POST /v1/fixed-stars`. The Python SDK names it fixed_stars.
+   *
+   * Fixed stars and the points on them.
+   *
+   * @param fields - The birth fields, flat: date, time, lat, lon, timezone, and houses. options and signal may stand beside them.
+   * @param keywords - The method's other arguments, when they come apart from the birth fields.
+   * @returns The answer as a Result reading the result inside it, after the answer was checked against {@link TechniqueEnvelope}.
+   * @throws {@link ValidationError} when a birth field is malformed, before anything is sent, or when the API refuses the body.
+   * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
+   */
+  async fixedStars(
+    fields: ChartFields<TechniqueRequest["options"]>,
+    keywords?: ChartKeywords<TechniqueRequest["options"]>,
+  ): Promise<Result> {
+    const call = RequestBodies.chart("fixedStars", fields, keywords, false);
+    const answer = await this.request("POST", "/v1/fixed-stars", {
+      json: call.json,
+      technique: "fixed_stars",
+      enveloped: true,
+      signal: call.signal,
+    });
+    return readWrapped(answer, isTechniqueEnvelope, "fixedStars");
+  }
+
+  /**
+   * Jupiter and Saturn's great conjunctions.
+   *
+   * @remarks
+   * Sends `POST /v1/great-conjunctions`. The Python SDK names it great_conjunctions.
+   *
+   * Jupiter and Saturn's great conjunctions.
+   *
+   * @param fields - The birth fields, flat: date, time, lat, lon, timezone, and houses. options and signal may stand beside them.
+   * @param keywords - The method's other arguments, when they come apart from the birth fields.
+   * @returns The answer as a Result reading the result inside it, after the answer was checked against {@link TechniqueEnvelope}.
+   * @throws {@link ValidationError} when a birth field is malformed, before anything is sent, or when the API refuses the body.
+   * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
+   */
+  async greatConjunctions(
+    fields: ChartFields<TechniqueRequest["options"]>,
+    keywords?: ChartKeywords<TechniqueRequest["options"]>,
+  ): Promise<Result> {
+    const call = RequestBodies.chart(
+      "greatConjunctions",
+      fields,
+      keywords,
+      false,
+    );
+    const answer = await this.request("POST", "/v1/great-conjunctions", {
+      json: call.json,
+      technique: "great_conjunctions",
+      enveloped: true,
+      signal: call.signal,
+    });
+    return readWrapped(answer, isTechniqueEnvelope, "greatConjunctions");
+  }
+
+  /**
    * Harmonic chart.
    *
    * @remarks
@@ -1008,6 +1125,34 @@ export abstract class EndpointMethods {
   }
 
   /**
+   * Equinoxes, solstices, and the Aries ingress chart.
+   *
+   * @remarks
+   * Sends `POST /v1/ingresses`. The Python SDK names it ingresses.
+   *
+   * Equinoxes, solstices, and the Aries ingress chart.
+   *
+   * @param fields - The birth fields, flat: date, time, lat, lon, timezone, and houses. options and signal may stand beside them.
+   * @param keywords - The method's other arguments, when they come apart from the birth fields.
+   * @returns The answer as a Result reading the result inside it, after the answer was checked against {@link TechniqueEnvelope}.
+   * @throws {@link ValidationError} when a birth field is malformed, before anything is sent, or when the API refuses the body.
+   * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
+   */
+  async ingresses(
+    fields: ChartFields<TechniqueRequest["options"]>,
+    keywords?: ChartKeywords<TechniqueRequest["options"]>,
+  ): Promise<Result> {
+    const call = RequestBodies.chart("ingresses", fields, keywords, false);
+    const answer = await this.request("POST", "/v1/ingresses", {
+      json: call.json,
+      technique: "ingresses",
+      enveloped: true,
+      signal: call.signal,
+    });
+    return readWrapped(answer, isTechniqueEnvelope, "ingresses");
+  }
+
+  /**
    * Inspect job status.
    *
    * @remarks
@@ -1063,6 +1208,34 @@ export abstract class EndpointMethods {
       signal: call.signal,
     });
     return readResult(answer, isJobListResponse, "listJobs");
+  }
+
+  /**
+   * All 38 classical Arabic lots.
+   *
+   * @remarks
+   * Sends `POST /v1/lots`. The Python SDK names it lots.
+   *
+   * All 38 classical Arabic lots.
+   *
+   * @param fields - The birth fields, flat: date, time, lat, lon, timezone, and houses. options and signal may stand beside them.
+   * @param keywords - The method's other arguments, when they come apart from the birth fields.
+   * @returns The answer as a Result reading the result inside it, after the answer was checked against {@link TechniqueEnvelope}.
+   * @throws {@link ValidationError} when a birth field is malformed, before anything is sent, or when the API refuses the body.
+   * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
+   */
+  async lots(
+    fields: ChartFields<TechniqueRequest["options"]>,
+    keywords?: ChartKeywords<TechniqueRequest["options"]>,
+  ): Promise<Result> {
+    const call = RequestBodies.chart("lots", fields, keywords, false);
+    const answer = await this.request("POST", "/v1/lots", {
+      json: call.json,
+      technique: "lots",
+      enveloped: true,
+      signal: call.signal,
+    });
+    return readWrapped(answer, isTechniqueEnvelope, "lots");
   }
 
   /**
@@ -1426,6 +1599,39 @@ export abstract class EndpointMethods {
   }
 
   /**
+   * Primary directions of the Ascendant and the Midheaven.
+   *
+   * @remarks
+   * Sends `POST /v1/primary-directions`. The Python SDK names it primary_directions.
+   *
+   * Primary directions of the Ascendant and the Midheaven.
+   *
+   * @param fields - The birth fields, flat: date, time, lat, lon, timezone, and houses. options and signal may stand beside them.
+   * @param keywords - The method's other arguments, when they come apart from the birth fields.
+   * @returns The answer as a Result reading the result inside it, after the answer was checked against {@link TechniqueEnvelope}.
+   * @throws {@link ValidationError} when a birth field is malformed, before anything is sent, or when the API refuses the body.
+   * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
+   */
+  async primaryDirections(
+    fields: ChartFields<TechniqueRequest["options"]>,
+    keywords?: ChartKeywords<TechniqueRequest["options"]>,
+  ): Promise<Result> {
+    const call = RequestBodies.chart(
+      "primaryDirections",
+      fields,
+      keywords,
+      false,
+    );
+    const answer = await this.request("POST", "/v1/primary-directions", {
+      json: call.json,
+      technique: "primary_directions",
+      enveloped: true,
+      signal: call.signal,
+    });
+    return readWrapped(answer, isTechniqueEnvelope, "primaryDirections");
+  }
+
+  /**
    * Annual profections.
    *
    * @remarks
@@ -1641,8 +1847,8 @@ export abstract class EndpointMethods {
    * read is refused.
    *
    * Every heading names the drawn frame's Ascendant sign and degree.
-   * `options.lang` selects `en` (the default) or `tr` for the heading
-   * and rising centre caption. Body labels retain their published names.
+   * `options.lang` selects `en` (the default) or `tr` for the heading,
+   * the rising centre caption, and the bodies' labels on the wheel.
    *
    * `options.style.show.watermark` controls faint branding: the centre
    * logo, or a wordmark below the zodiac on a rising-sign chart.
@@ -2073,6 +2279,34 @@ export abstract class EndpointMethods {
   }
 
   /**
+   * Temperament by Lilly's method.
+   *
+   * @remarks
+   * Sends `POST /v1/temperament`. The Python SDK names it temperament.
+   *
+   * Temperament by Lilly's method.
+   *
+   * @param fields - The birth fields, flat: date, time, lat, lon, timezone, and houses. options and signal may stand beside them.
+   * @param keywords - The method's other arguments, when they come apart from the birth fields.
+   * @returns The answer as a Result reading the result inside it, after the answer was checked against {@link TechniqueEnvelope}.
+   * @throws {@link ValidationError} when a birth field is malformed, before anything is sent, or when the API refuses the body.
+   * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
+   */
+  async temperament(
+    fields: ChartFields<TechniqueRequest["options"]>,
+    keywords?: ChartKeywords<TechniqueRequest["options"]>,
+  ): Promise<Result> {
+    const call = RequestBodies.chart("temperament", fields, keywords, false);
+    const answer = await this.request("POST", "/v1/temperament", {
+      json: call.json,
+      technique: "temperament",
+      enveloped: true,
+      signal: call.signal,
+    });
+    return readWrapped(answer, isTechniqueEnvelope, "temperament");
+  }
+
+  /**
    * Life timing timeline.
    *
    * @remarks
@@ -2182,6 +2416,34 @@ export abstract class EndpointMethods {
       signal: call.signal,
     });
     return readWrapped(answer, isTechniqueEnvelope, "vedicChart");
+  }
+
+  /**
+   * Venus star point and the eight-year star.
+   *
+   * @remarks
+   * Sends `POST /v1/venus-star-point`. The Python SDK names it venus_star.
+   *
+   * Venus star point and the eight-year star.
+   *
+   * @param fields - The birth fields, flat: date, time, lat, lon, timezone, and houses. options and signal may stand beside them.
+   * @param keywords - The method's other arguments, when they come apart from the birth fields.
+   * @returns The answer as a Result reading the result inside it, after the answer was checked against {@link TechniqueEnvelope}.
+   * @throws {@link ValidationError} when a birth field is malformed, before anything is sent, or when the API refuses the body.
+   * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
+   */
+  async venusStar(
+    fields: ChartFields<TechniqueRequest["options"]>,
+    keywords?: ChartKeywords<TechniqueRequest["options"]>,
+  ): Promise<Result> {
+    const call = RequestBodies.chart("venusStar", fields, keywords, false);
+    const answer = await this.request("POST", "/v1/venus-star-point", {
+      json: call.json,
+      technique: "venus_star",
+      enveloped: true,
+      signal: call.signal,
+    });
+    return readWrapped(answer, isTechniqueEnvelope, "venusStar");
   }
 
   /**
