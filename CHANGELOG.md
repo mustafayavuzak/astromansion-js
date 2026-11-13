@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0-alpha.8
+
+- The package says what it covers where npm searches. The description
+  names natal charts, transits, synastry, Vedic charts and astrocartography
+  from NASA JPL ephemerides, and the keywords name the techniques and terms
+  people search for, such as `birth-chart`, `horoscope`, `vedic-astrology`,
+  `astrocartography` and `typescript`. The code is the same as
+  0.1.0-alpha.7.
+
 ## 0.1.0-alpha.7
 
 - Nine techniques the API published since 0.1.0-alpha.6 have methods,
