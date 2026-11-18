@@ -42,6 +42,8 @@ export interface TransportConfig {
   readonly wait: WaitFunction;
   /** A source of numbers in [0, 1), for the jitter of each wait. */
   readonly random: () => number;
+  /** Where the transport says why it waits, before a retry the server's answer asked for. */
+  readonly warn: (message: string) => void;
 }
 
 /**

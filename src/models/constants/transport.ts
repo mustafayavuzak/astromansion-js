@@ -17,7 +17,9 @@
  *   completed cannot have been counted against the caller's allowance, and a
  *   status in RETRYABLE_STATUSES means the server produced nothing, so
  *   neither can be charged twice. A refusal the caller must fix is never
- *   repeated, and neither is a spent quota.
+ *   repeated, and neither is a spent quota. A wait the server's answer asked
+ *   for, such as a rate limit's, is never silent. The transport writes
+ *   RETRY_NOTICE before it pauses, so a call that waits for seconds says why.
  */
 
 import { HTTP_STATUS } from "./http.ts";
@@ -79,4 +81,17 @@ export const RETRY_AFTER = Object.freeze({
    * Refuses `0x10`, `1e3`, `.5`, `Wed, 21 Oct 2026 07:28:00 GMT`, and empty text.
    */
   SECONDS_PATTERN: /^-?\d+(?:\.\d+)?$/,
+} as const);
+
+/**
+ * What the transport says before a wait the server's answer asked for.
+ *
+ * @internal
+ */
+export const RETRY_NOTICE = Object.freeze({
+  /** The notice, with {status}, {seconds}, {retry}, and {retries} filled in. */
+  TEMPLATE:
+    "The AstroMansion API answered {status}, so the client waits {seconds} s before retry {retry} of {retries}. Set maxRetries: 0 to get the error at once.",
+  /** The decimals the wait's seconds are written with. */
+  SECONDS_DECIMALS: 1,
 } as const);

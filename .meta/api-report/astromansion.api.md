@@ -753,6 +753,7 @@ export type NatalApiRequest = Readonly<{
 
 // @public
 export type NatalResponse = Readonly<{
+    time_known: boolean;
     summary: Readonly<Record<string, SummaryRow>>;
     planets: readonly BodyRow[];
     aspects: readonly AspectRow[];

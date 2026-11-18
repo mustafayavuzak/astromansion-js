@@ -142,6 +142,13 @@ Fields: `date` as `YYYY-MM-DD`, `time` as `HH:MM` (leave it out if unknown),
 zone name, `houses` for a house system. The client checks them before
 anything is sent, so a malformed date is reported by the field you wrote.
 
+Without a `time` the chart is cast at local noon, and the natal answer says so
+with `time_known` set to `false`. Only the time decides the Ascendant, the
+Midheaven and the houses, so that answer leaves them out, along with every
+aspect to the two angles. `summary` then holds the Sun and the Moon alone, and
+no planet has a `house`. Never show a rising sign for a birth whose time is
+unknown.
+
 JavaScript has no keyword arguments, so a method takes one object where the
 Python SDK takes keywords. The method's other arguments, such as `options`,
 may stand beside the birth fields or come in a second object:
@@ -941,6 +948,13 @@ reason.
 The client retries only failures that carry no result. These are connection
 errors, 429 and 5xx. It retries them twice by default and honours
 `Retry-After`. A refusal you must fix is never retried.
+
+A retry never waits in silence. Before each wait the server's answer asked
+for, the client writes a warning with `console.warn`, naming the status, the
+wait, and the retry it comes before. A visitor and the Free plan may send 3
+requests a minute, so the fourth request in a minute waits for the window to
+reopen, up to 8 seconds a retry. With `maxRetries: 0` the call throws
+`RateLimitError` at once, and its `retryAfter` says how long to wait.
 
 ```js
 const client = new AstroMansion({ timeout: 60, maxRetries: 0 });

@@ -16,7 +16,11 @@ import type {
   TransportConfig,
 } from "../../src/models/records/transport.ts";
 import { backoffDelayMs } from "../../src/transport/backoff.ts";
-import { Transport, waitFor } from "../../src/transport/transport.ts";
+import {
+  Transport,
+  retryNotice,
+  waitFor,
+} from "../../src/transport/transport.ts";
 import { FakeFetch, type ScriptedStep, jsonAnswer } from "../fakes/fetch.ts";
 import { RecordedWaits } from "../fakes/wait.ts";
 import { GREENWICH_BIRTH, ISSUED_KEY, STAGING_ROOT } from "../fixtures.ts";
@@ -32,11 +36,12 @@ const NATAL: OutgoingRequest = {
   expectDocument: false,
 };
 
-/** What a test works with: the transport, the fetch it calls, and the waits it made. */
+/** What a test works with: the transport, the fetch it calls, the waits it made, and the notices it gave. */
 interface Harness {
   readonly transport: Transport;
   readonly fake: FakeFetch;
   readonly waits: RecordedWaits;
+  readonly notices: string[];
 }
 
 /**
@@ -52,6 +57,7 @@ function harness(
 ): Harness {
   const fake = new FakeFetch(steps);
   const waits = new RecordedWaits();
+  const notices: string[] = [];
   const transport = new Transport({
     baseUrl: STAGING_ROOT,
     headers: { [API_HEADERS.KEY]: ISSUED_KEY },
@@ -62,8 +68,11 @@ function harness(
     fetch: fake.fetch,
     wait: waits.wait,
     random: MIDDLE,
+    warn: (message) => {
+      notices.push(message);
+    },
   });
-  return { transport, fake, waits };
+  return { transport, fake, waits, notices };
 }
 
 afterEach(() => {
@@ -141,6 +150,24 @@ describe("Transport.send", () => {
     await transport.send(NATAL);
 
     expect(waits.durationsMs).toEqual([2 * TRANSPORT_TIMING.MS_PER_SECOND]);
+  });
+
+  it("says why it waits before retrying a rate limit, once per wait", async () => {
+    const { transport, notices } = harness([
+      jsonAnswer(
+        429,
+        { error: { code: "rate_limited" } },
+        { "Retry-After": "2" },
+      ),
+      jsonAnswer(200, {}),
+    ]);
+
+    await transport.send(NATAL);
+
+    expect(notices).toEqual([
+      retryNotice(429, 2 * TRANSPORT_TIMING.MS_PER_SECOND, 1, 2),
+    ]);
+    expect(notices[0]).toContain("429");
   });
 
   it("never retries a spent quota", async () => {

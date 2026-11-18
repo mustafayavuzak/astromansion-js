@@ -57,7 +57,7 @@ import { decodeResponse } from "./responses/decoder.ts";
 import { documentWriter, saveDocument } from "./responses/documents.ts";
 import { isJsonObject } from "./responses/json.ts";
 import { Settings } from "./settings.ts";
-import { Transport, waitFor } from "./transport/transport.ts";
+import { Transport, waitFor, warnOnConsole } from "./transport/transport.ts";
 
 /** The client's own messages and the method it names in them. */
 const CLIENT_CONFIG = Object.freeze({
@@ -133,6 +133,7 @@ export class AstroMansion extends EndpointMethods {
       fetch: options.fetch ?? globalThis.fetch,
       wait: waitFor,
       random: () => Math.random(),
+      warn: warnOnConsole,
     });
   }
 

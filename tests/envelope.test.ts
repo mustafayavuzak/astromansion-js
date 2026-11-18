@@ -20,6 +20,7 @@ import { FakeFetch, jsonAnswer, type ScriptedStep } from "./fakes/fetch.ts";
 const KEY = "am_live_testkey_0123456789abcdef";
 const BIRTH = Object.freeze({ date: "2000-01-01", lat: 51.4779, lon: 0 });
 const NATAL = Object.freeze({
+  time_known: true,
   summary: { Sun: { sign: "Capricorn", dms: "10°49′35″" } },
   planets: [],
   aspects: [],

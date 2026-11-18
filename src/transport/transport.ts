@@ -45,7 +45,10 @@ import type {
   TransportConfig,
 } from "../models/records/transport.ts";
 import { HTTP_STATUS } from "../models/constants/http.ts";
-import { TRANSPORT_TIMING } from "../models/constants/transport.ts";
+import {
+  RETRY_NOTICE,
+  TRANSPORT_TIMING,
+} from "../models/constants/transport.ts";
 import { errorCodeOf, isPlainText } from "../responses/decoder.ts";
 import { ErrorPolicy } from "../responses/errorPolicy.ts";
 import { backoffDelayMs, retryAfterSeconds } from "./backoff.ts";
@@ -97,7 +100,7 @@ export class Transport {
    * @throws The caller's abort reason, when the caller's signal aborts.
    */
   async send(request: OutgoingRequest): Promise<ReceivedResponse> {
-    const { maxRetries, random, wait } = this.#config;
+    const { maxRetries, random, wait, warn } = this.#config;
     // A call that cannot be written is the caller's to fix, so it fails here, once, unsent.
     const call: PreparedCall = {
       url: this.#url(request),
@@ -124,10 +127,13 @@ export class Transport {
       ) {
         return response;
       }
-      await wait(
-        backoffDelayMs(attempt, retryAfterSeconds(response.headers), random),
-        request.signal,
+      const pauseMs = backoffDelayMs(
+        attempt,
+        retryAfterSeconds(response.headers),
+        random,
       );
+      warn(retryNotice(response.status, pauseMs, attempt + 1, maxRetries));
+      await wait(pauseMs, request.signal);
     }
   }
 
@@ -224,6 +230,46 @@ function serializeBody(json: JsonValue | undefined): string | null {
       { errorCode: CLIENT_ERROR_CODES.VALIDATION, cause: error },
     );
   }
+}
+
+/**
+ * Write the notice the transport gives before a wait the server's answer asked for.
+ *
+ * @internal
+ * @param status - The answer's HTTP status, such as 429.
+ * @param pauseMs - The wait, in milliseconds.
+ * @param retry - The retry the wait comes before, counting from one.
+ * @param retries - The retries the client allows after the first attempt.
+ * @returns The notice, its numbers filled in.
+ * @example
+ * ```ts
+ * retryNotice(429, 2000, 1, 2);
+ * // "The AstroMansion API answered 429, so the client waits 2.0 s before retry 1 of 2. ..."
+ * ```
+ */
+export function retryNotice(
+  status: number,
+  pauseMs: number,
+  retry: number,
+  retries: number,
+): string {
+  const seconds = (pauseMs / TRANSPORT_TIMING.MS_PER_SECOND).toFixed(
+    RETRY_NOTICE.SECONDS_DECIMALS,
+  );
+  return RETRY_NOTICE.TEMPLATE.replace("{status}", String(status))
+    .replace("{seconds}", seconds)
+    .replace("{retry}", String(retry))
+    .replace("{retries}", String(retries));
+}
+
+/**
+ * Say why the client waits, the transport's default notice, on the console's warning stream.
+ *
+ * @internal
+ * @param message - The notice.
+ */
+export function warnOnConsole(message: string): void {
+  console.warn(message);
 }
 
 /**

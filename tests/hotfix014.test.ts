@@ -28,6 +28,7 @@ const BASE = "https://api.astromansion.com";
 const KEY = "am_secret_key_0123456789";
 const BIRTH = Object.freeze({ date: "2000-01-01", lat: 51.4779, lon: 0 });
 const NATAL = Object.freeze({
+  time_known: true,
   summary: {},
   planets: [],
   aspects: [],

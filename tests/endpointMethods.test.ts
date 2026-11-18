@@ -30,6 +30,7 @@ const HAND_WRITTEN = "renderSharecard";
 
 /** A natal answer with every member NatalResponse requires. */
 const NATAL_ANSWER = Object.freeze({
+  time_known: true,
   summary: { Sun: { sign: "Capricorn", dms: "10°22'" } },
   planets: [
     {

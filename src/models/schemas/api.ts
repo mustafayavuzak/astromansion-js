@@ -741,8 +741,13 @@ export type NatalApiRequest = Readonly<{
 
 /**
  * The public natal answer.
+ *
+ * A birth sent without a time is cast at local noon. Its Ascendant,
+ * Midheaven, and houses would then be the noon chart's rather than the
+ * person's, so the answer leaves them out and says so in `time_known`.
  */
 export type NatalResponse = Readonly<{
+  time_known: boolean;
   summary: Readonly<Record<string, SummaryRow>>;
   planets: readonly BodyRow[];
   aspects: readonly AspectRow[];
@@ -1316,7 +1321,7 @@ export type SystemParent = Readonly<{
 /**
  * The epoch an answer is read at.
  *
- * The satellites are read at this instant. On the API it is the birth; on
+ * The satellites are read at this instant. On the API it is the birth. On
  * the page it is the birth plus `offset_seconds`, while the natal anchor
  * stays the birth's.
  */

@@ -5014,6 +5014,10 @@
       },
       "NatalResponse": {
         "properties": {
+          "time_known": {
+            "type": "boolean",
+            "title": "Time Known"
+          },
           "summary": {
             "additionalProperties": {
               "$ref": "#/components/schemas/SummaryRow"
@@ -5049,12 +5053,13 @@
         },
         "type": "object",
         "required": [
+          "time_known",
           "summary",
           "planets",
           "aspects"
         ],
         "title": "NatalResponse",
-        "description": "The public natal answer."
+        "description": "The public natal answer.\n\nA birth sent without a time is cast at local noon. Its Ascendant,\nMidheaven, and houses would then be the noon chart's rather than the\nperson's, so the answer leaves them out and says so in ``time_known``."
       },
       "PageSize": {
         "type": "string",
@@ -6408,7 +6413,7 @@
           "local"
         ],
         "title": "SystemTime",
-        "description": "The epoch an answer is read at.\n\nThe satellites are read at this instant. On the API it is the birth; on\nthe page it is the birth plus ``offset_seconds``, while the natal anchor\nstays the birth's."
+        "description": "The epoch an answer is read at.\n\nThe satellites are read at this instant. On the API it is the birth. On\nthe page it is the birth plus ``offset_seconds``, while the natal anchor\nstays the birth's."
       },
       "TechniqueEnvelope": {
         "properties": {

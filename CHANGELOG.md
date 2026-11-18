@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.0-alpha.9
+
+- A retry never waits in silence. Before each wait a server's answer asked
+  for, such as a rate limit's, the client writes a warning with
+  `console.warn`, naming the status, the wait and the retry it comes before.
+  A visitor and the Free plan may send 3 requests a minute, so the fourth
+  waited up to 8 seconds a retry with nothing said.
+
+- `NatalResponse` has `time_known`. The API's natal answer for a birth
+  without a time says `false` and leaves out the Ascendant, the Midheaven,
+  the houses and the aspects to the two angles, which only the time decides.
+  It used to give the noon chart's angles as if they were the person's. The
+  answer check now requires `time_known`, which the API sends in every
+  natal answer.
+
 ## 0.1.0-alpha.8
 
 - The package says what it covers where npm searches. The description

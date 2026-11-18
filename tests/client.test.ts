@@ -48,6 +48,7 @@ const BIRTH = Object.freeze({
   lon: 0,
 });
 const NATAL = Object.freeze({
+  time_known: true,
   summary: { Sun: { sign: "Capricorn", dms: "10°49′35″" } },
   planets: [{ name: "Sun", sign: "Capricorn", house: 10, retrograde: false }],
   aspects: [],

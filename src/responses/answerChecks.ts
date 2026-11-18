@@ -618,6 +618,7 @@ export function isNatalResponse(
 ): value is NatalResponse {
   return (
     isJsonObject(value) &&
+    typeof value["time_known"] === "boolean" &&
     isJsonRecordOf(value["summary"], (member0) => isSummaryRow(member0)) &&
     isJsonArrayOf(value["planets"], (item0) => isBodyRow(item0)) &&
     isJsonArrayOf(value["aspects"], (item0) => isAspectRow(item0)) &&
