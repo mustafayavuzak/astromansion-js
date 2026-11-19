@@ -65,10 +65,9 @@ jobs:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: package
-      # A prerelease, such as v0.1.0-alpha.1, goes out under the next tag.
+      # The package has no stable release yet, so every version, an alpha such
+      # as v0.1.0-alpha.9 among them, goes out under the latest tag that
+      # npm install reads and the package page shows. npm asks a prerelease to
+      # name its tag, so the tag is named on every publish.
       - name: Publish
-        run: |
-          case "$GITHUB_REF_NAME" in
-            *-*) npm publish astromansion-*.tgz --tag next ;;
-            *) npm publish astromansion-*.tgz ;;
-          esac
+        run: npm publish astromansion-*.tgz --tag latest
