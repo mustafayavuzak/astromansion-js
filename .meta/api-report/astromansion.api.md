@@ -9,6 +9,7 @@ export type AcgMapRequest = Readonly<{
     birth: BirthPayload;
     place?: string;
     lang?: LanguageCode | null;
+    format?: ChartImage;
 }>;
 
 // @public
@@ -416,6 +417,7 @@ export abstract class EndpointMethods {
     job(jobId: string, params?: CallKeywords): Promise<Result<JobStatusResponse>>;
     listJobs(params?: CallKeywords): Promise<Result<JobListResponse>>;
     lots(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
+    lunarCalendar(params: ParamsFields<LunarCalendarQuery>): Promise<Result<LunarCalendarResponse>>;
     lunarReturn(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     mansions(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
     midpoints(fields: ChartFields<TechniqueRequest["options"]>, keywords?: ChartKeywords<TechniqueRequest["options"]>): Promise<Result>;
@@ -657,6 +659,45 @@ export type Longitude = number;
 
 // @public
 export function lots(...args: Parameters<AstroMansion["lots"]>): ReturnType<AstroMansion["lots"]>;
+
+// @public
+export function lunarCalendar(...args: Parameters<AstroMansion["lunarCalendar"]>): ReturnType<AstroMansion["lunarCalendar"]>;
+
+// @public
+export type LunarCalendarDay = Readonly<{
+    day: number;
+    date: string;
+    weekday: number;
+    lunar_day: number;
+    phase: string;
+    illumination: number;
+    phase_icon: string;
+    eclipse_candidate: boolean;
+    events: readonly LunarCalendarEvent[];
+}>;
+
+// @public
+export type LunarCalendarEvent = Readonly<{
+    kind: string;
+    time: string;
+    timestamp_utc: string;
+    text: string;
+}>;
+
+// @public
+export type LunarCalendarQuery = Readonly<{
+    year: number;
+    month: number;
+    lang?: string;
+}>;
+
+// @public
+export type LunarCalendarResponse = Readonly<{
+    year: number;
+    month: number;
+    timezone?: OpenSet<CalendarZone>;
+    days: readonly LunarCalendarDay[];
+}>;
 
 // @public
 export function lunarReturn(...args: Parameters<AstroMansion["lunarReturn"]>): ReturnType<AstroMansion["lunarReturn"]>;
@@ -928,6 +969,7 @@ export function renderSvg(...args: Parameters<AstroMansion["renderSvg"]>): Retur
 export type ReportExportRequest = Readonly<{
     sections?: readonly string[];
     page_size?: PageSize;
+    theme?: Theme;
     title?: string;
     author?: string;
     custom_text?: string;

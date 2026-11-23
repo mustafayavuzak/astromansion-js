@@ -24,7 +24,7 @@
 import type { JsonValue, OpenSet } from "../records/json.ts";
 
 /**
- * A request for a rendered astrocartography map.
+ * A request for a rendered astrocartography map, drawn as the site's page draws it.
  */
 export type AcgMapRequest = Readonly<{
   birth: BirthPayload;
@@ -35,6 +35,10 @@ export type AcgMapRequest = Readonly<{
    */
   place?: string;
   lang?: LanguageCode | null;
+  /**
+   * @defaultValue `"svg"`
+   */
+  format?: ChartImage;
 }>;
 
 /**
@@ -100,11 +104,29 @@ export type BirthDate = string;
  * The moment and place a chart is cast for, as every technique request carries it.
  */
 export type BirthPayload = Readonly<{
+  /**
+   * The birth date, YYYY-MM-DD, from the year 1 to 3000.
+   */
   date: BirthDate;
+  /**
+   * The local clock time of the birth, HH:MM in 24 hours. Leave it out when it is unknown.
+   */
   time?: ClockTime | null;
+  /**
+   * The latitude in degrees, north positive.
+   */
   lat: Latitude;
+  /**
+   * The longitude in degrees, east positive.
+   */
   lon: Longitude;
+  /**
+   * The IANA time zone, such as Europe/Istanbul, or the UTC offset in hours, such as 3. Left out, the time is read as UTC.
+   */
   timezone?: TimeZoneInput | null;
+  /**
+   * The house system, such as placidus, koch, equal or whole_sign. Left out, it is placidus.
+   */
   houses?: HouseSystemName | null;
 }>;
 
@@ -588,6 +610,64 @@ export type LightCorrection = "NONE" | "LT" | "LT+S";
 export type Longitude = number;
 
 /**
+ * One day of the site's lunar calendar, with complete event instants.
+ */
+export type LunarCalendarDay = Readonly<{
+  day: number;
+  date: string;
+  weekday: number;
+  lunar_day: number;
+  phase: string;
+  illumination: number;
+  phase_icon: string;
+  eclipse_candidate: boolean;
+  events: readonly LunarCalendarEvent[];
+}>;
+
+/**
+ * One event on a lunar calendar day.
+ */
+export type LunarCalendarEvent = Readonly<{
+  kind: string;
+  time: string;
+  timestamp_utc: string;
+  text: string;
+}>;
+
+/**
+ * The query of lunarCalendar, sent with GET /v1/lunar-calendar.
+ */
+export type LunarCalendarQuery = Readonly<{
+  /**
+   * At least 1800. At most 2400.
+   */
+  year: number;
+  /**
+   * At least 1. At most 12.
+   */
+  month: number;
+  /**
+   * Matches the pattern `^(tr|en)$`.
+   *
+   * @defaultValue `"en"`
+   */
+  lang?: string;
+}>;
+
+/**
+ * The site's complete lunar calendar for one UTC month.
+ */
+export type LunarCalendarResponse = Readonly<{
+  year: number;
+  month: number;
+  /**
+   * @defaultValue `"UTC"`
+   */
+  timezone?: OpenSet<CalendarZone>;
+  days: readonly LunarCalendarDay[];
+}>;
+
+/**
  * One of the four principal lunar phases, declared in the order the engine numbers them, 0 to 3.
  */
 export type MoonPhase =
@@ -911,6 +991,10 @@ export type ReportExportRequest = Readonly<{
    * @defaultValue `"a4"`
    */
   page_size?: PageSize;
+  /**
+   * @defaultValue `"light"`
+   */
+  theme?: Theme;
   /**
    * At most 120 characters long.
    *

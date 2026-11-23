@@ -43,6 +43,9 @@ import type {
   JobListResponse,
   JobStatusResponse,
   JobSummary,
+  LunarCalendarDay,
+  LunarCalendarEvent,
+  LunarCalendarResponse,
   MoonPhaseEvent,
   MoonPhaseQueryEvent,
   MoonPhaseQueryResponse,
@@ -517,6 +520,69 @@ export function isJobSummary(
     (value["finished_at"] === undefined ||
       typeof value["finished_at"] === "string" ||
       value["finished_at"] === null)
+  );
+}
+
+/**
+ * Check that a value has the {@link LunarCalendarDay} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member LunarCalendarDay requires, each of its published type.
+ */
+export function isLunarCalendarDay(
+  value: JsonValue | undefined,
+): value is LunarCalendarDay {
+  return (
+    isJsonObject(value) &&
+    Number.isInteger(value["day"]) &&
+    typeof value["date"] === "string" &&
+    Number.isInteger(value["weekday"]) &&
+    Number.isInteger(value["lunar_day"]) &&
+    typeof value["phase"] === "string" &&
+    typeof value["illumination"] === "number" &&
+    typeof value["phase_icon"] === "string" &&
+    typeof value["eclipse_candidate"] === "boolean" &&
+    isJsonArrayOf(value["events"], (item0) => isLunarCalendarEvent(item0))
+  );
+}
+
+/**
+ * Check that a value has the {@link LunarCalendarEvent} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member LunarCalendarEvent requires, each of its published type.
+ */
+export function isLunarCalendarEvent(
+  value: JsonValue | undefined,
+): value is LunarCalendarEvent {
+  return (
+    isJsonObject(value) &&
+    typeof value["kind"] === "string" &&
+    typeof value["time"] === "string" &&
+    typeof value["timestamp_utc"] === "string" &&
+    typeof value["text"] === "string"
+  );
+}
+
+/**
+ * Check that a value has the {@link LunarCalendarResponse} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member LunarCalendarResponse requires, each of its published type.
+ */
+export function isLunarCalendarResponse(
+  value: JsonValue | undefined,
+): value is LunarCalendarResponse {
+  return (
+    isJsonObject(value) &&
+    Number.isInteger(value["year"]) &&
+    Number.isInteger(value["month"]) &&
+    (value["timezone"] === undefined ||
+      typeof value["timezone"] === "string") &&
+    isJsonArrayOf(value["days"], (item0) => isLunarCalendarDay(item0))
   );
 }
 

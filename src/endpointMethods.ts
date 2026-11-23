@@ -21,7 +21,7 @@
  *     JSON answer   a Result, its body checked against the published shape
  *     document      the bytes, or the path written when output is given
  *
- *   Endpoints: 78. Written on the client itself: renderSharecard.
+ *   Endpoints: 79. Written on the client itself: renderSharecard.
  */
 
 import type {
@@ -57,6 +57,8 @@ import type {
   JobCreateRequest,
   JobListResponse,
   JobStatusResponse,
+  LunarCalendarQuery,
+  LunarCalendarResponse,
   MoonPhaseQueryRequest,
   MoonPhaseQueryResponse,
   MoonPhasesQuery,
@@ -94,6 +96,7 @@ import {
   isJobBatchResponse,
   isJobListResponse,
   isJobStatusResponse,
+  isLunarCalendarResponse,
   isMoonPhaseQueryResponse,
   isMoonPhasesResponse,
   isNatalResponse,
@@ -1239,6 +1242,31 @@ export abstract class EndpointMethods {
   }
 
   /**
+   * Daily lunar calendar.
+   *
+   * @remarks
+   * Sends `GET /v1/lunar-calendar`. The Python SDK names it lunar_calendar.
+   *
+   * Return every lunar day and its events for a calendar month.
+   *
+   * @param params - The query, as {@link LunarCalendarQuery} describes it. Parameters set to undefined or null are left out. signal may stand beside them.
+   * @returns The answer as a Result, checked against {@link LunarCalendarResponse}.
+   * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
+   */
+  async lunarCalendar(
+    params: ParamsFields<LunarCalendarQuery>,
+  ): Promise<Result<LunarCalendarResponse>> {
+    const call = RequestBodies.params("lunarCalendar", params);
+    const answer = await this.request("GET", "/v1/lunar-calendar", {
+      params: call.params,
+      technique: "lunar_calendar",
+      enveloped: false,
+      signal: call.signal,
+    });
+    return readResult(answer, isLunarCalendarResponse, "lunarCalendar");
+  }
+
+  /**
    * Lunar return charts.
    *
    * @remarks
@@ -1746,16 +1774,16 @@ export abstract class EndpointMethods {
   }
 
   /**
-   * Astrocartography map with line meanings.
+   * Astrocartography map, as the site draws it.
    *
    * @remarks
    * Sends `POST /v1/render/astrocartography`. The Python SDK names it render_astrocartography.
    *
-   * Render an astrocartography map as one self-contained SVG.
+   * Render an astrocartography map as the site's page draws it, as one self-contained SVG or as a PNG.
    *
    * @param fields - The request body, as {@link AcgMapRequest} describes it, sent as given. signal may stand beside its fields. output, the path to write the document to, is allowed among them.
    * @param keywords - signal, and output for a document, when they come apart from the body.
-   * @returns The document's bytes, sent as image/svg+xml, or the path it was written to when output is given.
+   * @returns The document's bytes, sent as image/svg+xml or image/png, or the path it was written to when output is given.
    * @throws {@link AstroMansionError} or the subclass that names the cause, as {@link AstroMansion.request} describes. The code unexpected_answer means the answer did not have its published shape.
    */
   async renderAstrocartography(
@@ -2048,6 +2076,9 @@ export abstract class EndpointMethods {
    * Sends `GET /v1/geo/search`. The Python SDK names it search_places.
    *
    * Return candidate places for the birth-location selector.
+   *
+   * A search is counted in the minute's and the day's windows but never in
+   * the month, which the plan sells for calculations.
    *
    * @param params - The query, as {@link SearchPlacesQuery} describes it. Parameters set to undefined or null are left out. signal may stand beside them.
    * @returns The answer as a Result, checked against {@link GeoSearchResponse}.

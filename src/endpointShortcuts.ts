@@ -14,7 +14,7 @@
  *     import * as am from "astromansion";
  *     const chart = await am.natal(birth);   // defaultClient().natal(birth)
  *
- *   Endpoints: 79
+ *   Endpoints: 80
  */
 
 import type { AstroMansion } from "./client.ts";
@@ -597,6 +597,22 @@ export async function lots(
 }
 
 /**
+ * Daily lunar calendar.
+ *
+ * @remarks
+ * Forwards to {@link EndpointMethods.lunarCalendar} on the shared client.
+ *
+ * @param args - The arguments {@link EndpointMethods.lunarCalendar} takes.
+ * @returns What {@link EndpointMethods.lunarCalendar} returns.
+ * @throws {@link AuthenticationError} when the shared client is built now and no key was found, and whatever the method throws.
+ */
+export async function lunarCalendar(
+  ...args: Parameters<AstroMansion["lunarCalendar"]>
+): ReturnType<AstroMansion["lunarCalendar"]> {
+  return defaultClient().lunarCalendar(...args);
+}
+
+/**
  * Lunar return charts.
  *
  * @remarks
@@ -869,7 +885,7 @@ export async function rectification(
 }
 
 /**
- * Astrocartography map with line meanings.
+ * Astrocartography map, as the site draws it.
  *
  * @remarks
  * Forwards to {@link EndpointMethods.renderAstrocartography} on the shared client.

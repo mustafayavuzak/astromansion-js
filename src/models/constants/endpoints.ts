@@ -11,7 +11,7 @@
  *   The tests read it to check that the client and the module-level
  *   shortcuts cover the API, under the Python SDK's names.
  *
- *   Endpoints: 79
+ *   Endpoints: 80
  */
 
 import type { Endpoint } from "../records/endpoints.ts";
@@ -303,6 +303,7 @@ const ALL = Object.freeze([
     fields: [
       "sections",
       "page_size",
+      "theme",
       "title",
       "author",
       "custom_text",
@@ -480,6 +481,17 @@ const ALL = Object.freeze([
     binary: false,
     enveloped: true,
     summary: "All 38 classical Arabic lots",
+  },
+  {
+    name: "lunarCalendar",
+    operationId: "lunar_calendar",
+    method: "GET",
+    path: "/v1/lunar-calendar",
+    kind: "get",
+    fields: ["year", "month", "lang"],
+    binary: false,
+    enveloped: false,
+    summary: "Daily lunar calendar",
   },
   {
     name: "lunarReturn",
@@ -674,10 +686,10 @@ const ALL = Object.freeze([
     method: "POST",
     path: "/v1/render/astrocartography",
     kind: "birth_extra",
-    fields: ["birth", "place", "lang"],
+    fields: ["birth", "place", "lang", "format"],
     binary: true,
     enveloped: undefined,
-    summary: "Astrocartography map with line meanings",
+    summary: "Astrocartography map, as the site draws it",
   },
   {
     name: "renderBiwheel",

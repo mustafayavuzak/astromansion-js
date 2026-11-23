@@ -12,7 +12,7 @@
           "natal"
         ],
         "summary": "Search place names",
-        "description": "Return candidate places for the birth-location selector.",
+        "description": "Return candidate places for the birth-location selector.\n\nA search is counted in the minute's and the day's windows but never in\nthe month, which the plan sells for calculations.",
         "operationId": "search_places",
         "parameters": [
           {
@@ -461,6 +461,73 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/VoidMoonResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/lunar-calendar": {
+      "get": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "Daily lunar calendar",
+        "description": "Return every lunar day and its events for a calendar month.",
+        "operationId": "lunar_calendar",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 2400,
+              "minimum": 1800,
+              "title": "Year"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "title": "Month"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(tr|en)$",
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LunarCalendarResponse"
                 }
               }
             }
@@ -2749,8 +2816,8 @@
         "tags": [
           "output"
         ],
-        "summary": "Astrocartography map with line meanings",
-        "description": "Render an astrocartography map as one self-contained SVG.",
+        "summary": "Astrocartography map, as the site draws it",
+        "description": "Render an astrocartography map as the site's page draws it, as one self-contained SVG or as a PNG.",
         "operationId": "render_astrocartography",
         "requestBody": {
           "content": {
@@ -2766,7 +2833,8 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "image/svg+xml": {}
+              "image/svg+xml": {},
+              "image/png": {}
             }
           },
           "422": {
@@ -3378,6 +3446,10 @@
                 "type": "null"
               }
             ]
+          },
+          "format": {
+            "$ref": "#/components/schemas/ChartImage",
+            "default": "svg"
           }
         },
         "additionalProperties": false,
@@ -3386,7 +3458,7 @@
           "birth"
         ],
         "title": "AcgMapRequest",
-        "description": "A request for a rendered astrocartography map."
+        "description": "A request for a rendered astrocartography map, drawn as the site's page draws it."
       },
       "AspectRow": {
         "properties": {
@@ -3570,7 +3642,8 @@
       "BirthPayload": {
         "properties": {
           "date": {
-            "$ref": "#/components/schemas/BirthDate"
+            "$ref": "#/components/schemas/BirthDate",
+            "description": "The birth date, YYYY-MM-DD, from the year 1 to 3000."
           },
           "time": {
             "anyOf": [
@@ -3580,13 +3653,16 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "The local clock time of the birth, HH:MM in 24 hours. Leave it out when it is unknown."
           },
           "lat": {
-            "$ref": "#/components/schemas/Latitude"
+            "$ref": "#/components/schemas/Latitude",
+            "description": "The latitude in degrees, north positive."
           },
           "lon": {
-            "$ref": "#/components/schemas/Longitude"
+            "$ref": "#/components/schemas/Longitude",
+            "description": "The longitude in degrees, east positive."
           },
           "timezone": {
             "anyOf": [
@@ -3596,7 +3672,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "The IANA time zone, such as Europe/Istanbul, or the UTC offset in hours, such as 3. Left out, the time is read as UTC."
           },
           "houses": {
             "anyOf": [
@@ -3606,7 +3683,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "The house system, such as placidus, koch, equal or whole_sign. Left out, it is placidus."
           }
         },
         "additionalProperties": false,
@@ -4733,6 +4811,123 @@
         "maximum": 180.0,
         "minimum": -180.0
       },
+      "LunarCalendarDay": {
+        "properties": {
+          "day": {
+            "type": "integer",
+            "title": "Day"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "weekday": {
+            "type": "integer",
+            "title": "Weekday"
+          },
+          "lunar_day": {
+            "type": "integer",
+            "title": "Lunar Day"
+          },
+          "phase": {
+            "type": "string",
+            "title": "Phase"
+          },
+          "illumination": {
+            "type": "number",
+            "title": "Illumination"
+          },
+          "phase_icon": {
+            "type": "string",
+            "title": "Phase Icon"
+          },
+          "eclipse_candidate": {
+            "type": "boolean",
+            "title": "Eclipse Candidate"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/LunarCalendarEvent"
+            },
+            "type": "array",
+            "title": "Events"
+          }
+        },
+        "type": "object",
+        "required": [
+          "day",
+          "date",
+          "weekday",
+          "lunar_day",
+          "phase",
+          "illumination",
+          "phase_icon",
+          "eclipse_candidate",
+          "events"
+        ],
+        "title": "LunarCalendarDay",
+        "description": "One day of the site's lunar calendar, with complete event instants."
+      },
+      "LunarCalendarEvent": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "time": {
+            "type": "string",
+            "title": "Time"
+          },
+          "timestamp_utc": {
+            "type": "string",
+            "title": "Timestamp Utc"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "time",
+          "timestamp_utc",
+          "text"
+        ],
+        "title": "LunarCalendarEvent",
+        "description": "One event on a lunar calendar day."
+      },
+      "LunarCalendarResponse": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "month": {
+            "type": "integer",
+            "title": "Month"
+          },
+          "timezone": {
+            "$ref": "#/components/schemas/CalendarZone",
+            "default": "UTC"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/LunarCalendarDay"
+            },
+            "type": "array",
+            "title": "Days"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "month",
+          "days"
+        ],
+        "title": "LunarCalendarResponse",
+        "description": "The site's complete lunar calendar for one UTC month."
+      },
       "MoonPhase": {
         "type": "string",
         "enum": [
@@ -5408,6 +5603,10 @@
           "page_size": {
             "$ref": "#/components/schemas/PageSize",
             "default": "a4"
+          },
+          "theme": {
+            "$ref": "#/components/schemas/Theme",
+            "default": "light"
           },
           "title": {
             "type": "string",

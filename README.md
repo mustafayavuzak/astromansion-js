@@ -887,7 +887,7 @@ list of one:
 
 ## Every endpoint
 
-Every published operation, 69 of them, has a method on the client and a
+Every published operation, 80 of them, has a method on the client and a
 module-level shortcut, all generated from the schema. They are the Python
 SDK's methods under the same names, written in camelCase: `natal`,
 `transits`, `synastry`, `composite`, `solarReturn`, `progression`,
