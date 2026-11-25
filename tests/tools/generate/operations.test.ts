@@ -271,18 +271,23 @@ describe("sdkOperations", () => {
     expect(method.enveloped).toBe(false);
   });
 
-  it("marks a wrapper whose fields are exactly technique and result", () => {
+  it("marks a wrapper that requires exactly technique and result, its notes optional", () => {
     const method = methodAnswering(ref("TechniqueEnvelope"), {
       TechniqueEnvelope: {
         type: "object",
-        properties: { technique: { type: "string" }, result: {} },
+        properties: {
+          technique: { type: "string" },
+          result: {},
+          defaults: { type: "object" },
+        },
+        required: ["technique", "result"],
       },
     });
     expect(method.enveloped).toBe(true);
     expect(method.answer).toMatchObject({ kind: "json", resultAnyJson: true });
   });
 
-  it("never marks a status that owns a result beside its other members", () => {
+  it("never marks a status that requires more than technique and result", () => {
     const method = methodAnswering(ref("JobStatusResponse"), {
       JobStatusResponse: {
         type: "object",
@@ -291,6 +296,7 @@ describe("sdkOperations", () => {
           technique: { type: "string" },
           result: {},
         },
+        required: ["state", "technique"],
       },
     });
     expect(method.enveloped).toBe(false);

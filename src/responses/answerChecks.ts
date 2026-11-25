@@ -24,6 +24,7 @@ import type {
   BatchItemAnswer,
   BatchItemRefusal,
   BatchResponse,
+  BirthClockNote,
   BodyRow,
   CustomBodyAspect,
   CustomBodyDeleteResponse,
@@ -147,6 +148,24 @@ export function isBatchResponse(
       value["results"],
       (item0) => isBatchItemAnswer(item0) || isBatchItemRefusal(item0),
     )
+  );
+}
+
+/**
+ * Check that a value has the {@link BirthClockNote} shape.
+ *
+ * @internal
+ * @param value - A value from an answer.
+ * @returns True when the value has every member BirthClockNote requires, each of its published type.
+ */
+export function isBirthClockNote(
+  value: JsonValue | undefined,
+): value is BirthClockNote {
+  return (
+    isJsonObject(value) &&
+    typeof value["kind"] === "string" &&
+    typeof value["offset"] === "number" &&
+    typeof value["other_offset"] === "number"
   );
 }
 
@@ -622,6 +641,8 @@ export function isMoonPhaseQueryEvent(
     typeof value["date"] === "string" &&
     typeof value["time"] === "string" &&
     typeof value["jd"] === "number" &&
+    (value["timezone"] === undefined ||
+      typeof value["timezone"] === "string") &&
     typeof value["lon"] === "number" &&
     typeof value["sign"] === "string" &&
     typeof value["dms"] === "string" &&
@@ -690,7 +711,10 @@ export function isNatalResponse(
     isJsonArrayOf(value["aspects"], (item0) => isAspectRow(item0)) &&
     (value["wheel"] === undefined ||
       typeof value["wheel"] === "string" ||
-      value["wheel"] === null)
+      value["wheel"] === null) &&
+    (value["birth_clock"] === undefined ||
+      isBirthClockNote(value["birth_clock"]) ||
+      value["birth_clock"] === null)
   );
 }
 
@@ -990,6 +1014,8 @@ export function isSaturnReturnResponse(
 ): value is SaturnReturnResponse {
   return (
     isJsonObject(value) &&
+    (value["timezone"] === undefined ||
+      typeof value["timezone"] === "string") &&
     isJsonArrayOf(value["returns"], (item0) => isSaturnReturnEvent(item0))
   );
 }
@@ -1025,7 +1051,9 @@ export function isSignResponse(
   return (
     isJsonObject(value) &&
     typeof value["body"] === "string" &&
-    typeof value["sign"] === "string" &&
+    (value["sign"] === undefined ||
+      typeof value["sign"] === "string" ||
+      value["sign"] === null) &&
     (value["dms"] === undefined ||
       typeof value["dms"] === "string" ||
       value["dms"] === null) &&
@@ -1162,7 +1190,14 @@ export function isTechniqueEnvelope(
   return (
     isJsonObject(value) &&
     typeof value["technique"] === "string" &&
-    value["result"] !== undefined
+    value["result"] !== undefined &&
+    (value["defaults"] === undefined || isJsonObject(value["defaults"])) &&
+    (value["birth_clock"] === undefined ||
+      isBirthClockNote(value["birth_clock"]) ||
+      value["birth_clock"] === null) &&
+    (value["partner_clock"] === undefined ||
+      isBirthClockNote(value["partner_clock"]) ||
+      value["partner_clock"] === null)
   );
 }
 

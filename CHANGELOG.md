@@ -1,5 +1,55 @@
 # Changelog
 
+## 0.1.0-alpha.11
+
+- A technique's answer carries notes beside its result. `defaults` names
+  each option the request left out and the value the technique chose, and
+  `birth_clock` (with `partner_clock` for a second chart) notes a birth time
+  the clocks showed twice, with the offset the answer read and the other
+  one. `TechniqueEnvelope` and `NatalResponse` type them as `BirthClockNote`.
+  The methods still return the result as `data`, and the notes stay in
+  `raw`. The generator now recognises the wrapper by the fields it requires,
+  `technique` and `result`, so the notes never stop it opening the wrapper.
+
+- A technique whose answer the birth time decides, such as `transits`,
+  `progression`, `vedicChart` or `synastry`, rejects a birth without a time
+  with a `ValidationError` whose `errorCode` is `time_required`, rather than
+  reading it at noon. `chart` and `bodies` read such a birth at local noon,
+  leave out the axes and the Arabic lots, give every body a `null` house and
+  say `time_known: false`. Naming `arabic_lots` or an axis there without a
+  time is refused the same way.
+
+- `renderSharecard` without a `type` draws the synastry card when it is
+  given a partner and the natal card when it is not. The API's own default
+  is now the natal card, and a one-chart call used to send `synastry` and be
+  refused.
+
+- `SignResponse.sign` may be `null`. A body that changed sign on a birth day
+  sent without a time has no single sign, and `day_signs` and `change` name
+  both and the minute it moved.
+
+- Every date an answer writes `DD-MM-YYYY` also comes `YYYY-MM-DD`, in a
+  field of the same name with `_iso` added. `MoonPhaseQueryEvent` and
+  `SaturnReturnResponse` name their `timezone`, `UTC` unless said otherwise.
+  A birth date runs to the year 2999.
+
+- A request without a key to an endpoint that needs one is answered 401, an
+  `AuthenticationError`, where it was 403. The schema marks the operations
+  open without a key.
+
+- The catalog lists each fixed star once. Fifteen stars filed under two
+  spellings, such as `El Nath` and `Elnath`, were two rows, so the category
+  resolves 891 targets where it said 906, and either spelling still finds
+  the star. `arabic_lots` holds all 38 lots. `Lot of Eros` and
+  `Lot of Nemesis` had dropped out because a minor planet publishes their
+  bare names.
+
+- The README no longer says `asteroids` holds twenty-eight thousand bodies.
+  It holds 165, the MansionSQL `asteroids` table answers, and `fixed_stars`
+  is the table too large for one chart. That refusal is an
+  `AstroMansionError` with `errorCode` `query_too_wide`, not a
+  `ValidationError`.
+
 ## 0.1.0-alpha.10
 
 - `renderAstrocartography` takes `format`. Left out or `"svg"`, the map is

@@ -336,7 +336,9 @@ function params(
  * @remarks
  * Three call styles reach the same body: two charts positionally, one chart
  * and null for a natal card, or one chart's fields passed flat among the
- * keyword arguments. Birth fields found there are taken out of them.
+ * keyword arguments. Birth fields found there are taken out of them. A call
+ * that names no type draws the synastry card when it gives a second chart
+ * and the natal card when it gives one.
  *
  * @param first - The chart, or the first of two. Null or undefined reads the chart's fields from the keyword arguments.
  * @param second - The second chart, which a synastry card needs.
@@ -347,7 +349,7 @@ function params(
  *
  * @example
  * ```ts
- * sharecard(null, null, { type: "natal", name: "Ada", date: "2000-01-01", lat: 0, lon: 0 }).json;
+ * sharecard(null, null, { name: "Ada", date: "2000-01-01", lat: 0, lon: 0 }).json;
  * // { birth: { date: "2000-01-01", lat: 0, lon: 0 }, type: "natal", names: ["Ada"] }
  * ```
  */
@@ -383,7 +385,10 @@ function sharecard(
     [SHARECARD.TYPE]: jsonOf(
       method,
       SHARECARD.TYPE,
-      named[SHARECARD.TYPE] ?? SHARECARD.SYNASTRY,
+      named[SHARECARD.TYPE] ??
+        (second === null || second === undefined
+          ? SHARECARD.NATAL
+          : SHARECARD.SYNASTRY),
     ),
   };
   if (second !== null && second !== undefined) {

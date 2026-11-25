@@ -42,8 +42,10 @@ export const CALL_KEYWORDS = Object.freeze({
 export const SHARECARD = Object.freeze({
   PATH: "/v1/render/sharecard",
   TECHNIQUE: "render_sharecard",
-  /** The card drawn when the caller names no type. */
+  /** The card drawn when the caller names no type and gives a second chart. */
   SYNASTRY: "synastry",
+  /** The card drawn when the caller names no type and gives one chart, as the API draws it. */
+  NATAL: "natal",
   TYPE: "type",
   NAMES: "names",
   LANG: "lang",

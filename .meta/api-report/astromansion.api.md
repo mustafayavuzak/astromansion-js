@@ -113,6 +113,13 @@ export type BatchResponse = Readonly<{
 }>;
 
 // @public
+export type BirthClockNote = Readonly<{
+    kind: OpenSet<WallTimeKind>;
+    offset: number;
+    other_offset: number;
+}>;
+
+// @public
 export type BirthDate = string;
 
 // @public
@@ -726,6 +733,7 @@ export type MoonPhaseQueryEvent = Readonly<{
     date: string;
     time: string;
     jd: number;
+    timezone?: string;
     lon: number;
     sign: string;
     dms: string;
@@ -799,6 +807,7 @@ export type NatalResponse = Readonly<{
     planets: readonly BodyRow[];
     aspects: readonly AspectRow[];
     wheel?: string | null;
+    birth_clock?: BirthClockNote | null;
 }>;
 
 // @public
@@ -1157,6 +1166,7 @@ export type SaturnReturnRequest = Readonly<{
 
 // @public
 export type SaturnReturnResponse = Readonly<{
+    timezone?: OpenSet<CalendarZone>;
     returns: readonly SaturnReturnEvent[];
 }>;
 
@@ -1226,7 +1236,7 @@ export type SignRequest = Readonly<{
 // @public
 export type SignResponse = Readonly<{
     body: string;
-    sign: string;
+    sign?: string | null;
     dms?: string | null;
     house?: number | null;
     retrograde: boolean;
@@ -1300,6 +1310,9 @@ export type SystemTime = Readonly<{
 export type TechniqueEnvelope = Readonly<{
     technique: string;
     result: JsonValue;
+    defaults?: Readonly<Record<string, JsonValue>>;
+    birth_clock?: BirthClockNote | null;
+    partner_clock?: BirthClockNote | null;
 }>;
 
 // @public
@@ -1375,6 +1388,9 @@ export type VoidMoonResponse = Readonly<{
     timezone?: OpenSet<CalendarZone>;
     intervals: readonly VoidMoonInterval[];
 }>;
+
+// @public
+export type WallTimeKind = "once" | "twice" | "never";
 
 // @public
 export function zodiacalReleasing(...args: Parameters<AstroMansion["zodiacalReleasing"]>): ReturnType<AstroMansion["zodiacalReleasing"]>;

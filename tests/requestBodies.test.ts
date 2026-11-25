@@ -269,7 +269,15 @@ describe("RequestBodies.sharecard", () => {
     });
   });
 
-  it("builds a synastry card from two charts, the default type", () => {
+  it("builds a natal card from one chart when no type is named, as the API draws it", () => {
+    expect(RequestBodies.sharecard(BIRTH, null, { name: "Ada" }).json).toEqual({
+      birth: BIRTH,
+      type: "natal",
+      names: ["Ada"],
+    });
+  });
+
+  it("builds a synastry card from two charts when no type is named", () => {
     expect(
       RequestBodies.sharecard(BIRTH, BIRTH, {
         names: ["Ada", "Alan"],

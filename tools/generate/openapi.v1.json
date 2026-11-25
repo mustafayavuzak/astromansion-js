@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "AstroMansion API",
-    "description": "Astrology calculation API: natal charts, transits, returns, synastry, traditional and predictive techniques, powered by our own in-house astronomical core with arcsecond precision.",
+    "description": "Astrology calculation API: natal charts, transits, returns, synastry, traditional and predictive techniques, powered by our own in-house astronomical core with arcsecond precision. Every date an answer writes DD-MM-YYYY is also written YYYY-MM-DD beside it, under the same name with _iso, and an instant names the zone its date and time are written in, in its timezone field.",
     "version": "1.0.0"
   },
   "paths": {
@@ -72,7 +72,16 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {},
+          {
+            "ApiKeyHeader": []
+          },
+          {
+            "BearerAuth": []
+          }
+        ]
       }
     },
     "/v1/natal": {
@@ -114,7 +123,16 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {},
+          {
+            "ApiKeyHeader": []
+          },
+          {
+            "BearerAuth": []
+          }
+        ]
       }
     },
     "/v1/saturn-return": {
@@ -156,7 +174,16 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {},
+          {
+            "ApiKeyHeader": []
+          },
+          {
+            "BearerAuth": []
+          }
+        ]
       }
     },
     "/v1/sign": {
@@ -198,7 +225,16 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {},
+          {
+            "ApiKeyHeader": []
+          },
+          {
+            "BearerAuth": []
+          }
+        ]
       }
     },
     "/v1/moon-phases": {
@@ -254,7 +290,16 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {},
+          {
+            "ApiKeyHeader": []
+          },
+          {
+            "BearerAuth": []
+          }
+        ]
       }
     },
     "/v1/moon-phases/query": {
@@ -352,7 +397,16 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {},
+          {
+            "ApiKeyHeader": []
+          },
+          {
+            "BearerAuth": []
+          }
+        ]
       }
     },
     "/v1/eclipses": {
@@ -408,7 +462,16 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {},
+          {
+            "ApiKeyHeader": []
+          },
+          {
+            "BearerAuth": []
+          }
+        ]
       }
     },
     "/v1/void-moon": {
@@ -475,7 +538,16 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {},
+          {
+            "ApiKeyHeader": []
+          },
+          {
+            "BearerAuth": []
+          }
+        ]
       }
     },
     "/v1/lunar-calendar": {
@@ -542,7 +614,16 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {},
+          {
+            "ApiKeyHeader": []
+          },
+          {
+            "BearerAuth": []
+          }
+        ]
       }
     },
     "/v1/transits": {
@@ -1760,7 +1841,16 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {},
+          {
+            "ApiKeyHeader": []
+          },
+          {
+            "BearerAuth": []
+          }
+        ]
       }
     },
     "/v1/patterns": {
@@ -2567,7 +2657,7 @@
           "techniques"
         ],
         "summary": "Extended natal chart with category selection",
-        "description": "Calculate a natal chart from the extended body catalog.",
+        "description": "Calculate a natal chart from the extended body catalog.\n\nA birth sent without a time is cast at local noon, as the natal chart is.\nThe answer then leaves out the axes, the lots and every house, which only\nthe time places, and says so with `time_known` false. A request that names\nthe `arabic_lots` category or such a point without a time is refused with\n`time_required`.",
         "operationId": "chart",
         "requestBody": {
           "content": {
@@ -2741,7 +2831,7 @@
           "output"
         ],
         "summary": "Chart wheel PNG image",
-        "description": "Render a chart wheel as PNG.\n\nEvery heading names the drawn frame's Ascendant sign and degree.\n``options.lang`` selects ``en`` (the default) or ``tr`` for the heading\nand rising centre caption. Body labels retain their published names.\n\n``options.style.show.watermark`` controls faint branding: the centre\nlogo, or a wordmark below the zodiac on a rising-sign chart.\n``options.style.show.canvas_background`` defaults to true. Set it to false\nfor transparent pixels outside the painted wheel.",
+        "description": "Render a chart wheel as PNG.\n\nThe wheel carries no heading, and its bodies keep their published\nEnglish names. ``/v1/render/chart`` draws the same wheel with a heading\nand the bodies' names in ``options.lang``.\n\n``options.style.show.watermark`` controls faint branding: the centre\nlogo, or a wordmark below the zodiac on a rising-sign chart.\n``options.style.show.canvas_background`` defaults to true. Set it to false\nfor transparent pixels outside the painted wheel.",
         "operationId": "render_png",
         "requestBody": {
           "content": {
@@ -3052,7 +3142,16 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {},
+          {
+            "ApiKeyHeader": []
+          },
+          {
+            "BearerAuth": []
+          }
+        ]
       }
     },
     "/v1/batch": {
@@ -3636,6 +3735,29 @@
         "title": "BiWheelRequest",
         "description": "A request for a bi-wheel of two charts."
       },
+      "BirthClockNote": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/WallTimeKind"
+          },
+          "offset": {
+            "type": "number",
+            "title": "Offset"
+          },
+          "other_offset": {
+            "type": "number",
+            "title": "Other Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "offset",
+          "other_offset"
+        ],
+        "title": "BirthClockNote",
+        "description": "A birth time its zone's clocks showed twice, as an answer notes it beside the chart.\n\nThe clocks went back across the time, so it came twice, an hour apart.\nThe answer read it on its first pass, with ``offset``. A request reads\nthe other pass by sending ``other_offset`` as the birth's timezone."
+      },
       "BirthDate": {
         "type": "string"
       },
@@ -3643,7 +3765,7 @@
         "properties": {
           "date": {
             "$ref": "#/components/schemas/BirthDate",
-            "description": "The birth date, YYYY-MM-DD, from the year 1 to 3000."
+            "description": "The birth date, YYYY-MM-DD, from the year 1 to 2999."
           },
           "time": {
             "anyOf": [
@@ -4991,6 +5113,11 @@
             "type": "number",
             "title": "Jd"
           },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone",
+            "default": "UTC"
+          },
           "lon": {
             "type": "number",
             "title": "Lon"
@@ -5244,6 +5371,16 @@
               }
             ],
             "title": "Wheel"
+          },
+          "birth_clock": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BirthClockNote"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -6225,6 +6362,10 @@
       },
       "SaturnReturnResponse": {
         "properties": {
+          "timezone": {
+            "$ref": "#/components/schemas/CalendarZone",
+            "default": "UTC"
+          },
           "returns": {
             "items": {
               "$ref": "#/components/schemas/SaturnReturnEvent"
@@ -6293,7 +6434,7 @@
           },
           "type": {
             "$ref": "#/components/schemas/ShareCardKind",
-            "default": "synastry"
+            "default": "natal"
           },
           "names": {
             "anyOf": [
@@ -6372,7 +6513,14 @@
             "title": "Body"
           },
           "sign": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Sign"
           },
           "dms": {
@@ -6622,6 +6770,33 @@
           },
           "result": {
             "title": "Result"
+          },
+          "defaults": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Defaults"
+          },
+          "birth_clock": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BirthClockNote"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "partner_clock": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BirthClockNote"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -6800,6 +6975,16 @@
         ],
         "title": "VoidMoonResponse",
         "description": "One calendar month of void-of-course Moon intervals."
+      },
+      "WallTimeKind": {
+        "type": "string",
+        "enum": [
+          "once",
+          "twice",
+          "never"
+        ],
+        "title": "WallTimeKind",
+        "description": "How often a zone's clocks showed a wall time on its date."
       }
     },
     "securitySchemes": {

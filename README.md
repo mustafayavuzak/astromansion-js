@@ -149,6 +149,20 @@ aspect to the two angles. `summary` then holds the Sun and the Moon alone, and
 no planet has a `house`. Never show a rising sign for a birth whose time is
 unknown.
 
+`chart` and `bodies` read a birth without a time the same way. Their answer
+leaves out the axes and the Arabic lots, which are reckoned from the
+Ascendant, and every body's `house` is `null`. Asking them for the
+`arabic_lots` category or an axis by name without a time is refused.
+
+A technique whose answer the time decides refuses a birth without one rather
+than guessing. Houses, the angles, the lots, the sect and directions all
+depend on it, so `transits`, `progression`, `solarArc`, `profection`,
+`vedicChart`, `synastry` and the rest of that kind reject with a
+`ValidationError` whose `errorCode` is `time_required`. Ask for the time
+instead of sending noon.
+
+A birth date runs from the year 1 to 2999, the reach of the ephemeris.
+
 JavaScript has no keyword arguments, so a method takes one object where the
 Python SDK takes keywords. The method's other arguments, such as `options`,
 may stand beside the birth fields or come in a second object:
@@ -279,8 +293,10 @@ called:
 ```js
 const chart = await client.vedicChart({
   date: "2000-01-01",
+  time: "12:00",
   lat: 51.4779,
   lon: 0,
+  timezone: "Europe/London",
 });
 
 chart.data; // the payload, wrapper removed
@@ -289,8 +305,20 @@ chart.raw; // the untouched body, wrapper included
 ```
 
 A body that carries a real `result` field of its own is left alone. The
-wrapper is recognised by its exact shape rather than by the presence of a
-name that data is allowed to use.
+wrapper is recognised by the shape the API publishes for it rather than by
+the presence of a name that data is allowed to use.
+
+A technique's wrapper also carries notes beside its result, which stay in
+`raw`. `raw.defaults` names each option you left out and the value the
+technique chose for it, such as `{ body: "Venus" }`. `raw.birth_clock` is set
+when the birth's local time came twice because the clocks went back that
+night. It gives the offset the answer read the time with and the other one,
+and sending `other_offset` as the birth's `timezone` reads the second pass.
+A two-chart technique notes the partner's in `raw.partner_clock`.
+
+Every date an answer writes as `DD-MM-YYYY` also comes as `YYYY-MM-DD`, in a
+field of the same name with `_iso` added, so `date` has `date_iso` beside it.
+A time a technique writes carries its zone beside it in `timezone`.
 
 Where JavaScript reads differently from Python:
 
@@ -347,9 +375,13 @@ White Moon is filed under `hypotheticals` and comes back named
 it now answers the whole `hypotheticals` group. For White Moon alone, pass
 `options: { include: ["White Moon"], exclusive: true }`.
 
-The `fixed_stars` calculation category resolves 906 unambiguous targets.
+The `fixed_stars` calculation category resolves 891 unambiguous targets.
+Fifteen stars are catalogued under two spellings, such as `El Nath` and
+`Elnath`. Either name finds the star, and the category lists it once.
 `Isis` and `Ketu` remain discoverable catalog names, but a bare-name lookup for
 either resolves the higher-priority non-stellar point with the same name.
+Lots come back under their chart names, such as `Lot of Eros`, which reach
+the lot by name while `Eros` stays the minor planet.
 
 `chart` answers one page at a time, and a large category is more than one
 page. Use `bodies` to read the whole of it and let the client follow the
@@ -364,7 +396,7 @@ const found = await client.bodies("fixed_stars", "arabic_lots", {
   timezone: "Europe/London",
 });
 
-found.fixed_stars.length; // 906, in six requests
+found.fixed_stars.length; // 891, in six requests
 found.arabic_lots.length; // 38
 ```
 
@@ -374,32 +406,28 @@ never depends on how many.
 
 Each page costs a network round trip and the calculation inside it is a
 rounding error beside that, so `bodies` asks for the largest page the API
-serves. `pageSize` lowers it, and lowering it buys nothing. The 906
-calculation targets take six requests at the default page size.
+serves. `pageSize` lowers it, and lowering it buys nothing. The 891
+calculation targets take six requests at the default page size, and every
+category together takes nine.
 
-Some categories are enormous. `asteroids` holds twenty-eight thousand bodies,
-which is a hundred and seventy-seven round trips with nothing printed until
-the last one lands, and a program that prints nothing for a minute cannot be
-told apart from one that has hung. A walk that large stops after the first
-page and tells you the size:
-
-```js
-await am.bodies("asteroids", { date: "2000-01-01", lat: 51.4779, lon: 0 });
-// ValidationError: asteroids holds 28214 bodies, which is 177 requests and
-// will print nothing until the last one lands. Pass confirmLarge: true ...
-```
-
-Read it anyway, or watch it arrive:
+A walk that would need more than twelve requests stops after the first page
+and tells you its size, since it prints nothing until the last page lands
+and a program that prints nothing for a minute cannot be told apart from one
+that has hung. No category the catalog publishes today is that large.
+`confirmLarge: true` reads such a walk anyway, and `onPage` watches any walk
+arrive:
 
 ```js
 const found = await client.bodies("asteroids", {
   date: "2000-01-01",
   lat: 51.4779,
   lon: 0,
-  confirmLarge: true,
   onPage: (done, left, rows) => console.log(`${done} done, ${left} to go`),
 });
 ```
+
+That walk sends no `time`, so it is read at local noon and its rows have no
+`house`.
 
 For a handful of named bodies there is no walk at all:
 
@@ -551,16 +579,16 @@ Every table but three carries the body columns: `code`, `name`, `longitude`,
 `latitude`, `distance`, `speed`, `sign`, `sign_index`, `house`, `retrograde`,
 `dms`, `category`.
 
-| Table                                                                                                                             | One row per                        |
-| --------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| `chart`, `bodies`                                                                                                                 | every body the chart calculated    |
-| `planets`                                                                                                                         | the planets                        |
-| `points`                                                                                                                          | angles and derived points          |
-| `advanced_points`                                                                                                                 | the further derived points         |
-| `dwarfs`, `centaurs`, `comets`, `antiscia`, `eclipses`, `lilith`, `exoplanets`, `hypotheticals`, `planetary_nodes`, `arabic_lots` | that catalog category              |
-| `natal_a`                                                                                                                         | the `birth` chart, named for joins |
-| `natal_b`                                                                                                                         | the `partner` chart                |
-| `transits`                                                                                                                        | the `moment` chart                 |
+| Table                                                                                                                                          | One row per                        |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| `chart`, `bodies`                                                                                                                              | every body the chart calculated    |
+| `planets`                                                                                                                                      | the planets                        |
+| `points`                                                                                                                                       | angles and derived points          |
+| `advanced_points`                                                                                                                              | the further derived points         |
+| `dwarfs`, `asteroids`, `centaurs`, `comets`, `antiscia`, `eclipses`, `lilith`, `exoplanets`, `hypotheticals`, `planetary_nodes`, `arabic_lots` | that catalog category              |
+| `natal_a`                                                                                                                                      | the `birth` chart, named for joins |
+| `natal_b`                                                                                                                                      | the `partner` chart                |
+| `transits`                                                                                                                                     | the `moment` chart                 |
 
 Three have columns of their own:
 
@@ -575,25 +603,27 @@ Three have columns of their own:
 `transits` uses `moment`, and without one it is the current instant at the
 birth location.
 
-There is no `asteroids` table. One chart holds at most 192 bodies and the
-category is twenty-eight thousand, so the query is refused rather than
-silently reduced to the first 192:
+`fixed_stars` is larger than one chart. One chart holds at most 192 bodies and
+the category is 891, so a query over all of it is refused rather than
+silently reduced to the first 192. It rejects with an `AstroMansionError`
+whose `errorCode` is `query_too_wide`:
 
 ```js
-await client.query({ birth, sql: "SELECT name FROM asteroids" });
-// ValidationError: The query asks for more bodies than one chart can hold.
+await client.query({ birth, sql: "SELECT name FROM fixed_stars" });
+// AstroMansionError: The query asks for more bodies than one chart can hold.
 // Narrow it with WHERE name = 'Pallas', a minor planet number such as
 // WHERE name = '1198', or WHERE name IN (...). Use /v1/catalog to look a
 // body up by name.
 ```
 
 `stars` answers 953 rows, the `fixed_stars` catalog lists 908 names, and the
-category walk returns 906 unambiguous calculation targets. These are different
+category walk returns 891 unambiguous calculation targets. These are different
 selections, so a count taken from one does not describe the others. The table
 contains every catalog row the engine places against a stellar position: 908
 fixed-star rows, 40 exoplanets and 5 galactic and deep-sky points filed under
 `advanced_points`. One row per published name means counting rows and names
-gives the same answer.
+gives the same answer. A star catalogued under two spellings is a row and a
+name for each spelling, and one target in the walk.
 
 `lots` and the `arabic_lots` category do not divide that way. Both answer 38.
 The table gives the lots computed for one chart, the category gives the names
@@ -1058,7 +1088,7 @@ for lunar returns, and either `date` or `age` for progressions and solar arcs.
 Saturn returns use `cycle: 1`, `2` or `3`, defaulting to the first return.
 `custom_bodies` accepts up to eight Keplerian bodies on the first ring,
 using the custom-body endpoint's orbital fields. Their positions follow
-the chart's actual moment; a composite uses the midpoint of both placements.
+the chart's actual moment. A composite uses the midpoint of both placements.
 Rising-sign charts accept no bodies.
 
 A chart of one moment (`natal`, `solar_return`, `lunar_return` and

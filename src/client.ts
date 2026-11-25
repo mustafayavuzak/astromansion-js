@@ -225,8 +225,9 @@ export class AstroMansion extends EndpointMethods {
    * rather than one walk each, and the return is always keyed by the
    * categories asked for. A walk needing more than twelve requests stops
    * after the first page and names the size, since nothing prints until the
-   * last page lands. asteroids is twenty-eight thousand bodies and 177 round
-   * trips.
+   * last page lands. No category is that large today. The fixed stars, the
+   * largest, take six requests. A birth without a time is read at local noon, its rows
+   * without a house, and a walk of arabic_lots needs the time.
    *
    * @param args - The category keys, such as fixed_stars, then the birth fields with pageSize, options, confirmLarge, onPage, and signal.
    * @returns Each category asked for, with all of its rows.
@@ -239,7 +240,7 @@ export class AstroMansion extends EndpointMethods {
    * const found = await client.bodies("fixed_stars", "arabic_lots", {
    *   date: "2000-01-01", time: "12:00", lat: 51.4779, lon: 0, timezone: "Europe/London",
    * });
-   * found["fixed_stars"]?.length;   // 906, in six requests
+   * found["fixed_stars"]?.length;   // 891, in six requests
    * ```
    */
   async bodies(
@@ -310,8 +311,9 @@ export class AstroMansion extends EndpointMethods {
    * @remarks
    * type "synastry" reads both charts and leads on the compatibility score.
    * type "natal" reads one chart and leads on the Sun, Moon, and Ascendant.
-   * Written by hand so the two charts stay two arguments while partner is
-   * optional, as in the Python SDK.
+   * Without a type, a call with a partner draws the synastry card and a call
+   * without one the natal card. Written by hand so the two charts stay two
+   * arguments while partner is optional, as in the Python SDK.
    *
    * @param birth - The chart, or the first of two. Null reads one chart's fields from keywords.
    * @param partner - The second chart, which a synastry card needs.
@@ -324,7 +326,7 @@ export class AstroMansion extends EndpointMethods {
    * @example
    * ```ts
    * const card = await client.renderSharecard(birth, partner, { names: ["Ada", "Alan"] });
-   * await client.renderSharecard(birth, null, { type: "natal", name: "Ada", output: "card.svg" });
+   * await client.renderSharecard(birth, null, { name: "Ada", output: "card.svg" });
    * ```
    */
   async renderSharecard(

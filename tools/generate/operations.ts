@@ -56,7 +56,7 @@ const OPERATIONS_CONFIG = Object.freeze({
   SNAKE_NAME: /^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/,
   /** The separator between the words of an operation id. */
   WORD_SEPARATOR: "_",
-  /** The fields of the wrapper a JSON answer may arrive in, exactly. */
+  /** The fields the wrapper a JSON answer may arrive in requires, exactly. Its other fields are optional notes. */
   ENVELOPE_FIELDS: Object.freeze(["technique", "result"] as const),
   /** The status whose answer decides the wrapper, as the Python SDK reads it. */
   ENVELOPE_STATUS: "200",
@@ -478,9 +478,12 @@ function requestShape(
  * Read whether an operation's 200 answer is the wrapper.
  *
  * @remarks
- * Read from the published schema, never guessed from a body. A schema that
- * owns more fields, such as a job's status beside its result, is the data
- * itself, and opening it would throw the rest of the answer away.
+ * Read from the published schema, never guessed from a body. The wrapper
+ * requires exactly the ENVELOPE_FIELDS. Fields it may leave out, such as a
+ * technique's defaults and its birth's clock note, are notes beside the
+ * result, which the Result keeps in raw. A schema that requires more fields,
+ * such as a job's status beside its result, is the data itself, and opening
+ * it would throw the rest of the answer away.
  *
  * @param operation - The operation.
  * @param catalog - The document's components.
@@ -499,14 +502,16 @@ function envelopedOf(
   if (schema === undefined) {
     return undefined;
   }
-  const fields =
-    catalog.resolve(schema).properties?.map((property) => property.name) ?? [];
-  if (fields.length === 0) {
+  const properties = catalog.resolve(schema).properties ?? [];
+  if (properties.length === 0) {
     return undefined;
   }
+  const required = properties
+    .filter((property) => property.required)
+    .map((property) => property.name);
   return (
-    fields.length === OPERATIONS_CONFIG.ENVELOPE_FIELDS.length &&
-    OPERATIONS_CONFIG.ENVELOPE_FIELDS.every((field) => fields.includes(field))
+    required.length === OPERATIONS_CONFIG.ENVELOPE_FIELDS.length &&
+    OPERATIONS_CONFIG.ENVELOPE_FIELDS.every((field) => required.includes(field))
   );
 }
 

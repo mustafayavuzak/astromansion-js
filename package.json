@@ -1,6 +1,6 @@
 {
   "name": "astromansion",
-  "version": "0.1.0-alpha.10",
+  "version": "0.1.0-alpha.11",
   "description": "Official JavaScript and TypeScript client for the AstroMansion astrology API: natal charts, transits, synastry, Vedic charts and astrocartography from NASA JPL ephemerides.",
   "keywords": [
     "astrology",

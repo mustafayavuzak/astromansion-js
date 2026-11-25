@@ -350,6 +350,12 @@ export abstract class EndpointMethods {
    *
    * Calculate a natal chart from the extended body catalog.
    *
+   * A birth sent without a time is cast at local noon, as the natal chart is.
+   * The answer then leaves out the axes, the lots and every house, which only
+   * the time places, and says so with `time_known` false. A request that names
+   * the `arabic_lots` category or such a point without a time is refused with
+   * `time_required`.
+   *
    * @param fields - The birth fields, flat: date, time, lat, lon, timezone, and houses. options and signal may stand beside them.
    * @param keywords - The method's other arguments, when they come apart from the birth fields.
    * @returns The answer as a Result, checked against JsonObject.
@@ -1921,9 +1927,9 @@ export abstract class EndpointMethods {
    *
    * Render a chart wheel as PNG.
    *
-   * Every heading names the drawn frame's Ascendant sign and degree.
-   * `options.lang` selects `en` (the default) or `tr` for the heading
-   * and rising centre caption. Body labels retain their published names.
+   * The wheel carries no heading, and its bodies keep their published
+   * English names. `/v1/render/chart` draws the same wheel with a heading
+   * and the bodies' names in `options.lang`.
    *
    * `options.style.show.watermark` controls faint branding: the centre
    * logo, or a wordmark below the zodiac on a rising-sign chart.

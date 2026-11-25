@@ -96,6 +96,19 @@ export type BatchResponse = Readonly<{
 }>;
 
 /**
+ * A birth time its zone's clocks showed twice, as an answer notes it beside the chart.
+ *
+ * The clocks went back across the time, so it came twice, an hour apart.
+ * The answer read it on its first pass, with `offset`. A request reads
+ * the other pass by sending `other_offset` as the birth's timezone.
+ */
+export type BirthClockNote = Readonly<{
+  kind: OpenSet<WallTimeKind>;
+  offset: number;
+  other_offset: number;
+}>;
+
+/**
  * The BirthDate value, as the API's schema defines it.
  */
 export type BirthDate = string;
@@ -105,7 +118,7 @@ export type BirthDate = string;
  */
 export type BirthPayload = Readonly<{
   /**
-   * The birth date, YYYY-MM-DD, from the year 1 to 3000.
+   * The birth date, YYYY-MM-DD, from the year 1 to 2999.
    */
   date: BirthDate;
   /**
@@ -692,6 +705,10 @@ export type MoonPhaseQueryEvent = Readonly<{
   date: string;
   time: string;
   jd: number;
+  /**
+   * @defaultValue `"UTC"`
+   */
+  timezone?: string;
   lon: number;
   sign: string;
   dms: string;
@@ -832,6 +849,7 @@ export type NatalResponse = Readonly<{
   planets: readonly BodyRow[];
   aspects: readonly AspectRow[];
   wheel?: string | null;
+  birth_clock?: BirthClockNote | null;
 }>;
 
 /**
@@ -1266,6 +1284,10 @@ export type SaturnReturnRequest = Readonly<{
  * The Saturn returns of one birth.
  */
 export type SaturnReturnResponse = Readonly<{
+  /**
+   * @defaultValue `"UTC"`
+   */
+  timezone?: OpenSet<CalendarZone>;
   returns: readonly SaturnReturnEvent[];
 }>;
 
@@ -1319,7 +1341,7 @@ export type ShareCardRequest = Readonly<{
   birth: BirthPayload;
   partner?: BirthPayload | null;
   /**
-   * @defaultValue `"synastry"`
+   * @defaultValue `"natal"`
    */
   type?: ShareCardKind;
   names?: readonly string[] | null;
@@ -1353,7 +1375,7 @@ export type SignRequest = Readonly<{
  */
 export type SignResponse = Readonly<{
   body: string;
-  sign: string;
+  sign?: string | null;
   dms?: string | null;
   house?: number | null;
   retrograde: boolean;
@@ -1425,6 +1447,9 @@ export type SystemTime = Readonly<{
 export type TechniqueEnvelope = Readonly<{
   technique: string;
   result: JsonValue;
+  defaults?: Readonly<Record<string, JsonValue>>;
+  birth_clock?: BirthClockNote | null;
+  partner_clock?: BirthClockNote | null;
 }>;
 
 /**
@@ -1496,3 +1521,8 @@ export type VoidMoonResponse = Readonly<{
   timezone?: OpenSet<CalendarZone>;
   intervals: readonly VoidMoonInterval[];
 }>;
+
+/**
+ * How often a zone's clocks showed a wall time on its date.
+ */
+export type WallTimeKind = "once" | "twice" | "never";

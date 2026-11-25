@@ -39,7 +39,7 @@ export const PACKAGE_IDENTITY = Object.freeze({
  * ```ts
  * import { VERSION } from "astromansion";
  *
- * VERSION;   // "0.1.0-alpha.10"
+ * VERSION;   // "0.1.0-alpha.11"
  * ```
  */
 export const VERSION: string = version;
